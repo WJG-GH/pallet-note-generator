@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pallet Note Generator</title>
+<style>
+:root { --ink:#111; --line:2px solid #111; --muted:#666; }
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+body { margin:0; font:16px/1.35 Arial,Helvetica,sans-serif; color:#171717; background:#f2f4f7; }
+header { background:#17212b; color:white; padding:22px max(18px,calc((100% - 1100px)/2)); }
+header h1 { margin:0 0 5px; font-size:26px; } header p { margin:0; color:#d8e0e7; }
+main { max-width:1100px; margin:24px auto; padding:0 16px 40px; }
+.tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.tabs button,.action { border:1px solid #b8c0c8; border-radius:8px; padding:11px 16px; font:inherit; cursor:pointer; background:white; color:#111; }
+.tabs button.active,.action.primary { background:#17212b; color:white; border-color:#17212b; }
+.panel { background:white; border:1px solid #d9dee4; border-radius:12px; padding:18px; margin-bottom:18px; }
+h2 { font-size:19px; margin:0 0 14px; }
+.fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+label { display:flex; flex-direction:column; gap:5px; font-size:13px; color:#414952; font-weight:600; }
+input,textarea { text-transform:uppercase; width:100%; border:1px solid #c7cdd4; border-radius:6px; padding:10px; font:16px Arial; color:#111; background:#fff; min-width:0; }
+textarea { min-height:65px; resize:vertical; }
+.hint { color:#5c6670; font-size:13px; margin:12px 0 0; }
+.actions { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 24px; }
+#previewWrap { background:#dfe3e8; padding:16px; border-radius:10px; overflow:auto; }
+.sheet { width:277mm; height:190mm; margin:0 auto; background:white; padding:4mm; border:2px solid #111; color:#111; display:flex; flex-direction:column; font-family:Arial,Helvetica,sans-serif; }
+.sheet, .sheet * { font-weight:700 !important; text-transform:uppercase !important; }
+.sheet h2 { text-align:center; font-weight:400; font-size:29pt; margin:0; height:14mm; line-height:1.05; }
+.code-row { display:flex; align-items:center; height:32mm; border:var(--line); gap:2mm; padding:1mm 2mm; }
+.code-row span { border-right:var(--line); border-bottom:var(--line); min-width:0; }
+.single-details { display:grid; grid-template-columns:2.1fr .9fr; grid-template-rows:repeat(3,1fr); flex:1; min-height:0; }
+.detail { border-left:var(--line); border-top:var(--line); padding:1mm; display:flex; flex-direction:column; min-height:0; font-size:15pt; }
+.detail:nth-child(2n) { border-right:var(--line); }
+.detail:nth-last-child(-n+2) { border-bottom:var(--line); }
+.detail .entry { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:30pt; line-height:1.05; font-weight:400; padding:1mm; white-space:pre-wrap; overflow-wrap:anywhere; }
+#singleCodeText { display:flex; flex:1; min-width:0; height:100%; align-items:center; justify-content:center; text-align:center; font-size:34pt; line-height:1; font-weight:700; overflow-wrap:anywhere; padding:2mm; }
+.qr-code { width:22mm; height:22mm; min-width:22mm; min-height:22mm; object-fit:contain; flex:0 0 22mm; display:none; background:#fff; }
+.mixed-qr { width:21mm; height:21mm; min-width:21mm; min-height:21mm; object-fit:contain; align-self:center; display:block; visibility:hidden; background:#fff; }
+.location-cells .cellgroup.loc span { font-size:30pt; }
+.mixed-code span,.qty-cells span { display:flex; align-items:center; justify-content:center; text-align:center; font-size:22pt; line-height:1; overflow:hidden; }
+.completed .date-value { font-size:26pt; }
+.location-labels { display:grid; grid-template-columns:3fr 2fr 3fr; gap:3mm; height:9mm; padding-top:1mm; font-size:14pt; }
+.location-cells { display:grid; grid-template-columns:3fr 2fr 3fr; gap:3mm; height:27mm; }
+.cellgroup { display:grid; border:var(--line); min-width:0; }
+.cellgroup.aisle { grid-template-columns:repeat(3,1fr); }
+.cellgroup.bay { grid-template-columns:repeat(2,1fr); }
+.cellgroup.loc { grid-template-columns:repeat(3,1fr); }
+.cellgroup span { border-right:var(--line); display:flex; align-items:center; justify-content:center; font-size:19pt; }
+.cellgroup span:last-child { border-right:0; }
+.mixed-title { font-weight:700!important; height:17mm!important; border-bottom:var(--line); font-size:25pt!important; padding-top:1mm; }
+.mixed-head { display:grid; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm; height:14mm; align-items:end; gap:1mm; }
+.qty-head { border:var(--line); text-align:center; font-size:20pt; font-weight:bold; padding:1mm; }
+.mixed-rows { display:grid; grid-template-rows:repeat(4,1fr); flex:1; min-height:0; gap:2.5mm; padding-top:1mm; }
+.mixed-row { display:grid; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm; gap:1mm; min-height:0; }
+.mixed-code { display:grid; grid-template-columns:repeat(13,1fr); border:1.5px solid #111; min-width:0; }
+.mixed-code span { border-right:1.5px solid #111; min-width:0; }
+.mixed-code span:last-child { border-right:0; }
+.greybar { background:#888; }
+.qty-cells { display:grid; grid-template-columns:repeat(3,1fr); border:1.5px solid #111; }
+.qty-cells span { border-right:1.5px solid #111; }
+.qty-cells span:last-child { border-right:0; }
+.completed { height:27mm; flex:0 0 27mm; display:grid; grid-template-columns:1fr 1fr 1fr; gap:3mm; padding-top:2mm; }
+.completed-item { min-width:0; display:grid; grid-template-rows:9mm 1fr; }
+.completed .date-label,.completed .date-value { border:1.5px solid #111; display:flex; align-items:center; padding:1mm 2mm; font-size:15pt; min-width:0; overflow:hidden; }
+.completed .date-value { font-size:18pt; justify-content:center; text-align:center; overflow-wrap:anywhere; }
+ 
+
+/* Keep every barcode and quantity cell outlined even when its value is blank. */
+#singleSheet .mixed-code,
+#singleSheet .qty-cells { display:grid; align-self:stretch; min-height:0; height:100%; box-sizing:border-box; border:1.5px solid #111; }
+#singleSheet .mixed-code { grid-template-columns:repeat(13,minmax(0,1fr)); }
+#singleSheet .qty-cells { grid-template-columns:repeat(3,minmax(0,1fr)); }
+#singleSheet .mixed-code > span,
+#singleSheet .qty-cells > span { display:flex; min-width:0; min-height:0; box-sizing:border-box; align-items:center; justify-content:center; border-right:1.5px solid #111; }
+#singleSheet .mixed-code > span:last-child,
+#singleSheet .qty-cells > span:last-child { border-right:0; }
+/* The quantity cell separators must be visible before a number is entered. */
+#singleSheet .qty-cells { background:linear-gradient(to right,transparent calc(33.333% - .75px),#111 calc(33.333% - .75px),#111 calc(33.333% + .75px),transparent calc(33.333% + .75px),transparent calc(66.666% - .75px),#111 calc(66.666% - .75px),#111 calc(66.666% + .75px),transparent calc(66.666% + .75px)); }
+
+/* Single docket follows the Multi Docket's boxed barcode, quantity and footer design. */
+.single-mixed-row { display:grid; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm; gap:1mm; height:48mm; min-height:0; padding-top:2mm; }
+#singleSheet .single-mixed-row > .mixed-code { grid-column:1; }
+#singleSheet .single-mixed-row > .mixed-qr { grid-column:2; }
+#singleSheet .single-mixed-row > .greybar { grid-column:3; }
+#singleSheet .single-mixed-row > .qty-cells { grid-column:4; }
+.single-mixed-row .mixed-code span { font-size:26pt; }
+.single-mixed-row .qty-cells span { font-size:29pt; }
+.single-info { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1.25fr 1fr; gap:3mm; flex:1; min-height:0; padding-top:3mm; }
+.single-info-item { min-width:0; display:grid; grid-template-rows:9mm minmax(0,1fr); }
+.single-info-wide { grid-column:1 / -1; }
+.single-info .date-label,.single-info .date-value { border:1.5px solid #111; display:flex; align-items:center; padding:1mm 2mm; font-size:15pt; min-width:0; overflow:hidden; }
+.single-info .date-value { font-size:25pt; justify-content:center; text-align:center; overflow-wrap:anywhere; }
+
+/* Equal-width barcode cells, including when blank, on iOS WebKit. */
+#singleSheet .single-mixed-row { grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm; }
+#singleSheet #singleCodeCells { display:flex!important; width:100%; min-width:0; overflow:hidden; padding:0; }
+#singleSheet #singleCodeCells > span { display:flex; flex:0 0 calc(100% / 13); width:calc(100% / 13); max-width:calc(100% / 13); min-width:0; box-sizing:border-box; border:0; border-right:1.5px solid #111; }
+#singleSheet #singleCodeCells > span:last-child { border-right:0; }
+#singleSheet .single-qr-box { grid-column:2; border:1.5px solid #111; box-sizing:border-box; display:flex; justify-content:center; align-items:center; width:21mm; height:100%; min-width:0; min-height:0; overflow:hidden; background:#fff; }
+#singleSheet .single-qr-box .mixed-qr { width:100%; height:auto; max-height:100%; min-width:0; min-height:0; object-fit:contain; display:block; align-self:center; }
+#singleSheet .single-mixed-row > .greybar { grid-column:3; }
+#singleSheet .single-mixed-row > .qty-cells { grid-column:4; }
+
+
+/* Final stable barcode grid: independent of QR image loading or barcode contents. */
+#singleSheet .single-mixed-row { display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important; column-gap:1mm!important; }
+#singleSheet #singleCodeCells { display:grid!important; grid-template-columns:repeat(13,minmax(0,1fr))!important; grid-template-rows:minmax(0,1fr)!important; width:auto!important; min-width:0!important; overflow:visible!important; padding:0!important; border:1.5px solid #111!important; background:white!important; }
+#singleSheet #singleCodeCells > span { display:flex!important; width:auto!important; max-width:none!important; min-width:0!important; flex:none!important; border:0!important; border-right:1.5px solid #111!important; box-sizing:border-box!important; justify-content:center!important; align-items:center!important; overflow:hidden!important; }
+#singleSheet #singleCodeCells > span:last-child { border-right:0!important; }
+#singleSheet .single-qr-box { width:auto!important; min-width:0!important; height:100%!important; border:1.5px solid #111!important; }
+#singleSheet .single-qr-box img { display:block!important; width:100%!important; height:100%!important; max-width:100%!important; max-height:100%!important; object-fit:contain!important; }
+#singleSheet #singleQtyCells { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; grid-template-rows:minmax(0,1fr)!important; background:white!important; }
+#singleSheet #singleQtyCells > span { border:0!important; border-right:1.5px solid #111!important; }
+#singleSheet #singleQtyCells > span:last-child { border-right:0!important; }
+
+/* Larger printed docket text, with automatic fit-to-box for longer values. */
+.sheet .mixed-title { font-size:29pt!important; }
+.sheet .mixed-code span { font-size:29pt; font-weight:700; }
+.sheet .qty-cells span { font-size:35pt; font-weight:700; }
+.sheet .single-info .date-value { font-size:33pt; font-weight:700; }
+.sheet .completed .date-value { font-size:27pt; font-weight:700; }
+.sheet .single-info .date-label, .sheet .completed .date-label { font-size:17pt; font-weight:700; }
+.sheet .qty-head { font-size:23pt; }
+
+/* Basket thumbnails: scaled copies of the actual saved dockets. */
+.basket-entry { padding:14px 0 18px; border-bottom:1px solid #dce1e6; }
+.basket-entry-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+.basket-entry-title { font-size:16px; font-weight:700; }
+.basket-thumbnail { position:relative; width:100%; background:#e5e9ee; border-radius:10px; overflow:hidden; padding:10px; box-sizing:border-box; }
+.basket-thumbnail-inner { position:relative; width:100%; overflow:hidden; }
+.basket-thumbnail-inner > .sheet { position:absolute; left:0; top:0; margin:0!important; transform-origin:top left!important; }
+@media print { .basket-entry, .basket-thumbnail { display:none!important; } }
+/* Keep every barcode and quantity cell outlined even when its value is blank. */
+.basket-single-sheet .mixed-code,
+.basket-single-sheet .qty-cells { display:grid; align-self:stretch; min-height:0; height:100%; box-sizing:border-box; border:1.5px solid #111; }
+.basket-single-sheet .mixed-code { grid-template-columns:repeat(13,minmax(0,1fr)); }
+.basket-single-sheet .qty-cells { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.basket-single-sheet .mixed-code > span,
+.basket-single-sheet .qty-cells > span { display:flex; min-width:0; min-height:0; box-sizing:border-box; align-items:center; justify-content:center; border-right:1.5px solid #111; }
+.basket-single-sheet .mixed-code > span:last-child,
+.basket-single-sheet .qty-cells > span:last-child { border-right:0; }
+/* The quantity cell separators must be visible before a number is entered. */
+.basket-single-sheet .qty-cells { background:linear-gradient(to right,transparent calc(33.333% - .75px),#111 calc(33.333% - .75px),#111 calc(33.333% + .75px),transparent calc(33.333% + .75px),transparent calc(66.666% - .75px),#111 calc(66.666% - .75px),#111 calc(66.666% + .75px),transparent calc(66.666% + .75px)); }
+.basket-single-sheet .single-mixed-row > .mixed-code { grid-column:1; }
+.basket-single-sheet .single-mixed-row > .mixed-qr { grid-column:2; }
+.basket-single-sheet .single-mixed-row > .greybar { grid-column:3; }
+.basket-single-sheet .single-mixed-row > .qty-cells { grid-column:4; }
+/* Equal-width barcode cells, including when blank, on iOS WebKit. */
+.basket-single-sheet .single-mixed-row { grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm; }
+.basket-single-sheet .mixed-code { display:flex!important; width:100%; min-width:0; overflow:hidden; padding:0; }
+.basket-single-sheet .mixed-code > span { display:flex; flex:0 0 calc(100% / 13); width:calc(100% / 13); max-width:calc(100% / 13); min-width:0; box-sizing:border-box; border:0; border-right:1.5px solid #111; }
+.basket-single-sheet .mixed-code > span:last-child { border-right:0; }
+.basket-single-sheet .single-qr-box { grid-column:2; border:1.5px solid #111; box-sizing:border-box; display:flex; justify-content:center; align-items:center; width:21mm; height:100%; min-width:0; min-height:0; overflow:hidden; background:#fff; }
+.basket-single-sheet .single-qr-box .mixed-qr { width:100%; height:auto; max-height:100%; min-width:0; min-height:0; object-fit:contain; display:block; align-self:center; }
+.basket-single-sheet .single-mixed-row > .greybar { grid-column:3; }
+.basket-single-sheet .single-mixed-row > .qty-cells { grid-column:4; }
+/* Final stable barcode grid: independent of QR image loading or barcode contents. */
+.basket-single-sheet .single-mixed-row { display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important; column-gap:1mm!important; }
+.basket-single-sheet .mixed-code { display:grid!important; grid-template-columns:repeat(13,minmax(0,1fr))!important; grid-template-rows:minmax(0,1fr)!important; width:auto!important; min-width:0!important; overflow:visible!important; padding:0!important; border:1.5px solid #111!important; background:white!important; }
+.basket-single-sheet .mixed-code > span { display:flex!important; width:auto!important; max-width:none!important; min-width:0!important; flex:none!important; border:0!important; border-right:1.5px solid #111!important; box-sizing:border-box!important; justify-content:center!important; align-items:center!important; overflow:hidden!important; }
+.basket-single-sheet .mixed-code > span:last-child { border-right:0!important; }
+.basket-single-sheet .single-qr-box { width:auto!important; min-width:0!important; height:100%!important; border:1.5px solid #111!important; }
+.basket-single-sheet .single-qr-box img { display:block!important; width:100%!important; height:100%!important; max-width:100%!important; max-height:100%!important; object-fit:contain!important; }
+.basket-single-sheet .qty-cells { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; grid-template-rows:minmax(0,1fr)!important; background:white!important; }
+.basket-single-sheet .qty-cells > span { border:0!important; border-right:1.5px solid #111!important; }
+.basket-single-sheet .qty-cells > span:last-child { border-right:0!important; }
+/* Single and multi barcode: dividers are a fixed SVG overlay, not per-character borders.
+   This prevents iOS WebKit flex/grid rounding and missing separators. */
+.basket-single-sheet .mixed-code, .sheet .single-barcode-grid, .basket-mixed-sheet .mixed-code {
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:repeat(13,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  min-width:0!important;
+  width:auto!important;
+  box-sizing:border-box!important;
+  border:1.5px solid #111!important;
+  overflow:hidden!important;
+}
+.basket-single-sheet .mixed-code > span, .sheet .single-barcode-grid > span, .basket-mixed-sheet .mixed-code > span {
+  grid-row:1!important;
+  border:0!important;
+  min-width:0!important;
+  width:auto!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  z-index:1;
+}
+.basket-single-sheet .mixed-code > .barcode-dividers, .sheet .single-barcode-grid > .barcode-dividers, .basket-mixed-sheet .mixed-code > .barcode-dividers {
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  pointer-events:none!important;
+  z-index:2!important;
+  overflow:visible!important;
+}
+.basket-single-sheet .single-qr-box { flex:none!important; width:21mm!important; min-width:21mm!important; }
+/* Reserve a visible, fixed QR box on every Multi Docket row, even while empty. */
+.basket-mixed-sheet .mixed-row { grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important; }
+.basket-mixed-sheet .multi-qr-box { grid-column:2; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:1.5px solid #111; width:21mm; min-width:21mm; height:100%; min-height:0; overflow:hidden; background:#fff; }
+.basket-mixed-sheet .multi-qr-box .mixed-qr { display:block; width:100%; height:100%; min-width:0; min-height:0; max-width:100%; max-height:100%; object-fit:contain; }
+.basket-mixed-sheet .mixed-row > .greybar { grid-column:3; }
+.basket-mixed-sheet .mixed-row > .qty-cells { grid-column:4; }
+/* Match the Single Docket quantity framing on every Multi Docket row. */
+.basket-mixed-sheet .mixed-head { display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important; column-gap:1mm!important; align-items:end!important; }
+.basket-mixed-sheet .mixed-head > .qty-head { grid-column:4!important; width:100%!important; min-width:0!important; box-sizing:border-box!important; display:flex!important; align-items:center!important; justify-content:center!important; height:12mm!important; padding:1mm!important; border:1.5px solid #111!important; line-height:1.1!important; overflow:visible!important; }
+.basket-mixed-sheet .mixed-row > .qty-cells { grid-column:4!important; display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; grid-template-rows:minmax(0,1fr)!important; align-self:stretch!important; min-height:0!important; height:100%!important; min-width:0!important; width:100%!important; box-sizing:border-box!important; border:1.5px solid #111!important; background:linear-gradient(to right,transparent calc(33.333% - .75px),#111 calc(33.333% - .75px),#111 calc(33.333% + .75px),transparent calc(33.333% + .75px),transparent calc(66.666% - .75px),#111 calc(66.666% - .75px),#111 calc(66.666% + .75px),transparent calc(66.666% + .75px))!important; }
+.basket-mixed-sheet .mixed-row > .qty-cells > span { display:flex!important; min-width:0!important; min-height:0!important; box-sizing:border-box!important; align-items:center!important; justify-content:center!important; border:0!important; overflow:hidden!important; }
+/* Final number-size overrides (after previous layout declarations). */
+.basket-single-sheet .mixed-code > span, .basket-mixed-sheet .mixed-code > span { font-size:39pt; font-weight:800; }
+.basket-single-sheet .qty-cells > span, .basket-mixed-sheet .qty-cells > span { font-size:49pt; font-weight:800; }
+@media(max-width:900px) { .fields{grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:560px) { .fields{grid-template-columns:1fr;} }
+@media screen {
+  #previewWrap { overflow:hidden; }
+  .sheet { transform:none; transform-origin:top left; margin:0; }
+}
+@page { size:A4 portrait; margin:0; }
+@media print {
+ html, body { margin:0!important; padding:0!important; width:210mm!important; min-height:0!important; height:auto!important; background:white!important; overflow:visible!important; }
+ header, .panel, .tabs, .actions, .hint, .preview-title { display:none!important; }
+ main { display:block!important; max-width:none!important; margin:0!important; padding:0!important; width:100%!important; }
+ #previewWrap { position:relative!important; box-sizing:border-box!important; padding:0!important; margin:0!important; background:white!important; overflow:hidden!important; width:210mm!important; height:290mm!important; min-height:0!important; page-break-after:auto!important; break-after:auto!important; }
+ #previewWrap { display:none!important; }
+ body.printing-basket #basketPrint .sheet { position:absolute!important; left:50%!important; top:50%!important; zoom:1!important; transform:translate(-50%,-50%) rotate(90deg) scale(.96)!important; transform-origin:center center!important; margin:0!important; width:277mm!important; height:190mm!important; overflow:hidden!important; border:2px solid #111!important; padding:4mm!important; page-break-inside:avoid!important; break-inside:avoid!important; }
+ #basketPrint { display:none!important; }
+ body.printing-basket header, body.printing-basket main > :not(#basketPrint) { display:none!important; }
+ body.printing-basket #basketPrint { display:block!important; position:static!important; box-sizing:border-box!important; width:190mm!important; height:auto!important; min-height:0!important; margin:0 auto!important; padding:0!important; background:#fff!important; page-break-before:auto!important; break-before:auto!important; }
+ body.printing-basket #basketPrint .print-page { position:relative!important; display:block!important; box-sizing:border-box!important; width:190mm!important; height:270mm!important; min-height:0!important; margin:0 auto!important; padding:0!important; overflow:hidden!important; page-break-inside:avoid!important; break-inside:avoid!important; background:#fff!important; }
+ body.printing-basket #basketPrint .print-page:not(:last-child) { page-break-after:always!important; break-after:page!important; }
+ body.printing-basket #basketPrint .print-page:last-child { page-break-after:auto!important; break-after:auto!important; }
+ body.printing-basket #basketPrint .sheet { display:flex!important; position:absolute!important; left:50%!important; top:50%!important; zoom:1!important; transform:translate(-50%,-50%) rotate(90deg) scale(.96)!important; transform-origin:center center!important; margin:0!important; width:277mm!important; height:190mm!important; overflow:hidden!important; border:2px solid #111!important; padding:4mm!important; }
+}
+
+/* Single and multi barcode: dividers are a fixed SVG overlay, not per-character borders.
+   This prevents iOS WebKit flex/grid rounding and missing separators. */
+#singleSheet #singleCodeCells, .sheet .single-barcode-grid, #mixedSheet .mixed-code {
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:repeat(13,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  min-width:0!important;
+  width:auto!important;
+  box-sizing:border-box!important;
+  border:1.5px solid #111!important;
+  overflow:hidden!important;
+}
+#singleSheet #singleCodeCells > span, .sheet .single-barcode-grid > span, #mixedSheet .mixed-code > span {
+  grid-row:1!important;
+  border:0!important;
+  min-width:0!important;
+  width:auto!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  z-index:1;
+}
+#singleSheet #singleCodeCells > .barcode-dividers, .sheet .single-barcode-grid > .barcode-dividers, #mixedSheet .mixed-code > .barcode-dividers {
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  pointer-events:none!important;
+  z-index:2!important;
+  overflow:visible!important;
+}
+#singleSheet .single-qr-box { flex:none!important; width:21mm!important; min-width:21mm!important; }
+
+
+/* Reserve a visible, fixed QR box on every Multi Docket row, even while empty. */
+#mixedSheet .mixed-row { grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important; }
+#mixedSheet .multi-qr-box { grid-column:2; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:1.5px solid #111; width:21mm; min-width:21mm; height:100%; min-height:0; overflow:hidden; background:#fff; }
+#mixedSheet .multi-qr-box .mixed-qr { display:block; width:100%; height:100%; min-width:0; min-height:0; max-width:100%; max-height:100%; object-fit:contain; }
+#mixedSheet .mixed-row > .greybar { grid-column:3; }
+#mixedSheet .mixed-row > .qty-cells { grid-column:4; }
+
+/* Match the Single Docket quantity framing on every Multi Docket row. */
+#mixedSheet .mixed-head { display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important; column-gap:1mm!important; align-items:end!important; }
+#mixedSheet .mixed-head > .qty-head { grid-column:4!important; width:100%!important; min-width:0!important; box-sizing:border-box!important; display:flex!important; align-items:center!important; justify-content:center!important; height:12mm!important; padding:1mm!important; border:1.5px solid #111!important; line-height:1.1!important; overflow:visible!important; }
+#mixedSheet .mixed-row > .qty-cells { grid-column:4!important; display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; grid-template-rows:minmax(0,1fr)!important; align-self:stretch!important; min-height:0!important; height:100%!important; min-width:0!important; width:100%!important; box-sizing:border-box!important; border:1.5px solid #111!important; background:linear-gradient(to right,transparent calc(33.333% - .75px),#111 calc(33.333% - .75px),#111 calc(33.333% + .75px),transparent calc(33.333% + .75px),transparent calc(66.666% - .75px),#111 calc(66.666% - .75px),#111 calc(66.666% + .75px),transparent calc(66.666% + .75px))!important; }
+#mixedSheet .mixed-row > .qty-cells > span { display:flex!important; min-width:0!important; min-height:0!important; box-sizing:border-box!important; align-items:center!important; justify-content:center!important; border:0!important; overflow:hidden!important; }
+
+
+/* Match the Single Docket entry card to the Multi Docket barcode cards. */
+#singleForm .single-barcode-entry { grid-column:1/-1; border:1px solid #d9dee4; border-radius:8px; padding:12px; display:grid; grid-template-columns:minmax(0,1fr) 100px; gap:8px; min-width:0; }
+#singleForm .single-barcode-entry > strong { grid-column:1/-1; }
+#singleForm .single-barcode-entry label { min-width:0; }
+#singleForm .single-barcode-entry input { width:100%; min-width:0; box-sizing:border-box; }
+/* Final number-size overrides (after previous layout declarations). */
+#singleSheet #singleCodeCells > span, #mixedSheet .mixed-code > span { font-size:39pt; font-weight:800; }
+#singleSheet #singleQtyCells > span, #mixedSheet .qty-cells > span { font-size:49pt; font-weight:800; }
+.basket-entry-buttons { display:flex; flex-wrap:wrap; gap:8px; }
+.basket-entry-buttons .action { padding:8px 14px; }
+.basket-copies-label { display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
+.basket-copies-label input { width:70px; padding:8px; font:inherit; border:1px solid #b9c2cc; border-radius:7px; background:#fff; }
+
+/* Basket controls: clear hierarchy and tidy one-line mobile controls. */
+.basket-entry-top { display:block; margin-bottom:10px; }
+.basket-entry-title { display:block; font-size:17px; line-height:1.3; }
+.basket-entry-buttons { display:flex; align-items:end; justify-content:flex-start; flex-wrap:wrap; gap:10px; margin:0 0 14px; }
+.basket-entry-buttons .action { min-height:42px; padding:9px 16px; font-size:15px; line-height:1.2; white-space:nowrap; }
+.basket-copies-label { display:flex; flex-direction:column; align-items:flex-start; gap:5px; font-size:13px; line-height:1.25; font-weight:600; color:#414b56; white-space:nowrap; }
+.basket-copies-label input { width:76px; height:42px; padding:8px 10px; font-size:16px; box-sizing:border-box; }
+@media(max-width:420px) { .basket-entry-buttons { gap:8px; } .basket-entry-buttons .action { padding:9px 12px; } }
+</style>
+</head>
+<body>
+<header><h1>Pallet Note Generator</h1></header>
+<main>
+  <div class="tabs" role="tablist">
+    <button id="singleTab" class="active" type="button">Single Docket</button>
+    <button id="mixedTab" type="button">Multi Docket</button>
+  </div>
+  <section class="panel">
+    <h2 id="formTitle">Single-product pallet details</h2>
+    <div id="singleForm" class="fields">
+      <label>Product / description<input id="description" placeholder="Product description" oninput="updatePreview()"></label>
+      <div class="single-barcode-entry">
+        <strong>Barcode 1</strong>
+        <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
+        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>
+      </div>
+      <label>Expiry date<input id="expiry" inputmode="numeric" placeholder="DD/MM/YYYY" oninput="updatePreview()"></label>
+      <label>Located date<input id="locatedDate" inputmode="numeric" placeholder="DD/MM/YYYY" oninput="updatePreview()"></label>
+      <label>Forklifted by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <label>Located by<input id="located" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <label>Location<input id="location" inputmode="numeric" placeholder="Enter full location" oninput="updatePreview()"></label>
+    </div>
+    <div id="mixedForm" class="fields" hidden>
+      <label>Date completed<input id="completedDate" inputmode="numeric" placeholder="DD/MM/YYYY" oninput="updatePreview()"></label>
+      <label>Forklifted by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <label>Located by<input id="mixedLocated" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <div id="mixedLines" style="grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr);gap:12px"></div>
+    </div>
+  </section>
+  <div class="actions">
+    <button class="action primary" type="button" id="addToBasketButton">＋ Add docket to basket</button>
+    <button class="action" type="button" id="printCurrentButton">Print current docket</button>
+    <button class="action" type="button" id="clearFormButton">Clear fields</button>
+    <button class="action" type="button" id="cancelEditButton" hidden>Cancel editing</button>
+  </div>
+  <section class="panel" id="basketPanel">
+    <h2>Print basket <span id="basketCount">(0 dockets)</span></h2>
+    <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
+    <div id="basketItems"><p class="hint">Your basket is empty.</p></div>
+    <div class="actions">
+      <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
+      <button class="action" type="button" id="clearBasketButton">Empty basket</button>
+    </div>
+  </section>
+  <div id="basketPrint" aria-hidden="true"></div>
+  <h2 class="preview-title">Print preview</h2>
+  <div id="previewWrap">
+    <section class="sheet" id="singleSheet">
+      <h2 class="mixed-title">PALLET NOTE</h2>
+      <div class="mixed-head"><span></span><span></span><span></span><div class="qty-head">QTY</div></div>
+      <div class="single-mixed-row">
+        <div class="mixed-code single-barcode-grid" id="singleCodeCells"></div>
+        <div class="single-qr-box"><img id="singleQr" class="mixed-qr" alt="QR code for pallet barcode"></div>
+        <div class="greybar"></div>
+        <div class="qty-cells" id="singleQtyCells"></div>
+      </div>
+      <div class="single-info">
+        <div class="single-info-item single-info-wide"><div class="date-label">Description</div><div class="date-value" id="pDescription"></div></div>
+        <div class="single-info-item"><div class="date-label">Expiry date</div><div class="date-value" id="pExpiry"></div></div>
+        <div class="single-info-item"><div class="date-label">Location</div><div class="date-value" id="pLocation"></div></div>
+      </div>
+      <div class="completed">
+        <div class="completed-item"><div class="date-label">Forklifted by</div><div class="date-value" id="pForklifted"></div></div>
+        <div class="completed-item"><div class="date-label">Located by</div><div class="date-value" id="pLocated"></div></div>
+        <div class="completed-item"><div class="date-label">Located date</div><div class="date-value" id="pLocatedDate"></div></div>
+      </div>
+    </section>
+    <section class="sheet" id="mixedSheet" hidden>
+      <h2 class="mixed-title">MIXED PALLET NOTE</h2>
+      <div class="mixed-head"><span></span><span></span><div class="qty-head">QTY</div></div>
+      <div class="mixed-rows" id="pMixedRows"></div>
+      <div class="completed">
+        <div class="completed-item"><div class="date-label">Date completed</div><div class="date-value" id="pCompletedDate"></div></div>
+        <div class="completed-item"><div class="date-label">Forklifted by</div><div class="date-value" id="pMixedForklifted"></div></div>
+        <div class="completed-item"><div class="date-label">Located by</div><div class="date-value" id="pMixedLocated"></div></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+let type = 'single';
+function cells(container, count, values='') {
+  container.innerHTML = '';
+  for(let i=0;i<count;i++){
+    const s=document.createElement('span');
+    s.textContent=(values[i]||'');
+    container.appendChild(s);
+  }
+}
+function val(id){ return (document.getElementById(id)?.value || '').trim(); }
+function setQrImage(img, text){
+  const oldNote=img.parentNode && img.parentNode.querySelector('.qr-error');
+  if(oldNote) oldNote.remove();
+  if(!text){ img.removeAttribute('src'); img.style.display='block'; img.style.visibility='hidden'; return; }
+  try {
+    // Fully offline QR generator (QR version 1-L; suitable for pallet barcodes up to 17 UTF-8 bytes).
+    const bytes = Array.from(new TextEncoder().encode(text));
+    if(bytes.length > 17) throw new Error('Barcode is too long for this compact QR code.');
+    const bits=[];
+    const put=(n,len)=>{ for(let i=len-1;i>=0;i--) bits.push((n>>>i)&1); };
+    put(4,4); put(bytes.length,8); bytes.forEach(b=>put(b,8));
+    const capacity=19*8; put(0,Math.min(4,capacity-bits.length));
+    while(bits.length%8) bits.push(0);
+    const data=[]; for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(bits[i+j]||0);data.push(b);}
+    for(let pad=0;data.length<19;pad++) data.push(pad%2?0x11:0xEC);
+    const gfMul=(x,y)=>{let z=0;for(let i=0;i<8;i++){if(y&1)z^=x;const hi=x&0x80;x=(x<<1)&255;if(hi)x^=0x1D;y>>=1;}return z;};
+    let gen=[1], root=1;
+    for(let i=0;i<7;i++){const next=Array(gen.length+1).fill(0);gen.forEach((v,j)=>{next[j]^=v;next[j+1]^=gfMul(v,root);});gen=next;root=gfMul(root,2);}
+    const work=data.concat(Array(7).fill(0));
+    for(let i=0;i<19;i++){const coef=work[i];if(coef)for(let j=0;j<gen.length;j++)work[i+j]^=gfMul(gen[j],coef);}
+    const codewords=data.concat(work.slice(19));
+    const N=21, m=Array.from({length:N},()=>Array(N).fill(null));
+    const set=(x,y,v)=>{if(x>=0&&x<N&&y>=0&&y<N)m[y][x]=!!v;};
+    function finder(x0,y0){for(let y=-1;y<=7;y++)for(let x=-1;x<=7;x++){const xx=x0+x,yy=y0+y;if(xx<0||xx>=N||yy<0||yy>=N)continue;const on=x>=0&&x<=6&&y>=0&&y<=6&&(x===0||x===6||y===0||y===6||(x>=2&&x<=4&&y>=2&&y<=4));set(xx,yy,on);}}
+    finder(0,0);finder(14,0);finder(0,14);
+    for(let i=8;i<N-8;i++){if(m[6][i]===null)set(i,6,i%2===0);if(m[i][6]===null)set(6,i,i%2===0);}
+    // Reserve format-information cells.
+    for(let i=0;i<15;i++){if(i<6)set(8,i,false);else if(i<8)set(8,i+1,false);else set(8,N-15+i,false);}
+    for(let i=0;i<15;i++){if(i<8)set(N-i-1,8,false);else if(i<9)set(15-i,8,false);else set(14-i,8,false);}
+    set(8,N-8,true);
+    // Place data bits in standard two-column zig-zag, using mask 0.
+    const stream=[];
+    codewords.forEach(b=>{for(let i=7;i>=0;i--)stream.push((b>>>i)&1);});
+    let idx=0, upward=true;
+    for(let right=N-1;right>=1;right-=2){if(right===6)right--;for(let vert=0;vert<N;vert++){const y=upward?N-1-vert:vert;for(let k=0;k<2;k++){const x=right-k;if(m[y][x]!==null)continue;let bit=idx<stream.length?stream[idx++]:0;if((x+y)%2===0)bit^=1;set(x,y,bit);}}upward=!upward;}
+    // Format information for error correction L and mask 0.
+    let format=(1<<3)|0, rem=format;for(let i=0;i<10;i++)rem=(rem<<1)^(((rem>>>9)&1)?0x537:0);const fmt=((format<<10)|rem)^0x5412;
+    const fbit=i=>(fmt>>>i)&1;
+    for(let i=0;i<=5;i++)set(8,i,fbit(i));set(8,7,fbit(6));set(8,8,fbit(7));set(7,8,fbit(8));for(let i=9;i<15;i++)set(14-i,8,fbit(i));
+    for(let i=0;i<8;i++)set(N-1-i,8,fbit(i));for(let i=8;i<15;i++)set(8,N-15+i,fbit(i));set(8,N-8,true);
+    const scale=5, margin=4, size=(N+margin*2)*scale;
+    let rects='';for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(m[y][x])rects+=`<rect x="${(x+margin)*scale}" y="${(y+margin)*scale}" width="${scale}" height="${scale}"/>`;
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="100%" height="100%" fill="white"/><g fill="black">${rects}</g></svg>`;
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);img.alt='QR code for '+text;img.style.display='block';img.style.visibility='visible';
+  } catch(e){img.removeAttribute('src');img.style.display='block';img.style.visibility='hidden';img.alt=e.message;const note=document.createElement('span');note.className='qr-error';note.textContent='QR unavailable';note.style.cssText='font-size:8pt;flex:0 0 auto;color:#111;';if(img.parentNode&&!img.parentNode.querySelector('.qr-error'))img.parentNode.appendChild(note);}
+}
+function setType(next){
+  type=next;
+  document.getElementById('singleTab').classList.toggle('active',type==='single');
+  document.getElementById('mixedTab').classList.toggle('active',type==='mixed');
+  document.getElementById('singleForm').hidden=type!=='single';
+  document.getElementById('mixedForm').hidden=type!=='mixed';
+  document.getElementById('singleSheet').hidden=type!=='single';
+  document.getElementById('mixedSheet').hidden=type!=='mixed';
+  document.getElementById('formTitle').textContent=type==='single'?'Single docket details':'Multi docket details — enter up to four barcodes';
+  updatePreview();
+}
+function buildMixedInputs(){
+  const host=document.getElementById('mixedLines');
+  host.innerHTML='';
+  for(let i=1;i<=4;i++){
+    const group=document.createElement('div');
+    group.style.cssText='border:1px solid #d9dee4;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 100px;gap:8px';
+    group.innerHTML=`<strong style="grid-column:1/-1">Barcode ${i}</strong><label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>`;
+    host.appendChild(group);
+  }
+}
+function fitPreview(){
+  if (window.matchMedia('print').matches) return;
+  const wrap = document.getElementById('previewWrap');
+  const sheet = document.getElementById(type === 'single' ? 'singleSheet' : 'mixedSheet');
+  if (!wrap || !sheet) return;
+  // Use CSS zoom rather than transform for the mobile preview. On iOS Edge,
+  // scaling a large sheet with transform can leave a stale, full-size visual layer.
+  sheet.style.transform = 'none';
+  sheet.style.zoom = '1';
+  const available = Math.max(1, wrap.clientWidth - 32);
+  const naturalWidth = sheet.offsetWidth;
+  const naturalHeight = sheet.offsetHeight;
+  const scale = Math.min(1, available / naturalWidth);
+  sheet.style.zoom = String(scale);
+  wrap.style.height = `${naturalHeight * scale + 32}px`;
+}
+function addBarcodeDividers(container) {
+  // Fixed SVG separators are immune to per-cell rounding and QR image reflow.
+  const dividerSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  dividerSvg.setAttribute('class','barcode-dividers');
+  dividerSvg.setAttribute('viewBox','0 0 1300 100');
+  dividerSvg.setAttribute('preserveAspectRatio','none');
+  dividerSvg.setAttribute('aria-hidden','true');
+  for(let j=1;j<13;j++){
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',String(j*100));line.setAttribute('x2',String(j*100));
+    line.setAttribute('y1','0');line.setAttribute('y2','100');
+    line.setAttribute('stroke','#111');line.setAttribute('stroke-width','2');
+    line.setAttribute('vector-effect','non-scaling-stroke');
+    dividerSvg.appendChild(line);
+  }
+  container.appendChild(dividerSvg);
+}
+
+
+function updatePreview(){
+  // Normalize text fields to uppercase so the printed text and QR/barcode data match.
+  ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode','completedDate','mixedForklifted','mixedLocated','mcode1','mcode2','mcode3','mcode4'].forEach(id=>{
+    const el=document.getElementById(id); if(el && typeof el.value==='string') el.value=el.value.toUpperCase();
+  });
+  ['Description','Forklifted','Expiry','Located','LocatedDate'].forEach(k=>{
+    const ids={Description:'description',Forklifted:'forklifted',Expiry:'expiry',Located:'located',LocatedDate:'locatedDate'};
+    document.getElementById('p'+k).textContent=val(ids[k]);
+  });
+  const singleBarcode=val('singleCode');
+  const singleCodeCells=document.getElementById('singleCodeCells');
+  singleCodeCells.innerHTML='';
+  for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=singleBarcode[j]||'';singleCodeCells.appendChild(s);}
+  addBarcodeDividers(singleCodeCells);
+  setQrImage(document.getElementById('singleQr'), singleBarcode);
+  const singleQtyCells=document.getElementById('singleQtyCells');
+  singleQtyCells.innerHTML='';
+  const singleQty=val('qty');
+  for(let j=0;j<3;j++){const s=document.createElement('span');s.textContent=singleQty[j]||'';singleQtyCells.appendChild(s);}
+  document.getElementById('pLocation').textContent=val('location');
+  const rows=document.getElementById('pMixedRows'); rows.innerHTML='';
+  const count=4;
+  for(let i=1;i<=4;i++){
+    const row=document.createElement('div'); row.className='mixed-row';
+    const code=document.createElement('div'); code.className='mixed-code';
+    const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
+    for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';code.appendChild(s);}
+    addBarcodeDividers(code);
+    const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i; setQrImage(qr, codeVal);
+    const grey=document.createElement('div');grey.className='greybar';
+    const qty=document.createElement('div');qty.className='qty-cells';
+    const q=i<=count?val('mqty'+i):'';
+    for(let j=0;j<3;j++){const s=document.createElement('span');s.textContent=q[j]||'';qty.appendChild(s);}
+    const qrBox=document.createElement('div'); qrBox.className='multi-qr-box'; qrBox.appendChild(qr);
+    row.append(code,qrBox,grey,qty); rows.appendChild(row);
+  }
+  document.getElementById('pCompletedDate').textContent=val('completedDate');
+  document.getElementById('pMixedForklifted').textContent=val('mixedForklifted');
+  document.getElementById('pMixedLocated').textContent=val('mixedLocated');
+  requestAnimationFrame(()=>{ fitTextToBoxes(); fitPreview(); });
+}
+
+function fitTextToBoxes(root=document){
+  // Start at the designed font size and shrink only as much as necessary.
+  // Use a binary search so long text stays as large as possible while fitting.
+  const targets = root.querySelectorAll('.sheet:not([hidden]) .entry, .sheet:not([hidden]) #singleCodeText, .sheet:not([hidden]) .location-cells .cellgroup.loc span, .sheet:not([hidden]) .completed .date-value, .sheet:not([hidden]) .single-info .date-value, .sheet:not([hidden]) .mixed-code span, .sheet:not([hidden]) .qty-cells span');
+  targets.forEach(el=>{
+    el.style.fontSize='';
+    const base=parseFloat(getComputedStyle(el).fontSize)||24;
+    const min=8;
+    const fits = size => {
+      el.style.fontSize=size+'px';
+      return el.clientWidth>0 && el.clientHeight>0 && el.scrollWidth<=el.clientWidth+1 && el.scrollHeight<=el.clientHeight+1;
+    };
+    if (fits(base)) return;
+    let low=min, high=base;
+    if (!fits(low)) { el.style.fontSize=min+'px'; return; }
+    for(let i=0;i<12;i++){
+      const mid=(low+high)/2;
+      if(fits(mid)) low=mid; else high=mid;
+    }
+    el.style.fontSize=low.toFixed(2)+'px';
+  });
+}
+function clearForm(){
+  document.querySelectorAll('#singleForm input, #mixedForm input').forEach(el=>{
+    el.value='';
+  });
+  updatePreview();
+  fitPreview();
+}
+const docketBasket = [];
+const basketFieldIds = ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode',
+  'completedDate','mixedForklifted','mixedLocated',
+  'mcode1','mcode2','mcode3','mcode4','mqty1','mqty2','mqty3','mqty4'];
+let editingBasketIndex = -1;
+function snapshotFields(){
+  const values = {};
+  basketFieldIds.forEach(id => { const field=document.getElementById(id); if(field) values[id]=field.value; });
+  return values;
+}
+function setEditingState(index){
+  editingBasketIndex=index;
+  document.getElementById('addToBasketButton').textContent = index < 0 ? '＋ Add docket to basket' : 'Save changes to docket';
+  document.getElementById('cancelEditButton').hidden = index < 0;
+}
+function editBasketDocket(index){
+  const item=docketBasket[index];
+  if(!item) return;
+  setType(item.type);
+  basketFieldIds.forEach(id => {
+    const field=document.getElementById(id);
+    if(field) field.value=(item.values && item.values[id]) || '';
+  });
+  setEditingState(index);
+  updatePreview();
+  document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cancelBasketEdit(){
+  setEditingState(-1);
+  updatePreview();
+}
+function addToBasket(){
+  updatePreview();
+  fitTextToBoxes();
+  const active = document.getElementById(type === 'single' ? 'singleSheet' : 'mixedSheet');
+  const clone = active.cloneNode(true);
+  clone.hidden = false;
+  clone.removeAttribute('id');
+  clone.style.transform = '';
+  clone.style.zoom = '';
+  clone.style.removeProperty('--preview-scale');
+  clone.style.removeProperty('width');
+  clone.style.removeProperty('height');
+  // Keep child IDs in the clone: the single barcode and QR sizing rules use #singleCodeText / #singleQr.
+  // Duplicate IDs are harmless here because basket clones are print-only and scripts target the original preview.
+  const item = {
+    type,
+    values: snapshotFields(),
+    label: (type === 'single' ? 'Single docket' : 'Multi docket') + ' #' + (docketBasket.length + 1),
+    markup: clone.outerHTML,
+    copies: (editingBasketIndex >= 0 && docketBasket[editingBasketIndex]) ? (docketBasket[editingBasketIndex].copies || 1) : 1
+  };
+  if(editingBasketIndex >= 0 && editingBasketIndex < docketBasket.length){
+    docketBasket[editingBasketIndex] = item;
+  } else {
+    docketBasket.push(item);
+  }
+  setEditingState(-1);
+  // Clear fields that change from docket to docket, while keeping the operator/location audit fields.
+  ['description','qty','expiry','location','singleCode',
+   'mcode1','mcode2','mcode3','mcode4',
+   'mqty1','mqty2','mqty3','mqty4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Keep forklifted by, located by, and located date populated for the next docket.
+  updatePreview();
+  fitPreview();
+  renderBasket();
+}
+function sizeBasketPreviews(){
+  document.querySelectorAll('.basket-thumbnail-inner').forEach(viewport => {
+    const sheet = viewport.querySelector('.sheet');
+    if (!sheet) return;
+    sheet.style.transform = 'none';
+    sheet.style.zoom = '1';
+    const width = sheet.offsetWidth;
+    const height = sheet.offsetHeight;
+    const available = Math.max(1, viewport.clientWidth);
+    const scale = Math.min(1, available / width);
+    sheet.style.transform = 'scale(' + scale + ')';
+    viewport.style.height = Math.ceil(height * scale) + 'px';
+  });
+}
+function renderBasket(){
+  const list = document.getElementById('basketItems');
+  document.getElementById('basketCount').textContent = '(' + docketBasket.length + (docketBasket.length === 1 ? ' docket' : ' dockets') + ')';
+  document.getElementById('printBasketButton').disabled = docketBasket.length === 0;
+  if(!docketBasket.length){
+    list.innerHTML = '<p class="hint">Your basket is empty.</p>';
+    return;
+  }
+  list.innerHTML = '';
+  docketBasket.forEach((item, index) => {
+    const entry = document.createElement('div');
+    entry.className = 'basket-entry';
+    const top = document.createElement('div');
+    top.className = 'basket-entry-top';
+    const title = document.createElement('span');
+    title.className = 'basket-entry-title';
+    title.textContent = (index + 1) + '. ' + (item.type === 'single' ? 'Single Docket' : 'Multi Docket');
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'action';
+    remove.textContent = 'Remove';
+    remove.onclick = () => {
+      docketBasket.splice(index, 1);
+      if(editingBasketIndex === index) setEditingState(-1);
+      else if(editingBasketIndex > index) setEditingState(editingBasketIndex - 1);
+      renderBasket();
+    };
+    const edit = document.createElement('button');
+    edit.type = 'button';
+    edit.className = 'action';
+    edit.textContent = 'Edit';
+    edit.onclick = () => editBasketDocket(index);
+    const buttons = document.createElement('div');
+    buttons.className = 'basket-entry-buttons';
+    buttons.append(edit, remove);
+    if(item.type === 'single'){
+      const copiesLabel = document.createElement('label');
+      copiesLabel.className = 'basket-copies-label';
+      copiesLabel.textContent = 'Print copies ';
+      const copiesInput = document.createElement('input');
+      copiesInput.type = 'text';
+      copiesInput.inputMode = 'numeric';
+      copiesInput.maxLength = 2;
+      copiesInput.pattern = '[0-9]*';
+      copiesInput.value = String(item.copies || 1);
+      copiesInput.setAttribute('aria-label', 'Number of copies of single docket ' + (index + 1));
+      // Allow the user to delete the default 1 before typing a new value.
+      // Do not rewrite the input while they are editing it (especially on iOS).
+      copiesInput.addEventListener('input', () => {
+        const digits = copiesInput.value.replace(/\D/g, '').slice(0, 2);
+        if (copiesInput.value !== digits) copiesInput.value = digits;
+        if (digits !== '') {
+          const count = Number.parseInt(digits, 10);
+          if (count >= 1 && count <= 99) item.copies = count;
+        }
+      });
+      copiesInput.addEventListener('blur', () => {
+        const count = Number.parseInt(copiesInput.value, 10);
+        item.copies = Number.isFinite(count) ? Math.min(99, Math.max(1, count)) : 1;
+        copiesInput.value = String(item.copies);
+      });
+      copiesLabel.appendChild(copiesInput);
+      buttons.prepend(copiesLabel);
+    }
+    top.append(title);
+    entry.appendChild(top);
+    entry.appendChild(buttons);
+    const thumbnail = document.createElement('div');
+    thumbnail.className = 'basket-thumbnail';
+    const viewport = document.createElement('div');
+    viewport.className = 'basket-thumbnail-inner';
+    viewport.innerHTML = item.markup;
+    const sheet = viewport.querySelector('.sheet');
+    if(sheet){
+      sheet.hidden = false;
+      sheet.classList.add(item.type === 'single' ? 'basket-single-sheet' : 'basket-mixed-sheet');
+      sheet.removeAttribute('id');
+      // Reuse the saved docket's layout without allowing its IDs to clash with the live preview.
+      sheet.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    }
+    thumbnail.appendChild(viewport);
+    entry.appendChild(thumbnail);
+    list.appendChild(entry);
+  });
+  requestAnimationFrame(sizeBasketPreviews);
+}
+function clearBasket(){
+  setEditingState(-1);
+  docketBasket.length = 0;
+  renderBasket();
+}
+function printCurrentDocket(){
+  const printArea = document.getElementById('basketPrint');
+  const active = document.getElementById(type === 'single' ? 'singleSheet' : 'mixedSheet');
+  const clone = active.cloneNode(true);
+  clone.hidden = false;
+  clone.removeAttribute('id');
+  clone.style.transform = '';
+  clone.style.zoom = '';
+  clone.style.removeProperty('--preview-scale');
+  printArea.innerHTML = '<div class=\"print-page\">' + clone.outerHTML + '</div>';
+  document.body.classList.add('printing-basket');
+  window.print();
+}
+function printBasket(){
+  if(!docketBasket.length) return;
+  const printArea = document.getElementById('basketPrint');
+  // Create one physical print page per requested copy, rather than relying on
+  // the printer's own Copies setting (which is unreliable in iOS Edge).
+  const pages = [];
+  docketBasket.forEach(item => {
+    const copies = item.type === 'single'
+      ? Math.min(99, Math.max(1, parseInt(item.copies, 10) || 1))
+      : 1;
+    for(let copy = 0; copy < copies; copy++) {
+      pages.push('<div class="print-page">' + item.markup + '</div>');
+    }
+  });
+  printArea.innerHTML = pages.join('');
+  document.body.classList.add('printing-basket');
+  // Allow the browser to lay out all new pages before opening print preview.
+  requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+}
+function currentDateString(){
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+function setDateFieldsToday(){
+  // Fill date fields on load only when they are blank, so manual edits are preserved.
+  ['locatedDate', 'completedDate'].forEach(id => {
+    const field = document.getElementById(id);
+    if (field && !field.value.trim()) field.value = currentDateString();
+  });
+}
+setDateFieldsToday();
+buildMixedInputs(); updatePreview(); renderBasket();
+document.addEventListener('click', function(event) {
+  const button = event.target.closest('button');
+  if (!button) return;
+  switch (button.id) {
+    case 'singleTab': setType('single'); break;
+    case 'mixedTab': setType('mixed'); break;
+    case 'addToBasketButton': addToBasket(); break;
+    case 'printCurrentButton': printCurrentDocket(); break;
+    case 'clearFormButton': clearForm(); break;
+    case 'cancelEditButton': cancelBasketEdit(); break;
+    case 'printBasketButton': printBasket(); break;
+    case 'clearBasketButton': clearBasket(); break;
+  }
+});
+function restoreScreenPreview() {
+  document.body.classList.remove('printing-basket');
+  // Keep print transforms confined to the detached print copies. Clear the
+  // print layer after returning so iOS Edge cannot leave a stale oversized docket.
+  [100, 350, 800].forEach(delay => setTimeout(() => {
+    if (!window.matchMedia('print').matches) {
+      document.getElementById('basketPrint').innerHTML = '';
+      fitPreview();
+    }
+  }, delay));
+}
+window.addEventListener('resize', () => { fitPreview(); sizeBasketPreviews(); });
+window.addEventListener('beforeprint', () => {
+  fitTextToBoxes();
+  // Leave the on-screen zoom intact; @media print overrides it for paper/PDF.
+});
+window.addEventListener('afterprint', restoreScreenPreview);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) restoreScreenPreview();
+});
+</script>
+</body>
+</html>
