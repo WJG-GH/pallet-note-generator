@@ -218,34 +218,38 @@ textarea { min-height:65px; resize:vertical; }
   #previewWrap { overflow:hidden; }
   .sheet { transform:none; transform-origin:top left; margin:0; }
 }
-/* iOS Edge/AirPrint: physical page dimensions, no transforms or oversized
-   content-box sheet. Reserve space for printer URL/date footer. */
+/* iPhone Edge print: scale the ORIGINAL docket as a single object.
+   Its internal fixed-size barcode grid must never reflow to a narrower sheet. */
 @page { size: A4 landscape; margin: 10mm; }
 @media print {
- html,body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; min-height:0!important; overflow:visible!important; background:#fff!important; }
- body > header, body > footer { display:none!important; }
- main { display:block!important; width:auto!important; max-width:none!important; min-height:0!important; margin:0!important; padding:0!important; }
+ html, body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; min-height:0!important; overflow:visible!important; background:#fff!important; }
+ body > header { display:none!important; }
+ main { display:block!important; margin:0!important; padding:0!important; width:auto!important; max-width:none!important; min-height:0!important; }
  body.printing-basket main > :not(#basketPrint) { display:none!important; }
- body.printing-basket #basketPrint { display:block!important; width:100%!important; margin:0!important; padding:0!important; }
+ body.printing-basket #basketPrint { display:block!important; position:static!important; margin:0!important; padding:0!important; width:245mm!important; }
  body.printing-basket #basketPrint .print-page {
-  display:flex!important; align-items:center!important; justify-content:center!important;
-  box-sizing:border-box!important; width:267mm!important; height:177mm!important;
-  margin:0!important; padding:0!important; overflow:hidden!important;
-  break-inside:avoid!important; page-break-inside:avoid!important;
-  break-before:auto!important; page-break-before:auto!important;
-  break-after:auto!important; page-break-after:auto!important;
+   display:block!important; position:relative!important;
+   box-sizing:border-box!important; width:245mm!important; height:163mm!important;
+   margin:0!important; padding:0!important; border:0!important;
+   overflow:hidden!important;
+   break-inside:avoid!important; page-break-inside:avoid!important;
+   break-before:auto!important; page-break-before:auto!important;
+   break-after:auto!important; page-break-after:auto!important;
  }
  body.printing-basket #basketPrint .print-page:not(:last-child) {
-  break-after:page!important; page-break-after:always!important;
+   break-after:page!important; page-break-after:always!important;
  }
  body.printing-basket #basketPrint .sheet {
-  display:flex!important; flex-direction:column!important;
-  position:static!important; box-sizing:border-box!important;
-  flex:0 0 auto!important; width:257mm!important; height:167mm!important;
-  min-width:0!important; min-height:0!important;
-  margin:0!important; padding:3mm!important; border:1.5px solid #111!important;
-  zoom:1!important; transform:none!important; transform-origin:center!important;
-  overflow:hidden!important;
+   display:flex!important; flex-direction:column!important;
+   position:absolute!important; top:50%!important; left:50%!important;
+   box-sizing:border-box!important;
+   width:277mm!important; height:190mm!important;
+   min-width:277mm!important; min-height:190mm!important;
+   margin:0!important; padding:4mm!important; border:2px solid #111!important;
+   zoom:1!important;
+   transform:translate(-50%,-50%) scale(.80)!important;
+   transform-origin:center center!important;
+   overflow:hidden!important;
  }
 }
 /* Single and multi barcode: dividers are a fixed SVG overlay, not per-character borders.
