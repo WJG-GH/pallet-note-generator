@@ -231,7 +231,7 @@ textarea { min-height:65px; resize:vertical; }
  body.printing-basket #basketPrint { display:block!important; position:static!important; width:190mm!important; margin:0!important; padding:0!important; }
  body.printing-basket #basketPrint .print-page {
    display:block!important; position:relative!important; box-sizing:border-box!important;
-   width:190mm!important; height:275mm!important; margin:0!important; padding:0!important;
+   width:190mm!important; height:268mm!important; margin:0!important; padding:0!important;
    overflow:hidden!important; border:0!important;
    break-inside:avoid!important; page-break-inside:avoid!important;
    break-before:auto!important; page-break-before:auto!important;
@@ -247,7 +247,7 @@ textarea { min-height:65px; resize:vertical; }
    left:calc(50% - 138.5mm)!important; top:calc(50% - 95mm)!important;
    margin:0!important; padding:4mm!important; box-sizing:border-box!important;
    border:2px solid #111!important; overflow:hidden!important;
-   zoom:1!important; transform:rotate(90deg) scale(.97)!important;
+   zoom:1!important; transform:rotate(90deg) scale(.94)!important;
    transform-origin:50% 50%!important;
  }
 }
@@ -1071,6 +1071,15 @@ textarea { min-height:65px; resize:vertical; }
 #mixedForm input[type="date"]::-webkit-date-and-time-value { text-align:center!important; width:100%; }
 #singleForm input[type="date"]::-webkit-datetime-edit,
 #mixedForm input[type="date"]::-webkit-datetime-edit { display:flex; justify-content:center; width:100%; padding:0; }
+
+/* iOS print: preserve full-size docket text; avoid screen-preview font shrinking. */
+@media print {
+ body.printing-basket #basketPrint .sheet .detail .entry { font-size:30pt!important; }
+ body.printing-basket #basketPrint .sheet .single-info .date-value { font-size:25pt!important; }
+ body.printing-basket #basketPrint .sheet .completed .date-value { font-size:18pt!important; }
+ body.printing-basket #basketPrint .sheet .mixed-code > span { font-size:55pt!important; font-weight:800!important; }
+ body.printing-basket #basketPrint .sheet .qty-cells > span { font-size:55pt!important; font-weight:800!important; }
+}
 </style>
 </head>
 <body>
@@ -1730,6 +1739,13 @@ function clearBasket(){
   docketBasket.length = 0;
   renderBasket();
 }
+function restorePrintTextSizes(sheet){
+  // Screen preview text fitting writes inline font-size values. They must not
+  // be carried into A4 printing, which has very different dimensions.
+  sheet.querySelectorAll('.entry, .date-value, .location-docket-description-value, .mixed-code span, .qty-cells span, #singleCodeText, .location-cells .cellgroup.loc span').forEach(el=>{
+    el.style.removeProperty('font-size');
+  });
+}
 function printCurrentDocket(){
   const printArea = document.getElementById('basketPrint');
   const active = document.getElementById(type === 'single' ? 'singleSheet' : type === 'mixed' ? 'mixedSheet' : 'locationSheet');
@@ -1754,7 +1770,11 @@ function printBasket(){
       ? Math.min(99, Math.max(1, parseInt(item.copies, 10) || 1))
       : 1;
     for(let copy = 0; copy < copies; copy++) {
-      pages.push('<div class="print-page">' + item.markup + '</div>');
+      const printClone = document.createElement('div');
+      printClone.innerHTML = item.markup;
+      const sheet = printClone.querySelector('.sheet');
+      if(sheet) restorePrintTextSizes(sheet);
+      pages.push('<div class="print-page">' + printClone.innerHTML + '</div>');
     }
   });
   printArea.innerHTML = pages.join('');
@@ -1801,7 +1821,8 @@ document.addEventListener('click', function(event) {
 // during those events: Safari/Edge may re-render the print preview from the DOM.
 window.addEventListener('resize', () => { fitPreview(); sizeBasketPreviews(); });
 window.addEventListener('beforeprint', () => {
-  fitTextToBoxes();
+  // Do not run screen-size text fitting in print mode: iOS measures the
+  // rotated print sheet incorrectly and reduces values to tiny fonts.
 });
 window.addEventListener('afterprint', () => {
   document.body.classList.remove('printing-basket');
