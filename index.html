@@ -228,10 +228,10 @@ textarea { min-height:65px; resize:vertical; }
  body > header { display:none!important; }
  main { display:block!important; margin:0!important; padding:0!important; max-width:none!important; width:auto!important; }
  body.printing-basket main > :not(#basketPrint) { display:none!important; }
- body.printing-basket #basketPrint { display:block!important; position:static!important; width:180mm!important; margin:0!important; padding:0!important; }
+ body.printing-basket #basketPrint { display:block!important; position:static!important; width:190mm!important; margin:0!important; padding:0!important; }
  body.printing-basket #basketPrint .print-page {
    display:block!important; position:relative!important; box-sizing:border-box!important;
-   width:180mm!important; height:245mm!important; margin:0!important; padding:0!important;
+   width:190mm!important; height:275mm!important; margin:0!important; padding:0!important;
    overflow:hidden!important; border:0!important;
    break-inside:avoid!important; page-break-inside:avoid!important;
    break-before:auto!important; page-break-before:auto!important;
@@ -247,7 +247,7 @@ textarea { min-height:65px; resize:vertical; }
    left:calc(50% - 138.5mm)!important; top:calc(50% - 95mm)!important;
    margin:0!important; padding:4mm!important; box-sizing:border-box!important;
    border:2px solid #111!important; overflow:hidden!important;
-   zoom:1!important; transform:rotate(90deg) scale(.82)!important;
+   zoom:1!important; transform:rotate(90deg) scale(.97)!important;
    transform-origin:50% 50%!important;
  }
 }
@@ -1290,10 +1290,10 @@ async function saveCloudBasket(){
   finally{btn.disabled=false;}
 }
 async function resumeCloudBasket(){
-  const entered=prompt('Enter your basket code (PLT-XXXXXXXXXXXX):',cloudBasketCode||'');
+  const entered=prompt('Enter your basket code (BQ-12345):',cloudBasketCode||'');
   if(entered===null)return;
   const code=entered.trim().toUpperCase();
-  if(!/^PLT-[A-F0-9]{12}$/.test(code)){cloudStatus('Invalid basket code.');return;}
+  if(!/^(?:BQ-[0-9]{5}|PLT-[A-F0-9]{12})$/.test(code)){cloudStatus('Invalid basket code.');return;}
   if(docketBasket.length && !confirm('Replace your current basket with the saved basket?'))return;
   cloudStatus('Loading basket…');
   try{
