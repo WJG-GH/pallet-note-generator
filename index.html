@@ -218,20 +218,21 @@ textarea { min-height:65px; resize:vertical; }
   #previewWrap { overflow:hidden; }
   .sheet { transform:none; transform-origin:top left; margin:0; }
 }
-/* iPhone Edge print: scale the ORIGINAL docket as a single object.
-   Its internal fixed-size barcode grid must never reflow to a narrower sheet. */
-@page { size: A4 landscape; margin: 10mm; }
+/* A4 portrait: larger sideways docket, still inside one printable page.
+   Keep print dialog scaling at 100%; 146% may create a second page.
+   Centre the sideways docket by its actual geometric centre.
+   The previous translate(-50%,-50%) moved it off-page after rotation. */
+@page { size: A4 portrait; margin: 10mm; }
 @media print {
- html, body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; min-height:0!important; overflow:visible!important; background:#fff!important; }
+ html,body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; overflow:visible!important; background:white!important; }
  body > header { display:none!important; }
- main { display:block!important; margin:0!important; padding:0!important; width:auto!important; max-width:none!important; min-height:0!important; }
+ main { display:block!important; margin:0!important; padding:0!important; max-width:none!important; width:auto!important; }
  body.printing-basket main > :not(#basketPrint) { display:none!important; }
- body.printing-basket #basketPrint { display:block!important; position:static!important; margin:0!important; padding:0!important; width:245mm!important; }
+ body.printing-basket #basketPrint { display:block!important; position:static!important; width:180mm!important; margin:0!important; padding:0!important; }
  body.printing-basket #basketPrint .print-page {
-   display:block!important; position:relative!important;
-   box-sizing:border-box!important; width:245mm!important; height:163mm!important;
-   margin:0!important; padding:0!important; border:0!important;
-   overflow:hidden!important;
+   display:block!important; position:relative!important; box-sizing:border-box!important;
+   width:180mm!important; height:245mm!important; margin:0!important; padding:0!important;
+   overflow:hidden!important; border:0!important;
    break-inside:avoid!important; page-break-inside:avoid!important;
    break-before:auto!important; page-break-before:auto!important;
    break-after:auto!important; page-break-after:auto!important;
@@ -240,16 +241,14 @@ textarea { min-height:65px; resize:vertical; }
    break-after:page!important; page-break-after:always!important;
  }
  body.printing-basket #basketPrint .sheet {
-   display:flex!important; flex-direction:column!important;
-   position:absolute!important; top:50%!important; left:50%!important;
-   box-sizing:border-box!important;
+   display:flex!important; flex-direction:column!important; position:absolute!important;
    width:277mm!important; height:190mm!important;
    min-width:277mm!important; min-height:190mm!important;
-   margin:0!important; padding:4mm!important; border:2px solid #111!important;
-   zoom:1!important;
-   transform:translate(-50%,-50%) scale(.80)!important;
-   transform-origin:center center!important;
-   overflow:hidden!important;
+   left:calc(50% - 138.5mm)!important; top:calc(50% - 95mm)!important;
+   margin:0!important; padding:4mm!important; box-sizing:border-box!important;
+   border:2px solid #111!important; overflow:hidden!important;
+   zoom:1!important; transform:rotate(90deg) scale(.82)!important;
+   transform-origin:50% 50%!important;
  }
 }
 /* Single and multi barcode: dividers are a fixed SVG overlay, not per-character borders.
@@ -322,6 +321,488 @@ textarea { min-height:65px; resize:vertical; }
 .basket-copies-label { display:flex; flex-direction:column; align-items:flex-start; gap:5px; font-size:13px; line-height:1.25; font-weight:600; color:#414b56; white-space:nowrap; }
 .basket-copies-label input { width:76px; height:42px; padding:8px 10px; font-size:16px; box-sizing:border-box; }
 @media(max-width:420px) { .basket-entry-buttons { gap:8px; } .basket-entry-buttons .action { padding:9px 12px; } }
+
+/* Centre QR codes in their tall barcode boxes, on screen and when printed. */
+#singleSheet .single-qr-box, .basket-single-sheet .single-qr-box,
+#mixedSheet .multi-qr-box, .basket-mixed-sheet .multi-qr-box {
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  text-align:center!important;
+}
+#singleSheet .single-qr-box > img.mixed-qr,
+.basket-single-sheet .single-qr-box > img.mixed-qr,
+#mixedSheet .multi-qr-box > img.mixed-qr,
+.basket-mixed-sheet .multi-qr-box > img.mixed-qr {
+  display:block!important; flex:0 0 17mm!important;
+  width:17mm!important; height:17mm!important;
+  min-width:17mm!important; min-height:17mm!important;
+  max-width:17mm!important; max-height:17mm!important;
+  margin:auto!important; align-self:center!important;
+  object-fit:contain!important;
+}
+
+/* QR image positioned from the exact centre of its own box, independent of
+   grid/flex sizing and the 90-degree rotation used by iPhone printing. */
+#singleSheet .single-qr-box, .basket-single-sheet .single-qr-box,
+#mixedSheet .multi-qr-box, .basket-mixed-sheet .multi-qr-box {
+  position:relative!important;
+  overflow:hidden!important;
+}
+#singleSheet .single-qr-box > img.mixed-qr,
+.basket-single-sheet .single-qr-box > img.mixed-qr,
+#mixedSheet .multi-qr-box > img.mixed-qr,
+.basket-mixed-sheet .multi-qr-box > img.mixed-qr {
+  position:absolute!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:17mm!important;
+  height:17mm!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:17mm!important;
+  max-height:17mm!important;
+  margin:0!important;
+  padding:0!important;
+  flex:none!important;
+  align-self:auto!important;
+  transform:translate(-50%,-50%)!important;
+  object-fit:contain!important;
+}
+
+/* QR and barcode digits share the same vertical centre line. Override the
+   older absolute positioning, which can drift in rotated iOS print output. */
+#singleSheet .single-qr-box,
+.basket-single-sheet .single-qr-box,
+#mixedSheet .multi-qr-box,
+.basket-mixed-sheet .multi-qr-box {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  place-items:center!important;
+  position:relative!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+#singleSheet .single-qr-box > img.mixed-qr,
+.basket-single-sheet .single-qr-box > img.mixed-qr,
+#mixedSheet .multi-qr-box > img.mixed-qr,
+.basket-mixed-sheet .multi-qr-box > img.mixed-qr {
+  position:static!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  justify-self:center!important;
+  align-self:center!important;
+  transform:none!important;
+  inset:auto!important;
+  margin:0!important;
+  padding:0!important;
+  width:17mm!important;
+  height:17mm!important;
+  min-width:17mm!important;
+  min-height:17mm!important;
+  max-width:17mm!important;
+  max-height:17mm!important;
+  object-fit:contain!important;
+}
+
+/* Keep QR at the same centreline as the barcode digits in BOTH the live
+   preview and the cloned print sheet. The QR box occupies the full row height. */
+.sheet .single-mixed-row > .single-qr-box,
+.sheet .mixed-row > .multi-qr-box {
+  position:relative!important;
+  display:block!important;
+  align-self:stretch!important;
+  height:100%!important;
+  min-height:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.sheet .single-mixed-row > .single-qr-box > img.mixed-qr,
+.sheet .mixed-row > .multi-qr-box > img.mixed-qr {
+  display:block!important;
+  position:absolute!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:19mm!important;
+  height:19mm!important;
+  min-width:19mm!important;
+  min-height:19mm!important;
+  max-width:19mm!important;
+  max-height:19mm!important;
+  margin:0!important;
+  padding:0!important;
+  transform:translate(-50%,-50%)!important;
+  object-fit:contain!important;
+}
+@media print {
+ body.printing-basket #basketPrint .sheet .single-mixed-row > .single-qr-box,
+ body.printing-basket #basketPrint .sheet .mixed-row > .multi-qr-box {
+   position:relative!important;
+   display:block!important;
+   align-self:stretch!important;
+   height:100%!important;
+ }
+ body.printing-basket #basketPrint .sheet .single-qr-box > img.mixed-qr,
+ body.printing-basket #basketPrint .sheet .multi-qr-box > img.mixed-qr {
+   position:absolute!important;
+   top:50%!important;
+   left:50%!important;
+   transform:translate(-50%,-50%)!important;
+ }
+}
+
+/* Larger scannable QR and clearer barcode digits, on screen and in print. */
+#singleSheet .single-qr-box, .basket-single-sheet .single-qr-box {
+  width:27mm!important; min-width:27mm!important; flex:0 0 27mm!important;
+}
+#mixedSheet .multi-qr-box, .basket-mixed-sheet .multi-qr-box {
+  width:27mm!important; min-width:27mm!important; flex:0 0 27mm!important;
+}
+.sheet .single-qr-box > img.mixed-qr,
+.sheet .multi-qr-box > img.mixed-qr {
+  width:24mm!important; height:24mm!important;
+  min-width:24mm!important; min-height:24mm!important;
+  max-width:24mm!important; max-height:24mm!important;
+  object-fit:contain!important;
+}
+#singleSheet #singleCodeCells > span,
+#mixedSheet .mixed-code > span,
+.basket-single-sheet .mixed-code > span,
+.basket-mixed-sheet .mixed-code > span {
+  font-size:46pt!important; font-weight:800!important; line-height:1!important;
+}
+#singleSheet #singleQtyCells > span,
+#mixedSheet .qty-cells > span,
+.basket-single-sheet .qty-cells > span,
+.basket-mixed-sheet .qty-cells > span {
+  font-size:54pt!important; font-weight:800!important; line-height:1!important;
+}
+
+/* Strong final overrides: make the QR occupy most of the barcode-row height,
+   and make digits visibly larger on both live and cloned print dockets. */
+.sheet .single-mixed-row { grid-template-columns:minmax(0,1fr) 40mm 3mm 47mm!important; }
+.sheet .single-qr-box, .sheet .multi-qr-box {
+  width:40mm!important; min-width:40mm!important; max-width:40mm!important;
+  flex:0 0 40mm!important; height:100%!important; min-height:0!important;
+  position:relative!important; overflow:hidden!important;
+}
+.sheet .single-qr-box img.mixed-qr, .sheet .multi-qr-box img.mixed-qr {
+  display:block!important; visibility:visible!important;
+  position:absolute!important; left:50%!important; top:50%!important;
+  right:auto!important; bottom:auto!important;
+  width:38mm!important; height:38mm!important;
+  min-width:38mm!important; min-height:38mm!important;
+  max-width:38mm!important; max-height:38mm!important;
+  margin:0!important; padding:0!important;
+  transform:translate(-50%,-50%)!important; object-fit:contain!important;
+}
+.sheet .single-mixed-row .mixed-code > span,
+.sheet .mixed-row .mixed-code > span,
+#singleSheet #singleCodeCells > span,
+#mixedSheet .mixed-code > span,
+.basket-single-sheet .mixed-code > span,
+.basket-mixed-sheet .mixed-code > span {
+  font-size:60pt!important; font-weight:900!important; line-height:1!important;
+}
+.sheet .qty-cells > span, #singleSheet #singleQtyCells > span,
+#mixedSheet .qty-cells > span { font-size:60pt!important; font-weight:900!important; }
+
+/* QR sizing fix: the earlier 21mm GRID TRACK clipped the 38mm image.
+   Allocate real width to the QR column, then centre the actual SVG. */
+#singleSheet .single-mixed-row,
+.basket-single-sheet .single-mixed-row,
+#mixedSheet .mixed-row,
+.basket-mixed-sheet .mixed-row {
+  grid-template-columns:minmax(0,1fr) 36mm 3mm 47mm!important;
+  column-gap:1mm!important;
+}
+#mixedSheet .mixed-head,
+.basket-mixed-sheet .mixed-head {
+  grid-template-columns:minmax(0,1fr) 36mm 3mm 47mm!important;
+}
+#singleSheet .single-qr-box,
+.basket-single-sheet .single-qr-box,
+#mixedSheet .multi-qr-box,
+.basket-mixed-sheet .multi-qr-box {
+  grid-column:2!important;
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:36mm!important;
+  min-width:36mm!important;
+  max-width:36mm!important;
+  height:100%!important;
+  overflow:hidden!important;
+  background:#fff!important;
+}
+#singleSheet .single-qr-box img.mixed-qr,
+.basket-single-sheet .single-qr-box img.mixed-qr,
+#mixedSheet .multi-qr-box img.mixed-qr,
+.basket-mixed-sheet .multi-qr-box img.mixed-qr {
+  position:absolute!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  display:block!important;
+  width:34mm!important;
+  height:34mm!important;
+  min-width:34mm!important;
+  min-height:34mm!important;
+  max-width:34mm!important;
+  max-height:34mm!important;
+  padding:0!important;
+  margin:0!important;
+  transform:translate(-50%,-50%)!important;
+  object-fit:contain!important;
+}
+
+/* iOS AirPrint QR: inline vector sized in physical units (not image intrinsic size).
+   This bypasses the WebKit data-URI <img> sizing bug. */
+.sheet .single-qr-box, .sheet .multi-qr-box { position:relative!important; }
+.sheet .single-qr-box > svg.qr-vector,
+.sheet .multi-qr-box > svg.qr-vector {
+  display:block!important; position:absolute!important;
+  left:50%!important; top:50%!important;
+  width:34mm!important; height:34mm!important;
+  min-width:34mm!important; min-height:34mm!important;
+  max-width:34mm!important; max-height:34mm!important;
+  transform:translate(-50%,-50%)!important;
+  overflow:visible!important; margin:0!important; padding:0!important;
+}
+
+/* Multi Docket: four short rows cannot accommodate Single Docket's 34mm QR
+   or 60pt numbers. Restore the compact four-row grid, keeping vector QR. */
+#mixedSheet .mixed-row, .basket-mixed-sheet .mixed-row,
+#mixedSheet .mixed-head, .basket-mixed-sheet .mixed-head {
+  grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important;
+  column-gap:1mm!important;
+}
+#mixedSheet .mixed-row > .multi-qr-box,
+.basket-mixed-sheet .mixed-row > .multi-qr-box {
+  grid-column:2!important;
+  width:21mm!important; min-width:21mm!important; max-width:21mm!important;
+  height:100%!important; min-height:0!important;
+  position:relative!important; overflow:hidden!important;
+  border:1.5px solid #111!important; box-sizing:border-box!important;
+}
+#mixedSheet .multi-qr-box > svg.qr-vector,
+.basket-mixed-sheet .multi-qr-box > svg.qr-vector {
+  display:block!important; position:absolute!important;
+  width:18mm!important; height:18mm!important;
+  min-width:18mm!important; min-height:18mm!important;
+  max-width:18mm!important; max-height:18mm!important;
+  left:50%!important; top:50%!important;
+  transform:translate(-50%,-50%)!important;
+}
+#mixedSheet .mixed-code > span,
+.basket-mixed-sheet .mixed-code > span,
+#mixedSheet .qty-cells > span,
+.basket-mixed-sheet .qty-cells > span {
+  font-size:30pt!important; line-height:1!important;
+}
+#mixedSheet .mixed-row > .qty-cells,
+.basket-mixed-sheet .mixed-row > .qty-cells { grid-column:4!important; }
+#mixedSheet .mixed-row > .greybar,
+.basket-mixed-sheet .mixed-row > .greybar { grid-column:3!important; }
+
+/* Multi Docket print isolation: Single Docket enlargement must never spill into
+   the four shorter rows. Explicitly scope to the mixed sheet and basket clones. */
+#mixedSheet .mixed-rows, .sheet.basket-mixed-sheet .mixed-rows {
+ display:grid!important; grid-template-rows:repeat(4,minmax(0,1fr))!important;
+ gap:2.5mm!important; min-height:0!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-row, .sheet.basket-mixed-sheet .mixed-row {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important;
+ gap:1mm!important; min-height:0!important; height:100%!important;
+ overflow:hidden!important; align-items:stretch!important;
+}
+#mixedSheet .mixed-row > .mixed-code, .sheet.basket-mixed-sheet .mixed-row > .mixed-code {
+ grid-column:1!important; position:relative!important; display:grid!important;
+ grid-template-columns:repeat(13,minmax(0,1fr))!important;
+ grid-template-rows:minmax(0,1fr)!important; width:100%!important;
+ min-width:0!important; min-height:0!important; height:100%!important;
+ box-sizing:border-box!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .mixed-code > span, .sheet.basket-mixed-sheet .mixed-row > .mixed-code > span {
+ font-size:24pt!important; font-weight:800!important; line-height:1!important;
+ display:flex!important; align-items:center!important; justify-content:center!important;
+ min-width:0!important; min-height:0!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .mixed-code > svg.barcode-dividers,
+.sheet.basket-mixed-sheet .mixed-row > .mixed-code > svg.barcode-dividers {
+ position:absolute!important; inset:0!important; width:100%!important; height:100%!important;
+ overflow:hidden!important; pointer-events:none!important;
+}
+#mixedSheet .mixed-row > .multi-qr-box, .sheet.basket-mixed-sheet .mixed-row > .multi-qr-box {
+ grid-column:2!important; display:block!important; position:relative!important;
+ width:21mm!important; min-width:21mm!important; max-width:21mm!important;
+ height:100%!important; min-height:0!important; overflow:hidden!important;
+ box-sizing:border-box!important;
+}
+#mixedSheet .mixed-row > .multi-qr-box > svg.qr-vector,
+.sheet.basket-mixed-sheet .mixed-row > .multi-qr-box > svg.qr-vector {
+ position:absolute!important; display:block!important; left:50%!important; top:50%!important;
+ width:15mm!important; height:15mm!important;
+ min-width:15mm!important; min-height:15mm!important;
+ max-width:15mm!important; max-height:15mm!important;
+ transform:translate(-50%,-50%)!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .qty-cells, .sheet.basket-mixed-sheet .mixed-row > .qty-cells {
+ grid-column:4!important; min-height:0!important; height:100%!important;
+ overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .qty-cells > span, .sheet.basket-mixed-sheet .mixed-row > .qty-cells > span {
+ font-size:27pt!important; line-height:1!important; overflow:hidden!important;
+}
+
+/* MULTI DOCKET REBUILD: four independently bounded rows.
+   Do not inherit the single docket's enlarged QR or full-height grid rules. */
+#mixedSheet .mixed-head, .sheet.basket-mixed-sheet .mixed-head {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important;
+ gap:1mm!important; height:12mm!important; min-height:12mm!important;
+ flex:0 0 12mm!important; align-items:end!important;
+}
+#mixedSheet .mixed-head > .qty-head, .sheet.basket-mixed-sheet .mixed-head > .qty-head {
+ grid-column:4!important; height:10mm!important; box-sizing:border-box!important;
+}
+#mixedSheet .mixed-rows, .sheet.basket-mixed-sheet .mixed-rows {
+ display:flex!important; flex-direction:column!important;
+ justify-content:space-between!important; gap:2mm!important;
+ flex:1 1 auto!important; min-height:0!important; height:auto!important;
+ padding:1mm 0!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-rows > .mixed-row, .sheet.basket-mixed-sheet .mixed-rows > .mixed-row {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important;
+ grid-template-rows:26mm!important;
+ gap:1mm!important; flex:0 0 26mm!important;
+ height:26mm!important; min-height:26mm!important; max-height:26mm!important;
+ width:100%!important; box-sizing:border-box!important;
+ align-items:stretch!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .mixed-code, .sheet.basket-mixed-sheet .mixed-row > .mixed-code {
+ grid-column:1!important; grid-row:1!important;
+ display:grid!important; grid-template-columns:repeat(13,minmax(0,1fr))!important;
+ grid-template-rows:26mm!important;
+ height:26mm!important; min-height:26mm!important; max-height:26mm!important;
+ width:100%!important; box-sizing:border-box!important;
+ overflow:hidden!important; position:relative!important;
+}
+#mixedSheet .mixed-row > .mixed-code > span, .sheet.basket-mixed-sheet .mixed-row > .mixed-code > span {
+ grid-row:1!important; height:100%!important; min-height:0!important;
+ font-size:22pt!important; line-height:1!important; font-weight:800!important;
+ overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .multi-qr-box, .sheet.basket-mixed-sheet .mixed-row > .multi-qr-box {
+ grid-column:2!important; grid-row:1!important;
+ width:21mm!important; min-width:21mm!important; max-width:21mm!important;
+ height:26mm!important; min-height:26mm!important; max-height:26mm!important;
+ position:relative!important; box-sizing:border-box!important;
+ overflow:hidden!important; background:#fff!important;
+}
+#mixedSheet .mixed-row > .multi-qr-box > svg.qr-vector,
+.sheet.basket-mixed-sheet .mixed-row > .multi-qr-box > svg.qr-vector {
+ position:absolute!important; display:block!important;
+ top:50%!important; left:50%!important;
+ width:14mm!important; height:14mm!important;
+ min-width:14mm!important; min-height:14mm!important;
+ max-width:14mm!important; max-height:14mm!important;
+ transform:translate(-50%,-50%)!important;
+ overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .greybar, .sheet.basket-mixed-sheet .mixed-row > .greybar {
+ grid-column:3!important; grid-row:1!important; height:26mm!important;
+}
+#mixedSheet .mixed-row > .qty-cells, .sheet.basket-mixed-sheet .mixed-row > .qty-cells {
+ grid-column:4!important; grid-row:1!important;
+ display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-rows:26mm!important;
+ height:26mm!important; min-height:26mm!important; max-height:26mm!important;
+ box-sizing:border-box!important; overflow:hidden!important;
+}
+#mixedSheet .mixed-row > .qty-cells > span, .sheet.basket-mixed-sheet .mixed-row > .qty-cells > span {
+ grid-row:1!important; font-size:25pt!important; line-height:1!important;
+ height:100%!important; min-height:0!important; overflow:hidden!important;
+}
+
+/* Multi docket rebuilt with UNIQUE class names to isolate it from all
+   legacy single-docket and mixed-row overrides. */
+.sheet .multi-stable-head {
+ display:grid!important;grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important;
+ column-gap:1mm!important;height:12mm!important;min-height:12mm!important;
+ flex:0 0 12mm!important;align-items:end!important;
+}
+.sheet .multi-stable-head .qty-head {
+ grid-column:4!important;box-sizing:border-box!important;
+ height:10mm!important;display:flex!important;align-items:center!important;
+ justify-content:center!important;border:1.5px solid #111!important;
+}
+.sheet .multi-stable-rows {
+ display:grid!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;
+ gap:2.5mm!important;flex:1 1 0!important;min-height:0!important;
+ overflow:hidden!important;padding:1mm 0!important;
+}
+.sheet .multi-stable-row {
+ display:grid!important;grid-template-columns:minmax(0,1fr) 21mm 3mm 47mm!important;
+ grid-template-rows:minmax(0,1fr)!important;gap:1mm!important;
+ min-height:0!important;min-width:0!important;height:100%!important;
+ box-sizing:border-box!important;overflow:hidden!important;
+}
+.sheet .multi-stable-code {
+ position:relative!important;grid-column:1!important;grid-row:1!important;
+ display:grid!important;grid-template-columns:repeat(13,minmax(0,1fr))!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ border:1.5px solid #111!important;box-sizing:border-box!important;overflow:hidden!important;
+}
+.sheet .multi-stable-code > span {
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ grid-row:1!important;font-size:31pt!important;font-weight:800!important;
+ line-height:1!important;min-width:0!important;min-height:0!important;
+ border:0!important;overflow:hidden!important;
+}
+.sheet .multi-stable-code > svg.barcode-dividers {
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;z-index:2!important;
+ pointer-events:none!important;
+}
+.sheet .multi-stable-qr {
+ grid-column:2!important;grid-row:1!important;position:relative!important;
+ display:block!important;width:21mm!important;height:100%!important;
+ min-width:0!important;min-height:0!important;box-sizing:border-box!important;
+ border:1.5px solid #111!important;background:white!important;overflow:hidden!important;
+}
+.sheet .multi-stable-qr > img {display:none!important;}
+.sheet .multi-stable-qr > svg.qr-vector {
+ display:block!important;position:absolute!important;
+ top:50%!important;left:50%!important;
+ width:19mm!important;height:19mm!important;
+ min-width:0!important;min-height:0!important;
+ max-width:calc(100% - 1mm)!important;max-height:calc(100% - 1mm)!important;
+ transform:translate(-50%,-50%)!important;
+ margin:0!important;overflow:hidden!important;
+}
+.sheet .multi-stable-divider {
+ grid-column:3!important;grid-row:1!important;background:#888!important;
+ height:100%!important;min-height:0!important;
+}
+.sheet .multi-stable-qty {
+ grid-column:4!important;grid-row:1!important;display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ height:100%!important;min-height:0!important;min-width:0!important;
+ border:1.5px solid #111!important;box-sizing:border-box!important;
+ background:white!important;overflow:hidden!important;
+}
+.sheet .multi-stable-qty > span {
+ grid-row:1!important;display:flex!important;align-items:center!important;
+ justify-content:center!important;font-size:31pt!important;font-weight:800!important;line-height:1!important;
+ min-width:0!important;min-height:0!important;overflow:hidden!important;
+ border-right:1.5px solid #111!important;
+}
+.sheet .multi-stable-qty > span:nth-of-type(3){border-right:0!important;}
 </style>
 </head>
 <body>
@@ -362,6 +843,16 @@ textarea { min-height:65px; resize:vertical; }
   <section class="panel" id="basketPanel">
     <h2>Print basket <span id="basketCount">(0 dockets)</span></h2>
     <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
+    <div class="actions" style="margin:12px 0;flex-wrap:wrap">
+      <button class="action primary" id="saveCloudBasketButton" type="button">☁ Save basket</button>
+      <button class="action" id="resumeCloudBasketButton" type="button">↩ Resume basket</button>
+    </div>
+    <div id="cloudBasketCodeBox" style="display:none;margin:10px 0;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc">
+      <div style="font-weight:700">Your basket code</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><strong id="cloudBasketCode" style="font-size:20px;letter-spacing:1px;overflow-wrap:anywhere"></strong><button class="action" type="button" id="copyCloudBasketCodeButton">Copy code</button></div>
+      <p class="hint" style="margin:6px 0 0">Use this code on your desktop to resume. Anyone with the code can access and edit this basket.</p>
+    </div>
+    <p id="cloudBasketStatus" role="status" class="hint" style="margin:8px 0"></p>
     <div id="basketItems"><p class="hint">Your basket is empty.</p></div>
     <div class="actions">
       <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
@@ -393,8 +884,8 @@ textarea { min-height:65px; resize:vertical; }
     </section>
     <section class="sheet" id="mixedSheet" hidden>
       <h2 class="mixed-title">MIXED PALLET NOTE</h2>
-      <div class="mixed-head"><span></span><span></span><div class="qty-head">QTY</div></div>
-      <div class="mixed-rows" id="pMixedRows"></div>
+      <div class="multi-stable-head"><span></span><span></span><div class="qty-head">QTY</div></div>
+      <div class="multi-stable-rows" id="pMixedRows"></div>
       <div class="completed">
         <div class="completed-item"><div class="date-label">Date completed</div><div class="date-value" id="pCompletedDate"></div></div>
         <div class="completed-item"><div class="date-label">Forklifted by</div><div class="date-value" id="pMixedForklifted"></div></div>
@@ -415,6 +906,8 @@ function cells(container, count, values='') {
 }
 function val(id){ return (document.getElementById(id)?.value || '').trim(); }
 function setQrImage(img, text){
+  const oldVector=img.parentNode && img.parentNode.querySelector('.qr-vector');
+  if(oldVector) oldVector.remove();
   const oldNote=img.parentNode && img.parentNode.querySelector('.qr-error');
   if(oldNote) oldNote.remove();
   if(!text){ img.removeAttribute('src'); img.style.display='block'; img.style.visibility='hidden'; return; }
@@ -454,10 +947,17 @@ function setQrImage(img, text){
     const fbit=i=>(fmt>>>i)&1;
     for(let i=0;i<=5;i++)set(8,i,fbit(i));set(8,7,fbit(6));set(8,8,fbit(7));set(7,8,fbit(8));for(let i=9;i<15;i++)set(14-i,8,fbit(i));
     for(let i=0;i<8;i++)set(N-1-i,8,fbit(i));for(let i=8;i<15;i++)set(8,N-15+i,fbit(i));set(8,N-8,true);
-    const scale=5, margin=4, size=(N+margin*2)*scale;
+    const scale=7, margin=2, size=(N+margin*2)*scale;
     let rects='';for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(m[y][x])rects+=`<rect x="${(x+margin)*scale}" y="${(y+margin)*scale}" width="${scale}" height="${scale}"/>`;
     const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="100%" height="100%" fill="white"/><g fill="black">${rects}</g></svg>`;
-    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);img.alt='QR code for '+text;img.style.display='block';img.style.visibility='visible';
+    // Use inline SVG so AirPrint cannot shrink an image's intrinsic dimensions.
+    const vector=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    vector.setAttribute('class','qr-vector');
+    vector.setAttribute('viewBox',`0 0 ${size} ${size}`);
+    vector.setAttribute('aria-label','QR code for '+text);
+    vector.innerHTML='<rect width="100%" height="100%" fill="white"/>'+'<g fill="black">'+rects+'</g>';
+    img.removeAttribute('src');img.style.display='none';img.style.visibility='hidden';
+    img.parentNode.appendChild(vector);
   } catch(e){img.removeAttribute('src');img.style.display='block';img.style.visibility='hidden';img.alt=e.message;const note=document.createElement('span');note.className='qr-error';note.textContent='QR unavailable';note.style.cssText='font-size:8pt;flex:0 0 auto;color:#111;';if(img.parentNode&&!img.parentNode.querySelector('.qr-error'))img.parentNode.appendChild(note);}
 }
 function setType(next){
@@ -539,18 +1039,18 @@ function updatePreview(){
   const rows=document.getElementById('pMixedRows'); rows.innerHTML='';
   const count=4;
   for(let i=1;i<=4;i++){
-    const row=document.createElement('div'); row.className='mixed-row';
-    const code=document.createElement('div'); code.className='mixed-code';
+    const row=document.createElement('div'); row.className='multi-stable-row';
+    const code=document.createElement('div'); code.className='multi-stable-code';
     const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
     for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';code.appendChild(s);}
     addBarcodeDividers(code);
-    const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i; setQrImage(qr, codeVal);
-    const grey=document.createElement('div');grey.className='greybar';
-    const qty=document.createElement('div');qty.className='qty-cells';
+    const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i;
+    const grey=document.createElement('div');grey.className='multi-stable-divider';
+    const qty=document.createElement('div');qty.className='multi-stable-qty';
     const q=i<=count?val('mqty'+i):'';
     for(let j=0;j<3;j++){const s=document.createElement('span');s.textContent=q[j]||'';qty.appendChild(s);}
-    const qrBox=document.createElement('div'); qrBox.className='multi-qr-box'; qrBox.appendChild(qr);
-    row.append(code,qrBox,grey,qty); rows.appendChild(row);
+    const qrBox=document.createElement('div'); qrBox.className='multi-stable-qr'; qrBox.appendChild(qr);
+    row.append(code,qrBox,grey,qty); rows.appendChild(row); setQrImage(qr, codeVal);
   }
   document.getElementById('pCompletedDate').textContent=val('completedDate');
   document.getElementById('pMixedForklifted').textContent=val('mixedForklifted');
@@ -757,6 +1257,59 @@ function renderBasket(){
   });
   requestAnimationFrame(sizeBasketPreviews);
 }
+
+// Supabase basket sync. The short code acts as the access credential.
+const PALLET_SUPABASE_URL = 'https://rfhkrnkhlwvfzzfzgzzt.supabase.co';
+const PALLET_SUPABASE_KEY = 'sb_publishable_R3DI87Uh9a0bj9FagdPGtA_bygZeAvW';
+let cloudBasketCode = '';
+function cloudStatus(message){ document.getElementById('cloudBasketStatus').textContent=message; }
+function showCloudCode(code){
+  cloudBasketCode=code;
+  document.getElementById('cloudBasketCode').textContent=code;
+  document.getElementById('cloudBasketCodeBox').style.display='block';
+}
+async function palletRpc(name, payload){
+  const response=await fetch(PALLET_SUPABASE_URL+'/rest/v1/rpc/'+name,{
+    method:'POST',headers:{'apikey':PALLET_SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  });
+  const data=await response.json();
+  if(!response.ok) throw new Error(data.message || 'Request failed ('+response.status+')');
+  return data;
+}
+async function saveCloudBasket(){
+  if(!docketBasket.length){cloudStatus('Add at least one docket before saving.');return;}
+  const btn=document.getElementById('saveCloudBasketButton');btn.disabled=true;
+  cloudStatus('Saving basket…');
+  try{
+    const payload=docketBasket.map(item=>({type:item.type,values:item.values,label:item.label,markup:item.markup,copies:item.copies||1}));
+    const code=await palletRpc('save_pallet_basket',{p_data:payload,p_code:cloudBasketCode||null});
+    showCloudCode(code);
+    cloudStatus('Basket saved online. Keep this code to resume on another device.');
+  }catch(e){cloudStatus('Could not save: '+e.message+'. Check that the Supabase SQL setup has been run.');}
+  finally{btn.disabled=false;}
+}
+async function resumeCloudBasket(){
+  const entered=prompt('Enter your basket code (PLT-XXXXXXXXXXXX):',cloudBasketCode||'');
+  if(entered===null)return;
+  const code=entered.trim().toUpperCase();
+  if(!/^PLT-[A-F0-9]{12}$/.test(code)){cloudStatus('Invalid basket code.');return;}
+  if(docketBasket.length && !confirm('Replace your current basket with the saved basket?'))return;
+  cloudStatus('Loading basket…');
+  try{
+    const items=await palletRpc('load_pallet_basket',{p_code:code});
+    if(!Array.isArray(items))throw new Error('Basket not found');
+    if(items.length>200)throw new Error('Basket too large');
+    docketBasket.length=0;
+    for(const item of items){
+      if(!item || !['single','mixed'].includes(item.type) || typeof item.markup!=='string' || !item.markup.startsWith('<section'))continue;
+      docketBasket.push({type:item.type,values:item.values||{},label:String(item.label||''),markup:item.markup,copies:Math.max(1,Math.min(100,Number(item.copies)||1))});
+    }
+    setEditingState(-1);renderBasket();showCloudCode(code);
+    cloudStatus('Basket resumed: '+docketBasket.length+' dockets. Save again to update this code.');
+  }catch(e){cloudStatus('Could not resume: '+e.message);}
+}
+
 function clearBasket(){
   setEditingState(-1);
   docketBasket.length = 0;
@@ -822,6 +1375,9 @@ document.addEventListener('click', function(event) {
     case 'cancelEditButton': cancelBasketEdit(); break;
     case 'printBasketButton': printBasket(); break;
     case 'clearBasketButton': clearBasket(); break;
+    case 'saveCloudBasketButton': saveCloudBasket(); break;
+    case 'resumeCloudBasketButton': resumeCloudBasket(); break;
+    case 'copyCloudBasketCodeButton': navigator.clipboard.writeText(cloudBasketCode).then(()=>cloudStatus('Basket code copied.')).catch(()=>cloudStatus('Select and copy the code shown above.')); break;
   }
 });
 // iOS print preview can fire visibilitychange/afterprint while the user is
