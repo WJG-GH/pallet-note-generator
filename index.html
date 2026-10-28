@@ -803,6 +803,70 @@ textarea { min-height:65px; resize:vertical; }
  border-right:1.5px solid #111!important;
 }
 .sheet .multi-stable-qty > span:nth-of-type(3){border-right:0!important;}
+/* Slightly smaller Single Docket barcode digits for extra spacing. */
+#singleSheet #singleCodeCells > span,
+.basket-single-sheet .mixed-code > span {
+  font-size:55pt!important;
+}
+/* Ensure every form input uses the same outside width on iPhone Safari/Edge.
+   Text inputs previously used content-box, while date inputs used border-box. */
+.fields input, .fields textarea {
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+/* Keep native calendar inputs aligned with the other entry fields on iOS. */
+.fields label { min-width:0; width:100%; box-sizing:border-box; }
+.fields input[type="date"] { display:block; width:100%; max-width:100%; min-width:0; box-sizing:border-box; margin:0; padding:10px; min-height:44px; -webkit-appearance:auto; appearance:auto; }
+.fields input[type="date"]::-webkit-date-and-time-value { text-align:left; }
+/* iOS Edge/Safari: native date control renders ~20 CSS px wider than its CSS box.
+   Compensate on narrow screens so the right edge matches standard text fields. */
+@media (max-width:560px) {
+  #singleForm input[type="date"],
+  #mixedForm input[type="date"] {
+    width:calc(100% - 20px)!important;
+    max-width:calc(100% - 20px)!important;
+    margin-right:20px!important;
+  }
+}
+
+/* Camera barcode controls: keep the original input sizing and print layout. */
+.barcode-scan-field{display:flex;align-items:stretch;gap:7px;min-width:0;width:100%;box-sizing:border-box}
+.barcode-scan-field input{flex:1 1 0;min-width:0;width:0!important;max-width:none!important}
+.scan-barcode-btn{flex:0 0 auto;white-space:nowrap;border:1px solid #aab6c3;border-radius:7px;background:#f1f5f9;color:#17212b;padding:0 11px;font-size:14px;font-weight:700;cursor:pointer;min-height:44px}
+.scan-barcode-wide{grid-column:1/-1;width:100%;min-height:50px;font-size:17px;padding:12px;text-align:center;box-sizing:border-box}
+.scan-barcode-btn:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+#barcodeScannerOverlay[hidden]{display:none!important}
+#barcodeScannerOverlay{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.83);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+#barcodeScannerPanel{background:white;color:#17212b;border-radius:12px;padding:16px;width:min(100%,470px);max-height:95dvh;overflow:auto;box-sizing:border-box}
+#barcodeScannerReader{width:100%;min-height:220px;background:#111;border-radius:8px;overflow:hidden}
+#barcodeScannerReader video{max-width:100%;height:auto}
+#barcodeScannerStatus{font-size:14px;margin:10px 0;min-height:20px}
+#barcodeScannerClose{padding:12px 18px;border-radius:8px;border:1px solid #9ca3af;background:#f8fafc;font-weight:700}
+@media print{#barcodeScannerOverlay,.scan-barcode-btn{display:none!important}}
+
+/* Responsive action buttons: use the available phone width evenly. */
+@media screen and (max-width: 600px) {
+  .main-form-actions, .cloud-basket-actions, .basket-print-actions {
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px!important;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .main-form-actions > .action, .cloud-basket-actions > .action, .basket-print-actions > .action {
+    width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+    white-space:normal;overflow-wrap:break-word;text-align:center;
+    min-height:52px;padding:10px 8px;font-size:15px;line-height:1.2;
+  }
+  .main-form-actions #addToBasketButton { grid-column:1/-1; }
+  .main-form-actions #cancelEditButton[hidden] { display:none!important; }
+  .main-form-actions #cancelEditButton:not([hidden]) { grid-column:1/-1; }
+}
+@media screen and (max-width:360px) {
+  .main-form-actions, .cloud-basket-actions, .basket-print-actions {grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -819,22 +883,22 @@ textarea { min-height:65px; resize:vertical; }
       <div class="single-barcode-entry">
         <strong>Barcode 1</strong>
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
-        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>
+        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">▣ Scan Barcode</button>
       </div>
-      <label>Expiry date<input id="expiry" inputmode="numeric" placeholder="DD/MM/YYYY" oninput="updatePreview()"></label>
-      <label>Located date<input id="locatedDate" inputmode="numeric" placeholder="DD/MM/YYYY" oninput="updatePreview()"></label>
+      <label>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
+      <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
       <label>Forklifted by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
       <label>Located by<input id="located" placeholder="Name or initials" oninput="updatePreview()"></label>
       <label>Location<input id="location" inputmode="numeric" placeholder="Enter full location" oninput="updatePreview()"></label>
     </div>
     <div id="mixedForm" class="fields" hidden>
-      <label>Date completed<input id="completedDate" inputmode="numeric" placeholder="DD/MM/YYYY" oninput="updatePreview()"></label>
+      <label>Date completed<input id="completedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
       <label>Forklifted by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
       <label>Located by<input id="mixedLocated" placeholder="Name or initials" oninput="updatePreview()"></label>
       <div id="mixedLines" style="grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr);gap:12px"></div>
     </div>
   </section>
-  <div class="actions">
+  <div class="actions main-form-actions">
     <button class="action primary" type="button" id="addToBasketButton">＋ Add docket to basket</button>
     <button class="action" type="button" id="printCurrentButton">Print current docket</button>
     <button class="action" type="button" id="clearFormButton">Clear fields</button>
@@ -843,7 +907,7 @@ textarea { min-height:65px; resize:vertical; }
   <section class="panel" id="basketPanel">
     <h2>Print basket <span id="basketCount">(0 dockets)</span></h2>
     <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
-    <div class="actions" style="margin:12px 0;flex-wrap:wrap">
+    <div class="actions cloud-basket-actions" style="margin:12px 0;flex-wrap:wrap">
       <button class="action primary" id="saveCloudBasketButton" type="button">☁ Save basket</button>
       <button class="action" id="resumeCloudBasketButton" type="button">↩ Resume basket</button>
     </div>
@@ -854,7 +918,7 @@ textarea { min-height:65px; resize:vertical; }
     </div>
     <p id="cloudBasketStatus" role="status" class="hint" style="margin:8px 0"></p>
     <div id="basketItems"><p class="hint">Your basket is empty.</p></div>
-    <div class="actions">
+    <div class="actions basket-print-actions">
       <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
       <button class="action" type="button" id="clearBasketButton">Empty basket</button>
     </div>
@@ -894,7 +958,83 @@ textarea { min-height:65px; resize:vertical; }
     </section>
   </div>
 </main>
+
+<div id="barcodeScannerOverlay" hidden role="dialog" aria-modal="true" aria-label="Scan product barcode">
+  <div id="barcodeScannerPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><strong>Scan product barcode</strong><button id="barcodeScannerClose" type="button">Close ✕</button></div>
+    <p style="font-size:14px;margin:10px 0">Point the rear camera at a product barcode. The number will fill the selected field automatically.</p>
+    <div id="barcodeScannerReader"></div>
+    <p id="barcodeScannerStatus" role="status">Starting camera…</p>
+  </div>
+</div>
 <script>
+
+// Camera barcode scanning (EAN-8, EAN-13, UPC, Code 128, etc.).
+// The scanner library is loaded on demand, so printing and offline form use stay unchanged.
+let activeBarcodeScanner=null, activeBarcodeTarget=null, barcodeScannerBusy=false;
+function barcodeScannerStatus(message){document.getElementById('barcodeScannerStatus').textContent=message;}
+function loadBarcodeScannerLibrary(){
+  if(window.Html5Qrcode) return Promise.resolve();
+  if(window.barcodeScannerScriptPromise) return window.barcodeScannerScriptPromise;
+  window.barcodeScannerScriptPromise=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+    script.onload=()=>window.Html5Qrcode?resolve():reject(new Error('Scanner library did not load.'));
+    script.onerror=()=>reject(new Error('Scanner library could not load. Check your internet connection.'));
+    document.head.appendChild(script);
+  }).catch(error=>{window.barcodeScannerScriptPromise=null;throw error;});
+  return window.barcodeScannerScriptPromise;
+}
+async function closeBarcodeScanner(){
+  document.getElementById('barcodeScannerOverlay').hidden=true;
+  activeBarcodeTarget=null;
+  const scanner=activeBarcodeScanner;
+  activeBarcodeScanner=null;
+  if(scanner){try{await scanner.stop();}catch(e){}try{scanner.clear();}catch(e){}}
+  barcodeScannerBusy=false;
+}
+async function openBarcodeScanner(targetId){
+  if(barcodeScannerBusy)return;
+  const field=document.getElementById(targetId);
+  if(!field)return;
+  if(!window.isSecureContext){alert('Camera scanning requires HTTPS. Open your deployed Render website to scan.');return;}
+  if(!navigator.mediaDevices?.getUserMedia){alert('This browser does not support camera access. You can still type or use a handheld scanner.');return;}
+  barcodeScannerBusy=true;
+  activeBarcodeTarget=targetId;
+  document.getElementById('barcodeScannerOverlay').hidden=false;
+  barcodeScannerStatus('Loading barcode scanner…');
+  try{
+    await loadBarcodeScannerLibrary();
+    if(activeBarcodeTarget!==targetId)return;
+    const formats=[
+      Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.ITF
+    ];
+    const scanner=new Html5Qrcode('barcodeScannerReader',{formatsToSupport:formats,verbose:false});
+    activeBarcodeScanner=scanner;
+    barcodeScannerStatus('Allow camera access, then hold the barcode steady in view.');
+    await scanner.start({facingMode:'environment'},{fps:10,qrbox:(w,h)=>({width:Math.max(100,Math.floor(w*.86)),height:Math.max(80,Math.floor(Math.min(h*.5,130)))} )},async decoded=>{
+      if(!activeBarcodeTarget)return;
+      const cleaned=String(decoded).replace(/\D/g,'');
+      if(!cleaned||cleaned.length>13)return;
+      const input=document.getElementById(activeBarcodeTarget);
+      if(input){input.value=cleaned;input.dispatchEvent(new Event('input',{bubbles:true}));}
+      await closeBarcodeScanner();
+    },()=>{});
+    barcodeScannerBusy=false;
+  }catch(error){
+    barcodeScannerBusy=false;
+    barcodeScannerStatus('Camera could not start: '+(error?.message||error)+'. Check camera permission and use the live HTTPS website.');
+  }
+}
+document.addEventListener('click',event=>{
+  const scan=event.target.closest('[data-scan-target]');
+  if(scan){openBarcodeScanner(scan.dataset.scanTarget);return;}
+  if(event.target.id==='barcodeScannerClose')closeBarcodeScanner();
+});
+
 let type = 'single';
 function cells(container, count, values='') {
   container.innerHTML = '';
@@ -977,7 +1117,7 @@ function buildMixedInputs(){
   for(let i=1;i<=4;i++){
     const group=document.createElement('div');
     group.style.cssText='border:1px solid #d9dee4;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 100px;gap:8px';
-    group.innerHTML=`<strong style="grid-column:1/-1">Barcode ${i}</strong><label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>`;
+    group.innerHTML=`<strong style="grid-column:1/-1">Barcode ${i}</strong><label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="mcode${i}" aria-label="Scan barcode ${i} with camera">▣ Scan Barcode</button>`;
     host.appendChild(group);
   }
 }
@@ -1016,6 +1156,16 @@ function addBarcodeDividers(container) {
 }
 
 
+function formatDocketDate(value){
+  if (!value) return '';
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  return iso ? `${iso[3]}/${iso[2]}/${iso[1]}` : value;
+}
+function normalizeDateForInput(value){
+  if (!value) return '';
+  const uk = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  return uk ? `${uk[3]}-${uk[2]}-${uk[1]}` : value;
+}
 function updatePreview(){
   // Normalize text fields to uppercase so the printed text and QR/barcode data match.
   ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode','completedDate','mixedForklifted','mixedLocated','mcode1','mcode2','mcode3','mcode4'].forEach(id=>{
@@ -1023,7 +1173,7 @@ function updatePreview(){
   });
   ['Description','Forklifted','Expiry','Located','LocatedDate'].forEach(k=>{
     const ids={Description:'description',Forklifted:'forklifted',Expiry:'expiry',Located:'located',LocatedDate:'locatedDate'};
-    document.getElementById('p'+k).textContent=val(ids[k]);
+    document.getElementById('p'+k).textContent=['Expiry','LocatedDate'].includes(k) ? formatDocketDate(val(ids[k])) : val(ids[k]);
   });
   const singleBarcode=val('singleCode');
   const singleCodeCells=document.getElementById('singleCodeCells');
@@ -1052,7 +1202,7 @@ function updatePreview(){
     const qrBox=document.createElement('div'); qrBox.className='multi-stable-qr'; qrBox.appendChild(qr);
     row.append(code,qrBox,grey,qty); rows.appendChild(row); setQrImage(qr, codeVal);
   }
-  document.getElementById('pCompletedDate').textContent=val('completedDate');
+  document.getElementById('pCompletedDate').textContent=formatDocketDate(val('completedDate'));
   document.getElementById('pMixedForklifted').textContent=val('mixedForklifted');
   document.getElementById('pMixedLocated').textContent=val('mixedLocated');
   requestAnimationFrame(()=>{ fitTextToBoxes(); fitPreview(); });
@@ -1108,7 +1258,7 @@ function editBasketDocket(index){
   setType(item.type);
   basketFieldIds.forEach(id => {
     const field=document.getElementById(id);
-    if(field) field.value=(item.values && item.values[id]) || '';
+    if(field) { const saved=(item.values && item.values[id]) || ''; field.value=field.type==='date' ? normalizeDateForInput(saved) : saved; }
   });
   setEditingState(index);
   updatePreview();
@@ -1352,7 +1502,7 @@ function currentDateString(){
   const dd = String(now.getDate()).padStart(2, '0');
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const yyyy = now.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
+  return `${yyyy}-${mm}-${dd}`;
 }
 function setDateFieldsToday(){
   // Fill date fields on load only when they are blank, so manual edits are preserved.
