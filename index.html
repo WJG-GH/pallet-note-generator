@@ -2072,6 +2072,14 @@ textarea { min-height:65px; resize:vertical; }
     zoom:1!important; overflow:hidden!important;
   }
 }
+@media print {
+ body.printing-basket #basketPrint .single-bottom-row .date-value,
+ body.printing-basket #basketPrint .completed .date-value {
+   max-height:100%!important; min-height:0!important;
+   overflow:hidden!important; box-sizing:border-box!important;
+   align-items:center!important; justify-content:center!important;
+ }
+}
 </style>
 </head>
 <body>
@@ -2865,16 +2873,25 @@ function restorePrintTextSizes(sheet){
 // zoomed phone preview. Enlarge only the auto-fitted values on print clones;
 // keep their inline !important sizes so older print CSS cannot reset them.
 function matchPrintValueTypography(sheet){
-  const selectors='.single-description .date-value, .single-bottom-row .date-value, .completed .date-value, .location-docket-description-value';
-  sheet.querySelectorAll(selectors).forEach(el=>{
-    const raw=el.style.getPropertyValue('font-size');
-    const n=parseFloat(raw);
-    if(!Number.isFinite(n) || n<=0)return;
-    const isDescription=!!el.closest('.single-description, .location-docket-description');
-    const factor=isDescription?1.10:1.23;
-    el.style.setProperty('font-size',(n*factor).toFixed(2)+'px','important');
+  // The on-screen auto-fit sizes are measured under preview zoom. In desktop
+  // printing those inline sizes can overflow the footer. Give printed footer
+  // values their own conservative, content-aware size instead of multiplying.
+  const footer = sheet.querySelectorAll('.single-bottom-row .date-value, .completed .date-value');
+  footer.forEach(el=>{
+    const value=(el.textContent||'').trim();
+    if(!value){el.style.removeProperty('font-size');return;}
+    const isDate=/\d{1,2}\/\d{1,2}\/\d{2,4}/.test(value);
+    const maxPt=isDate?30:36;
+    const count=value.length;
+    const size=Math.min(maxPt, Math.max(13, (isDate?255:220)/Math.max(5,count)));
+    el.style.setProperty('font-size',size.toFixed(1)+'pt','important');
+    el.style.setProperty('line-height','1','important');
+    el.style.setProperty('white-space','nowrap','important');
+    el.style.setProperty('overflow','hidden','important');
   });
+  // Descriptions retain their existing two-line fit and are not enlarged.
 }
+
 function prepareIsolatedPrintArea(){
   const area = document.getElementById('basketPrint');
   if (area.parentElement !== document.body) document.body.appendChild(area);
