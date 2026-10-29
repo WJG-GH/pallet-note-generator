@@ -2196,7 +2196,7 @@ textarea { min-height:65px; resize:vertical; }
     <button id="otherTab" type="button">OTHER</button>
   </div>
   <section class="panel">
-    <h2 id="formTitle">Single-product pallet details</h2>
+    <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
       <label>Product / description<input id="description" placeholder="Product description" oninput="updatePreview()"></label>
       <div class="single-barcode-entry">
@@ -2205,9 +2205,9 @@ textarea { min-height:65px; resize:vertical; }
         <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">Scan Barcode</button>
       </div>
       <label class="expiry-toggle"><input id="includeExpiry" type="checkbox" onchange="updatePreview()"><span>EXPIRY DATE</span></label>
+      <label id="expiryInputWrap" hidden>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
       <label class="location-toggle"><input id="includeSingleLocation" type="checkbox" onchange="updatePreview()"><span>LOCATION</span></label>
       <label id="singleLocationInputWrap" hidden>Location<input id="singleLocationInput" inputmode="numeric" maxlength="10" placeholder="000-00-000" oninput="updatePreview()"></label>
-      <label id="expiryInputWrap" hidden>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
       <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
       <label>Completed by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
       <input type="hidden" id="located" value="">
@@ -2243,28 +2243,9 @@ textarea { min-height:65px; resize:vertical; }
     <button class="action" type="button" id="clearFormButton">Clear fields</button>
     <button class="action" type="button" id="cancelEditButton" hidden>Cancel editing</button>
   </div>
-  <section class="panel" id="basketPanel">
-    <h2>Print basket <span id="basketCount">(0 dockets)</span></h2>
-    <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
-    <div class="actions cloud-basket-actions" style="margin:12px 0;flex-wrap:wrap">
-      <button class="action primary" id="saveCloudBasketButton" type="button">Save basket</button>
-      <button class="action" id="resumeCloudBasketButton" type="button">Resume basket</button>
-    </div>
-    <div id="cloudBasketCodeBox" style="display:none;margin:10px 0;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc">
-      <div style="font-weight:700">Your basket code</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><strong id="cloudBasketCode" style="font-size:20px;letter-spacing:1px;overflow-wrap:anywhere"></strong><button class="action" type="button" id="copyCloudBasketCodeButton">Copy code</button></div>
-      <p class="hint" style="margin:6px 0 0">Use this code on your desktop to resume. Anyone with the code can access and edit this basket.</p>
-    </div>
-    <p id="cloudBasketStatus" role="status" class="hint" style="margin:8px 0"></p>
-    <div id="basketItems"><p class="hint">Your basket is empty.</p></div>
-    <div class="actions basket-print-actions">
-      <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
-      <button class="action" type="button" id="clearBasketButton">Empty basket</button>
-    </div>
-  </section>
   <span id="pLocation" hidden></span><span id="pMixedLocation" hidden></span><span id="pLocated" hidden></span><span id="pMixedLocated" hidden></span>
   <div id="basketPrint" aria-hidden="true"></div>
-  <h2 class="preview-title">Print preview</h2>
+  <h2 class="preview-title">LABEL PREVIEW</h2>
   <div id="previewWrap">
     <section class="sheet preview-active" id="singleSheet">
       <h2 class="mixed-title">PALLET NOTE</h2>
@@ -2310,6 +2291,25 @@ textarea { min-height:65px; resize:vertical; }
       <div class="other-sign-content" id="otherSignContent"></div>
     </section>
   </div>
+  <section class="panel" id="basketPanel" style="margin-top:24px">
+    <h2>BASKET <span id="basketCount">(0 dockets)</span></h2>
+    <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
+    <div class="actions cloud-basket-actions" style="margin:12px 0;flex-wrap:wrap">
+      <button class="action primary" id="saveCloudBasketButton" type="button">Save basket</button>
+      <button class="action" id="resumeCloudBasketButton" type="button">Resume basket</button>
+    </div>
+    <div id="cloudBasketCodeBox" style="display:none;margin:10px 0;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc">
+      <div style="font-weight:700">Your basket code</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><strong id="cloudBasketCode" style="font-size:20px;letter-spacing:1px;overflow-wrap:anywhere"></strong><button class="action" type="button" id="copyCloudBasketCodeButton">Copy code</button></div>
+      <p class="hint" style="margin:6px 0 0">Use this code on your desktop to resume. Anyone with the code can access and edit this basket.</p>
+    </div>
+    <p id="cloudBasketStatus" role="status" class="hint" style="margin:8px 0"></p>
+    <div id="basketItems"><p class="hint">Your basket is empty.</p></div>
+    <div class="actions basket-print-actions">
+      <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
+      <button class="action" type="button" id="clearBasketButton">Empty basket</button>
+    </div>
+  </section>
 </main>
 
 <div id="barcodeScannerOverlay" hidden role="dialog" aria-modal="true" aria-label="Scan product barcode">
@@ -2482,7 +2482,7 @@ function setType(next){
     el.classList.toggle('preview-active',kind===type);
     if(kind!==type){el.style.zoom='1';el.style.transform='none';}
   }
-  document.getElementById('formTitle').textContent=type==='single'?'Single docket details':type==='mixed'?'Multi docket details':type==='location'?'Location docket details':'Other A4 signs';
+  document.getElementById('formTitle').textContent=type==='single'?'SINGLE PALLET NOTE':type==='mixed'?'MULTI PALLET NOTE':type==='location'?'LOCATION PALLET NOTE':'OTHER PALLET NOTES';
   if(type==='other') updateOtherPreview(); else updatePreview();
 }
 let multiBarcodeCount=2;
@@ -2885,7 +2885,7 @@ function renderBasket(){
     const buttons = document.createElement('div');
     buttons.className = 'basket-entry-buttons';
     buttons.append(edit, remove);
-    if(item.type === 'single'){
+    if(item.type === 'single' || item.type === 'other'){
       const copiesLabel = document.createElement('label');
       copiesLabel.className = 'basket-copies-label';
       copiesLabel.textContent = 'Print copies ';
@@ -2895,7 +2895,7 @@ function renderBasket(){
       copiesInput.maxLength = 2;
       copiesInput.pattern = '[0-9]*';
       copiesInput.value = String(item.copies || 1);
-      copiesInput.setAttribute('aria-label', 'Number of copies of single docket ' + (index + 1));
+      copiesInput.setAttribute('aria-label', 'Number of copies of ' + (item.type === 'other' ? 'A4 sign ' : 'single docket ') + (index + 1));
       // Allow the user to delete the default 1 before typing a new value.
       // Do not rewrite the input while they are editing it (especially on iOS).
       copiesInput.addEventListener('input', () => {
@@ -3066,7 +3066,7 @@ function printBasket(){
   // the printer's own Copies setting (which is unreliable in iOS Edge).
   const pages = [];
   docketBasket.forEach(item => {
-    const copies = item.type === 'single'
+    const copies = (item.type === 'single' || item.type === 'other')
       ? Math.min(99, Math.max(1, parseInt(item.copies, 10) || 1))
       : 1;
     for(let copy = 0; copy < copies; copy++) {
