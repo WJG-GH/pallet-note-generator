@@ -2110,6 +2110,21 @@ textarea { min-height:65px; resize:vertical; }
     transform:none!important; zoom:1!important;
   }
 }
+
+/* QR fallback image must never print behind the generated inline SVG.
+   The IMG has no src once the QR vector is ready; older CSS forced it visible. */
+.sheet .single-qr-box > img.mixed-qr,
+.sheet .multi-qr-box > img.mixed-qr,
+.sheet .multi-stable-qr > img.mixed-qr,
+.sheet .location-docket-qr > img.mixed-qr {
+  display:none!important;
+}
+.sheet .single-qr-box > svg.qr-vector,
+.sheet .multi-qr-box > svg.qr-vector,
+.sheet .multi-stable-qr > svg.qr-vector,
+.sheet .location-docket-qr > svg.qr-vector {
+  display:block!important;
+}
 </style>
 </head>
 <body>
