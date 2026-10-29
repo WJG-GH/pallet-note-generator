@@ -2080,6 +2080,36 @@ textarea { min-height:65px; resize:vertical; }
    align-items:center!important; justify-content:center!important;
  }
 }
+
+/* Single docket: enlarge QR to use the available square while retaining a narrow scan-safe margin.
+   Applies identically to live preview, print-only sheet and basket clones. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box > img.mixed-qr,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box > svg.qr-vector {
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:calc(100% - 2mm)!important;
+  height:calc(100% - 2mm)!important;
+  min-width:0!important;min-height:0!important;
+  max-width:calc(100% - 2mm)!important;
+  max-height:calc(100% - 2mm)!important;
+  object-fit:contain!important;
+  padding:0!important;margin:0!important;
+}
+
+/* A4 landscape: reduce the outer white margin from 10 mm to 4 mm.
+   Keep a small safety margin for common office printers. */
+@page { size: A4 landscape; margin: 0; }
+@media print {
+  body.printing-basket > #basketPrint > .print-page > .sheet,
+  body > #basketPrint > .print-page > .sheet {
+    left:4mm!important; top:4mm!important;
+    width:289mm!important; min-width:289mm!important; max-width:289mm!important;
+    height:202mm!important; min-height:202mm!important; max-height:202mm!important;
+    right:auto!important; bottom:auto!important;
+    transform:none!important; zoom:1!important;
+  }
+}
 </style>
 </head>
 <body>
