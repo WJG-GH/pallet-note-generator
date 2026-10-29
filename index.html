@@ -3179,7 +3179,7 @@ window.addEventListener('afterprint', () => {
  function refresh(){
    const list=byId('savedProductDescriptions');list.replaceChildren();
    const output=byId('productDbList');output.replaceChildren();
-   products.sort((a,b)=>a.description.localeCompare(b.description));
+   products.sort((a,b)=>normalize(a.description).localeCompare(normalize(b.description), undefined, {numeric:true, sensitivity:"base"}));
    products.forEach(p=>{
      const option=document.createElement('option');option.value=p.description;list.appendChild(option);
      const item=document.createElement('div');item.className='product-db-item';
