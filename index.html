@@ -2125,6 +2125,26 @@ textarea { min-height:65px; resize:vertical; }
 .sheet .location-docket-qr > svg.qr-vector {
   display:block!important;
 }
+
+/* Location Docket print clone: preserve the exact same structure as the live preview.
+   Previous location rules targeted #locationSheet only; cloned print sheets lost
+   their grid, dimensions and QR constraints, causing an enormous QR. */
+.sheet.basket-location-sheet .location-docket-description { border:1.5px solid #111; flex:1; min-height:0; margin-top:3mm; display:flex; flex-direction:column; }
+.sheet.basket-location-sheet .location-docket-label { font-size:17pt; line-height:1.1; padding:2mm; border-bottom:1.5px solid #111; box-sizing:border-box; }
+.sheet.basket-location-sheet .location-docket-description-value { font-weight:900; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:38pt; padding:4mm; overflow-wrap:anywhere; overflow:hidden; }
+.sheet.basket-location-sheet .location-docket-bottom { display:grid; grid-template-columns:minmax(0,1fr) 43mm; gap:3mm; margin-top:3mm; height:49mm; flex:none; min-height:0; }
+.sheet.basket-location-sheet .location-docket-code { border:1.5px solid #111; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.sheet.basket-location-sheet .location-docket-digits { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); flex:1; min-height:0; }
+.sheet.basket-location-sheet .location-docket-digits span { display:flex; align-items:center; justify-content:center; min-width:0; border-right:1.5px solid #111; font-size:39pt; font-weight:800; }
+.sheet.basket-location-sheet .location-docket-digits span:last-child { border-right:0; }
+.sheet.basket-location-sheet .location-docket-qr { border:1.5px solid #111; display:flex; align-items:center; justify-content:center; padding:2mm; min-width:0; min-height:0; overflow:hidden; box-sizing:border-box; }
+.sheet.basket-location-sheet .location-docket-qr > svg.qr-vector { display:block!important; width:100%!important; height:100%!important; max-width:100%!important; max-height:100%!important; min-width:0!important; min-height:0!important; object-fit:contain!important; flex:0 1 auto!important; }
+.sheet.basket-location-sheet .location-docket-qr > img.mixed-qr { display:none!important; }
+@media print {
+ body.printing-basket #basketPrint .basket-location-sheet .location-docket-bottom { display:grid!important; grid-template-columns:minmax(0,1fr) 43mm!important; height:49mm!important; flex:none!important; }
+ body.printing-basket #basketPrint .basket-location-sheet .location-docket-description { display:flex!important; flex:1!important; min-height:0!important; }
+ body.printing-basket #basketPrint .basket-location-sheet .location-docket-qr > svg.qr-vector { width:100%!important; height:100%!important; max-width:100%!important; max-height:100%!important; }
+}
 </style>
 </head>
 <body>
@@ -2325,6 +2345,7 @@ function cells(container, count, values='') {
 }
 function val(id){ return (document.getElementById(id)?.value || '').trim(); }
 function setQrImage(img, text){
+  img.alt = ""; // Never expose fallback text in print engines.
   const oldVector=img.parentNode && img.parentNode.querySelector('.qr-vector');
   if(oldVector) oldVector.remove();
   const oldNote=img.parentNode && img.parentNode.querySelector('.qr-error');
@@ -2937,6 +2958,17 @@ function matchPrintValueTypography(sheet){
   // Descriptions retain their existing two-line fit and are not enlarged.
 }
 
+// Remove unused QR image fallbacks from print copies altogether. An IMG without
+// a source can print its ALT text or broken-image icon in desktop Chrome/Edge,
+// even when an SVG QR code is present beside it.
+function cleanPrintQrPlaceholders(root){
+  if(!root) return;
+  root.querySelectorAll('img.mixed-qr').forEach(img => img.remove());
+  root.querySelectorAll('.qr-vector').forEach(svg => {
+    svg.removeAttribute('aria-label');
+    svg.setAttribute('aria-hidden','true');
+  });
+}
 function prepareIsolatedPrintArea(){
   const area = document.getElementById('basketPrint');
   if (area.parentElement !== document.body) document.body.appendChild(area);
@@ -2954,7 +2986,8 @@ function printCurrentDocket(){
   clone.style.transform = '';
   clone.style.zoom = '';
   clone.style.removeProperty('--preview-scale');
-  matchPrintValueTypography(clone);
+  // Preserve the exact fitted font sizes from the live preview.
+  cleanPrintQrPlaceholders(clone);
   printArea.innerHTML = '<div class=\"print-page\">' + clone.outerHTML + '</div>';
   document.body.classList.add('printing-basket');
   // Preview values already carry measured inline font sizes. Do not refit in print media.
@@ -2975,7 +3008,7 @@ function printBasket(){
       printClone.innerHTML = item.markup;
       const sheet = printClone.querySelector('.sheet');
       // Match the printed value sizes to the on-screen fitted typography.
-      if(sheet)matchPrintValueTypography(sheet);
+      if(sheet){cleanPrintQrPlaceholders(sheet);}
       pages.push('<div class="print-page">' + printClone.innerHTML + '</div>');
     }
   });
