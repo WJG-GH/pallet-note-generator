@@ -2185,6 +2185,15 @@ textarea { min-height:65px; resize:vertical; }
 .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content { font-family:Arial,Helvetica,sans-serif!important; font-weight:900!important; font-size:76pt!important; line-height:1.04!important; text-align:center!important; max-width:100%!important; overflow-wrap:normal!important; padding:10mm!important; letter-spacing:-2px!important; -webkit-text-stroke:1px #000!important; }
 @media print { body.printing-basket > #basketPrint > .print-page > .basket-other-sheet, body > #basketPrint > .print-page > .basket-other-sheet { display:flex!important; align-items:center!important; justify-content:center!important; } }
 </style>
+<style>
+#productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
+.product-manager-fields{display:grid;grid-template-columns:2fr 1.4fr .7fr;gap:10px}
+.product-manager-fields label{min-width:0;font-weight:700}.product-manager-fields input{width:100%;min-width:0;box-sizing:border-box}
+.product-db-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #d9dee4;padding:10px 0;flex-wrap:wrap}
+.product-db-item .product-db-name{overflow-wrap:anywhere;flex:1 1 170px}.product-db-item button{padding:8px 12px;border:1px solid #bbc5ce;background:white;border-radius:7px}
+@media(max-width:550px){.product-manager-fields{grid-template-columns:1fr 1fr}.product-manager-fields label:first-child{grid-column:1/-1}}
+@media print{#productDatabasePanel{display:none!important}}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -2198,7 +2207,8 @@ textarea { min-height:65px; resize:vertical; }
   <section class="panel">
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
-      <label>Product / description<input id="description" placeholder="Product description" oninput="updatePreview()"></label>
+      <label>Product / description<input id="description" list="savedProductDescriptions" autocomplete="off" placeholder="Product description" oninput="productDescriptionChanged()"></label>
+      <datalist id="savedProductDescriptions"></datalist>
       <div class="single-barcode-entry">
         <strong>Barcode 1</strong>
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
@@ -2308,6 +2318,20 @@ textarea { min-height:65px; resize:vertical; }
     <div class="actions basket-print-actions">
       <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
       <button class="action" type="button" id="clearBasketButton">Empty basket</button>
+    </div>
+  </section>
+  <section class="panel" id="productDatabasePanel">
+    <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">PRODUCT DATABASE ▾</button>
+    <div id="productDatabaseBody" hidden style="padding-top:16px">
+      <p class="hint">Save products here. On the SINGLE tab, typing or selecting a saved description fills its barcode and quantity automatically. Products are shared across devices. Administrator password required to make changes.</p>
+      <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="Administrator password" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">Unlock management</button></div><div id="productDbAdmin" hidden><button class="action" id="productDbLogoutButton" type="button" style="margin-bottom:10px">Lock management</button><div class="product-manager-fields">
+        <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
+        <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
+        <label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
+      </div>
+      <div class="actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
+      </div><p id="productDbMessage" role="status" aria-live="polite" class="hint"></p>
+      <div id="productDbList"></div>
     </div>
   </section>
 </main>
@@ -3132,6 +3156,72 @@ window.addEventListener('afterprint', () => {
 });
 // Intentionally keep the prepared print pages in #basketPrint until the next
 // print action replaces them. The print layer is hidden in normal screen mode.
+</script>
+<script>
+(function(){
+ 'use strict';
+ const byId=id=>document.getElementById(id);
+ const normalize=s=>String(s||'').trim().replace(/\s+/g,' ').toUpperCase();
+ const API=PALLET_SUPABASE_URL+'/functions/v1/product-database';
+ let products=[], password='', editingId=null;
+ const status=s=>{byId('productDbMessage').textContent=s;};
+ async function request(method='GET',body){
+   const headers={'apikey':PALLET_SUPABASE_KEY};
+   if(body!==undefined)headers['Content-Type']='application/json';
+   if(method!=='GET')headers['x-admin-password']=password;
+   const response=await fetch(API,{method,cache:'no-store',headers,...(body!==undefined?{body:JSON.stringify(body)}:{})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.error||'Server error ('+response.status+')');
+   return data;
+ }
+ function setAdmin(value){byId('productDbLogin').hidden=value;byId('productDbAdmin').hidden=!value;refresh();}
+ function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');}
+ function refresh(){
+   const list=byId('savedProductDescriptions');list.replaceChildren();
+   const output=byId('productDbList');output.replaceChildren();
+   products.sort((a,b)=>a.description.localeCompare(b.description));
+   products.forEach(p=>{
+     const option=document.createElement('option');option.value=p.description;list.appendChild(option);
+     const item=document.createElement('div');item.className='product-db-item';
+     const name=document.createElement('div');name.className='product-db-name';
+     const strong=document.createElement('strong');strong.textContent=p.description;
+     const details=document.createElement('div');details.textContent=p.barcode+' · QTY '+p.quantity;
+     name.append(strong,details);item.append(name);
+     if(password){
+       const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>{editingId=p.id;byId('productDbDescription').value=p.description;byId('productDbBarcode').value=p.barcode;byId('productDbQty').value=p.quantity;byId('productDbDescription').focus();};
+       const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.onclick=async()=>{if(!confirm('Remove '+p.description+'?'))return;try{await request('DELETE',{id:p.id});await load();status('Product removed.');}catch(e){status(e.message);}};
+       item.append(edit,remove);
+     }
+     output.appendChild(item);
+   });
+   if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
+ }
+ async function load(){try{const data=await request();products=data.products||[];refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
+ window.productDescriptionChanged=function(){
+   const description=normalize(byId('description').value);
+   const product=products.find(p=>normalize(p.description)===description);
+   if(product){byId('singleCode').value=product.barcode;byId('qty').value=product.quantity;}
+   updatePreview();
+ };
+ byId('toggleProductDatabase').onclick=()=>{const body=byId('productDatabaseBody');body.hidden=!body.hidden;byId('toggleProductDatabase').setAttribute('aria-expanded',String(!body.hidden));};
+ byId('productDbLoginButton').onclick=async()=>{
+   const entered=byId('productDbPassword').value;
+   if(!entered){status('Enter administrator password.');return;}
+   password=entered;
+   // The function verifies passwords on writes; do not claim authentication until a server check is available.
+   byId('productDbPassword').value='';setAdmin(true);status('Management controls shown. Password will be checked when you save or remove a product.');
+ };
+ byId('productDbLogoutButton').onclick=()=>{password='';clearFields();setAdmin(false);status('Management locked.');};
+ byId('saveProductDb').onclick=async()=>{
+   const description=normalize(byId('productDbDescription').value);
+   const barcode=byId('productDbBarcode').value.trim();const quantity=Number(byId('productDbQty').value.trim());
+   if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^\d{1,3}$/.test(byId('productDbQty').value.trim())){status('Enter description, numeric barcode (up to 13 digits), and quantity (up to 3 digits).');return;}
+   try{await request(editingId===null?'POST':'PUT',{...(editingId===null?{}:{id:editingId}),description,barcode,quantity});await load();status('Product saved for all devices.');clearFields();}
+   catch(e){status(e.message);}
+ };
+ byId('clearProductDb').onclick=()=>{clearFields();status('');};
+ setAdmin(false);load();document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+})();
 </script>
 </body>
 </html>
