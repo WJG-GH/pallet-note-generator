@@ -228,10 +228,10 @@ textarea { min-height:65px; resize:vertical; }
  body > header { display:none!important; }
  main { display:block!important; margin:0!important; padding:0!important; max-width:none!important; width:auto!important; }
  body.printing-basket main > :not(#basketPrint) { display:none!important; }
- body.printing-basket #basketPrint { display:block!important; position:static!important; width:190mm!important; margin:0!important; padding:0!important; }
+ body.printing-basket #basketPrint { display:block!important; position:static!important; width:188mm!important; margin:0!important; padding:0!important; }
  body.printing-basket #basketPrint .print-page {
    display:block!important; position:relative!important; box-sizing:border-box!important;
-   width:190mm!important; height:268mm!important; margin:0!important; padding:0!important;
+   width:188mm!important; height:264mm!important; margin:0!important; padding:0!important;
    overflow:hidden!important; border:0!important;
    break-inside:avoid!important; page-break-inside:avoid!important;
    break-before:auto!important; page-break-before:auto!important;
@@ -247,7 +247,7 @@ textarea { min-height:65px; resize:vertical; }
    left:calc(50% - 138.5mm)!important; top:calc(50% - 95mm)!important;
    margin:0!important; padding:4mm!important; box-sizing:border-box!important;
    border:2px solid #111!important; overflow:hidden!important;
-   zoom:1!important; transform:rotate(90deg) scale(.94)!important;
+   zoom:1!important; transform:rotate(90deg) scale(.92)!important;
    transform-origin:50% 50%!important;
  }
 }
@@ -1049,7 +1049,7 @@ textarea { min-height:65px; resize:vertical; }
 #locationForm { grid-template-columns:repeat(2,minmax(0,1fr)); }
 #locationSheet .location-docket-description { border:1.5px solid #111; flex:1; min-height:0; margin-top:3mm; display:flex; flex-direction:column; }
 #locationSheet .location-docket-label { font-size:17pt; line-height:1.1; padding:2mm; border-bottom:1.5px solid #111; }
-#locationSheet .location-docket-description-value { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:38pt; padding:4mm; overflow-wrap:anywhere; overflow:hidden; }
+#locationSheet .location-docket-description-value { font-weight:900; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:38pt; padding:4mm; overflow-wrap:anywhere; overflow:hidden; }
 #locationSheet .location-docket-bottom { display:grid; grid-template-columns:minmax(0,1fr) 43mm; gap:3mm; margin-top:3mm; height:49mm; flex:none; }
 #locationSheet .location-docket-code { border:1.5px solid #111; min-width:0; display:flex; flex-direction:column; }
 #locationSheet .location-docket-digits { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); flex:1; min-height:0; }
@@ -1080,6 +1080,965 @@ textarea { min-height:65px; resize:vertical; }
  body.printing-basket #basketPrint .sheet .mixed-code > span { font-size:55pt!important; font-weight:800!important; }
  body.printing-basket #basketPrint .sheet .qty-cells > span { font-size:55pt!important; font-weight:800!important; }
 }
+
+/* Single Docket: keep the original outlined style, with QR beside the barcode
+   and quantity beside description. No decorative black separator lines. */
+#singleSheet .mixed-head, .basket-single-sheet .mixed-head { display:none!important; }
+#singleSheet .single-mixed-row, .basket-single-sheet .single-mixed-row {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 37mm!important;
+ column-gap:2mm!important; height:57mm!important; padding-top:2mm!important;
+ align-items:stretch!important; flex:none!important;
+}
+#singleSheet .single-mixed-row > .mixed-code,
+.basket-single-sheet .single-mixed-row > .mixed-code {grid-column:1!important; height:100%!important; min-width:0!important;}
+#singleSheet .single-mixed-row > .single-qr-box,
+.basket-single-sheet .single-mixed-row > .single-qr-box {
+ grid-column:2!important; width:100%!important; min-width:0!important;
+ max-width:none!important; height:100%!important; border:1.5px solid #111!important;
+ background:#fff!important; overflow:hidden!important;
+}
+#singleSheet .single-qr-box img.mixed-qr,
+.basket-single-sheet .single-qr-box img.mixed-qr {
+ position:static!important; transform:none!important; margin:auto!important;
+ display:block!important; width:34mm!important; height:34mm!important;
+ max-width:100%!important; max-height:100%!important; object-fit:contain!important;
+}
+#singleSheet .single-description-qty, .basket-single-sheet .single-description-qty {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 47mm!important;
+ gap:2mm!important; height:43mm!important; flex:none!important; margin-top:2mm!important;
+}
+#singleSheet .single-description-qty .single-info-item,
+.basket-single-sheet .single-description-qty .single-info-item {display:grid!important; grid-template-rows:9mm minmax(0,1fr)!important; min-width:0!important;}
+#singleSheet .single-description-qty .date-label,
+.basket-single-sheet .single-description-qty .date-label {
+ border:1.5px solid #111!important; font-size:17pt!important; display:flex!important;
+ align-items:center!important; padding:1mm 2mm!important; overflow:hidden!important;
+}
+#singleSheet .single-description-qty .date-value,
+.basket-single-sheet .single-description-qty .date-value {
+ border:1.5px solid #111!important; border-top:0!important; display:flex!important;
+ align-items:center!important; justify-content:center!important; text-align:center!important;
+ font-size:32pt!important; padding:1mm!important; overflow:hidden!important;
+}
+#singleSheet .single-quantity .qty-cells,
+.basket-single-sheet .single-quantity .qty-cells {
+ display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-rows:minmax(0,1fr)!important; height:100%!important; min-height:0!important;
+ border:1.5px solid #111!important; border-top:0!important; box-sizing:border-box!important;
+ background:#fff!important;
+}
+#singleSheet .single-quantity .qty-cells > span,
+.basket-single-sheet .single-quantity .qty-cells > span {
+ display:flex!important; align-items:center!important; justify-content:center!important;
+ font-size:39pt!important; font-weight:900!important; line-height:1!important;
+ border-right:1.5px solid #111!important; min-width:0!important; overflow:hidden!important;
+}
+#singleSheet .single-quantity .qty-cells > span:last-child,
+.basket-single-sheet .single-quantity .qty-cells > span:last-child {border-right:0!important;}
+#singleSheet .single-info, .basket-single-sheet .single-info {
+ display:grid!important; grid-template-columns:1fr 1fr!important;
+ grid-template-rows:minmax(0,1fr)!important; flex:1!important; min-height:0!important;
+ gap:2mm!important; padding-top:2mm!important;
+}
+@media print {
+ #singleSheet .single-quantity .qty-cells > span,
+ .basket-single-sheet .single-quantity .qty-cells > span {font-size:39pt!important;}
+}
+
+/* SINGLE DOCKET FINAL LAYOUT — identical in preview, basket and print. */
+.sheet:is(#singleSheet,.basket-single-sheet) { box-sizing:border-box!important; }
+.sheet:is(#singleSheet,.basket-single-sheet) .mixed-title { flex:0 0 17mm!important; height:17mm!important; }
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 36mm!important;
+ grid-template-rows:minmax(0,1fr)!important; column-gap:2mm!important;
+ height:65mm!important; flex:0 0 65mm!important; padding-top:2mm!important;
+ min-width:0!important; box-sizing:border-box!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row > .single-barcode-grid {
+ grid-column:1!important; grid-row:1!important; height:100%!important;
+ display:grid!important; grid-template-columns:repeat(13,minmax(0,1fr))!important;
+ min-width:0!important; border:1.5px solid #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row > .single-qr-box {
+ grid-column:2!important; grid-row:1!important; width:36mm!important;
+ min-width:36mm!important; max-width:36mm!important; height:100%!important;
+ position:relative!important; border:1.5px solid #111!important; box-sizing:border-box!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box > :is(img.mixed-qr,svg.qr-vector) {
+ position:absolute!important; left:50%!important; top:50%!important;
+ transform:translate(-50%,-50%)!important; width:33mm!important; height:33mm!important;
+ min-width:0!important; min-height:0!important; max-width:33mm!important; max-height:33mm!important;
+ margin:0!important; object-fit:contain!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 49mm!important;
+ grid-template-rows:minmax(0,1fr)!important; gap:2mm!important;
+ height:44mm!important; flex:0 0 44mm!important; margin-top:2mm!important; min-width:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty > .single-info-item {
+ display:grid!important; grid-template-rows:9mm minmax(0,1fr)!important;
+ min-height:0!important; min-width:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .date-label {
+ border:1.5px solid #111!important; box-sizing:border-box!important; font-size:17pt!important;
+ white-space:nowrap!important; overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .date-value,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .qty-cells {
+ border:1.5px solid #111!important; border-top:0!important; box-sizing:border-box!important;
+ min-width:0!important; min-height:0!important; height:100%!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .single-description .date-value {
+ font-size:30pt!important; line-height:1.08!important; text-align:center!important;
+ overflow-wrap:anywhere!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells {
+ display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-rows:minmax(0,1fr)!important; background:white!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span {
+ display:flex!important; align-items:center!important; justify-content:center!important;
+ font-size:43pt!important; font-weight:900!important; border:0!important;
+ border-right:1.5px solid #111!important; min-width:0!important; line-height:1!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span:last-child {border-right:0!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-info {
+ display:grid!important; grid-template-columns:1fr 1fr!important;
+ grid-template-rows:minmax(0,1fr)!important; flex:1 1 auto!important;
+ min-height:0!important; padding-top:2mm!important; gap:2mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .completed {
+ flex:0 0 27mm!important; height:27mm!important; padding-top:2mm!important;
+}
+@media print {
+ body.printing-basket #basketPrint .basket-single-sheet .single-mixed-row {height:65mm!important;flex-basis:65mm!important;}
+ body.printing-basket #basketPrint .basket-single-sheet .single-description-qty {height:44mm!important;flex-basis:44mm!important;}
+ body.printing-basket #basketPrint .basket-single-sheet .single-quantity .qty-cells > span {font-size:43pt!important;}
+}
+
+/* SINGLE DOCKET — faithful to the agreed five-column landscape illustration.
+   Shared by live preview, basket thumbnails and printed clones. */
+.sheet:is(#singleSheet,.basket-single-sheet) .mixed-title {
+  flex:0 0 17mm!important;height:17mm!important;min-height:17mm!important;
+  border-bottom:2px solid #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row {
+  flex:0 0 67mm!important;height:67mm!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) 36mm!important;
+  grid-template-rows:minmax(0,1fr)!important;gap:2mm!important;
+  padding-top:2mm!important;box-sizing:border-box!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area {
+  grid-column:1!important;grid-row:1!important;display:grid!important;
+  grid-template-rows:9mm minmax(0,1fr)!important;min-width:0!important;
+  min-height:0!important;border:1.5px solid #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading {
+  border-bottom:1.5px solid #111!important;font-size:17pt!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area > .single-barcode-grid {
+  display:grid!important;grid-template-columns:repeat(13,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;height:100%!important;width:100%!important;
+  min-height:0!important;min-width:0!important;border:0!important;overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area > .single-barcode-grid > span {
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;max-width:none!important;min-width:0!important;
+  border:0!important;border-right:1.5px solid #111!important;
+  font-size:34pt!important;font-weight:900!important;line-height:1!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area > .single-barcode-grid > span:last-child {
+  border-right:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row > .single-qr-box {
+  grid-column:2!important;grid-row:1!important;width:36mm!important;height:100%!important;
+  min-width:0!important;max-width:none!important;border:1.5px solid #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty {
+  flex:0 0 53mm!important;height:53mm!important;
+  grid-template-columns:minmax(0,1fr) 49mm!important;gap:2mm!important;
+  margin-top:2mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .single-description .date-value {
+  font-size:37pt!important;font-weight:900!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row {
+  flex:1 1 auto!important;min-height:0!important;
+  display:grid!important;grid-template-columns:1.15fr 1.25fr 1.12fr 1fr 1.18fr!important;
+  gap:1.5mm!important;padding-top:2mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row > .single-info-item {
+  min-width:0!important;min-height:0!important;
+  display:grid!important;grid-template-rows:9mm minmax(0,1fr)!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-label {
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  border:1.5px solid #111!important;border-bottom:0!important;
+  font-size:11pt!important;line-height:1!important;white-space:nowrap!important;
+  padding:0 .4mm!important;overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-value {
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  border:1.5px solid #111!important;font-size:20pt!important;font-weight:800!important;
+  min-height:0!important;min-width:0!important;text-align:center!important;
+  padding:0!important;overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .location-digit-grid {
+  display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .location-digit-grid > span {
+  font-size:12pt!important;min-width:0!important;
+}
+@media print {
+  body.printing-basket #basketPrint .basket-single-sheet .single-mixed-row {
+    height:67mm!important;flex-basis:67mm!important;
+  }
+  body.printing-basket #basketPrint .basket-single-sheet .single-description-qty {
+    height:53mm!important;flex-basis:53mm!important;
+  }
+}
+
+/* Single docket footer: readable complete headings and undivided location. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row {
+  grid-template-columns:1.18fr 1.06fr 1.32fr 1.05fr 1.28fr!important;
+  gap:1.2mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-label {
+  font-size:9pt!important;
+  font-weight:800!important;
+  letter-spacing:-.2px!important;
+  white-space:nowrap!important;
+  padding:0 0.3mm!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  line-height:1.1!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .single-location-plain {
+  display:flex!important;
+  font-size:17pt!important;
+  font-weight:800!important;
+  letter-spacing:-.35px!important;
+  white-space:nowrap!important;
+}
+
+/* Four full-width horizontal barcode rows: barcode | QR | quantity.
+   Scoped to Multi Docket and saved multi basket sheets only. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-head {display:none!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows {
+  display:grid!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;
+  gap:2mm!important;flex:1 1 0!important;min-height:0!important;
+  padding:2mm 0!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row {
+  display:grid!important;grid-template-columns:minmax(0,1fr) 25mm 51mm!important;
+  grid-template-rows:minmax(0,1fr)!important;gap:1.5mm!important;
+  height:100%!important;min-height:0!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-divider {display:none!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty {
+  position:relative!important;grid-row:1!important;min-width:0!important;
+  height:100%!important;box-sizing:border-box!important;
+  padding-top:7mm!important;overflow:hidden!important;
+  border:1.5px solid #111!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code {grid-column:1!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr {
+  grid-column:2!important;width:100%!important;height:100%!important;
+  border:1.5px solid #111!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty {grid-column:3!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-row-heading {
+  position:absolute!important;top:0!important;left:0!important;right:0!important;
+  height:7mm!important;display:flex!important;align-items:center!important;
+  padding:0 2mm!important;border-bottom:1.5px solid #111!important;
+  background:white!important;font-size:13pt!important;line-height:1!important;
+  box-sizing:border-box!important;z-index:4!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+  grid-row:1!important;height:100%!important;min-height:0!important;
+  font-size:38pt!important;font-weight:800!important;line-height:1!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > svg.barcode-dividers {
+  top:7mm!important;height:calc(100% - 7mm)!important;bottom:0!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > svg.qr-vector {
+  width:23mm!important;height:23mm!important;
+}
+
+
+/* Multi docket: illustrated four horizontal barcode/QR/QTY rows.
+   Applied equally to live preview, basket thumbnails and printed clones. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .mixed-title {
+  height:17mm!important;flex:0 0 17mm!important;font-size:30pt!important;
+  line-height:1!important;padding:1mm 0 0!important;
+  border-bottom:2px solid #111!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows {
+  display:grid!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;
+  gap:2mm!important;flex:1 1 0!important;min-height:0!important;
+  padding:2mm 0!important;box-sizing:border-box!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row {
+  display:grid!important;grid-template-columns:minmax(0,1fr) 27mm 49mm!important;
+  gap:1.5mm!important;min-height:0!important;min-width:0!important;
+  height:100%!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty {
+  display:grid!important;grid-row:1!important;grid-template-rows:minmax(0,1fr)!important;
+  position:relative!important;padding:7mm 0 0!important;
+  height:100%!important;min-height:0!important;min-width:0!important;
+  box-sizing:border-box!important;border:1.5px solid #111!important;overflow:hidden!important;
+  background:#fff!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code {
+  grid-column:1!important;grid-template-columns:repeat(13,minmax(0,1fr))!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty {
+  grid-column:3!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+  grid-row:1!important;display:flex!important;align-items:center!important;
+  justify-content:center!important;min-width:0!important;min-height:0!important;
+  height:100%!important;font-size:37pt!important;font-weight:800!important;
+  line-height:1!important;border:0!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span:not(:last-of-type) {
+  border-right:1.5px solid #111!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-row-heading {
+  position:absolute!important;top:0!important;left:0!important;right:0!important;
+  height:7mm!important;display:flex!important;align-items:center!important;
+  justify-content:flex-start!important;padding:0 2mm!important;
+  font-size:12pt!important;line-height:1!important;border-bottom:1.5px solid #111!important;
+  box-sizing:border-box!important;z-index:5!important;background:#fff!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > svg.barcode-dividers {
+  top:7mm!important;bottom:0!important;height:calc(100% - 7mm)!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr {
+  grid-column:2!important;grid-row:1!important;position:relative!important;
+  width:100%!important;height:100%!important;min-width:0!important;
+  border:1.5px solid #111!important;box-sizing:border-box!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  background:#fff!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > svg.qr-vector {
+  position:static!important;transform:none!important;display:block!important;
+  width:24mm!important;height:24mm!important;max-width:95%!important;
+  max-height:95%!important;margin:auto!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-divider {display:none!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed {
+  display:grid!important;grid-template-columns:1.45fr 1.25fr 1.12fr 1.28fr!important;
+  gap:1.5mm!important;height:27mm!important;flex:0 0 27mm!important;
+  padding:1mm 0 0!important;box-sizing:border-box!important;
+  align-items:stretch!important;overflow:visible!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item {
+  display:grid!important;grid-template-rows:8mm minmax(0,1fr)!important;
+  min-width:0!important;min-height:0!important;border:1.5px solid #111!important;
+  overflow:hidden!important;box-sizing:border-box!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-label {
+  font-size:11pt!important;letter-spacing:-.25px!important;
+  display:flex!important;align-items:center!important;white-space:nowrap!important;
+  overflow:hidden!important;border:0!important;border-bottom:1.5px solid #111!important;
+  padding:0 1mm!important;line-height:1!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-value {
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  border:0!important;padding:0 .5mm!important;white-space:nowrap!important;
+  font-size:18pt!important;line-height:1!important;overflow:hidden!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .multi-location-plain {
+  font-size:17pt!important;letter-spacing:-.3px!important;
+}
+
+
+/* Final multi docket: reference artwork proportions, five-cell footer. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows {gap:1mm!important;padding:1mm 0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row {grid-template-columns:minmax(0,1fr) 27mm 49mm!important;gap:1mm!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {font-size:46pt!important;font-weight:900!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > svg.barcode-dividers {z-index:2!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed {
+ grid-template-columns:1.15fr 1.32fr 1.28fr 1.12fr 1.25fr!important;
+ gap:1mm!important;height:25mm!important;flex:0 0 25mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-label {font-size:9.5pt!important;letter-spacing:-.35px!important;justify-content:center!important;padding:0 .3mm!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-value {font-size:17pt!important;font-weight:800!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .multi-location-plain {font-size:17pt!important;}
+
+
+/* Multi docket final alignment: four footer fields must occupy full width. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed {
+  grid-template-columns:1.38fr 1.24fr 1.12fr 1.22fr!important;
+  width:100%!important;
+  gap:1mm!important;
+  height:23mm!important;
+  flex:0 0 23mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-label {
+  font-size:11pt!important;
+  letter-spacing:-.2px!important;
+  white-space:nowrap!important;
+  justify-content:center!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+  font-size:52pt!important;
+  font-weight:900!important;
+  letter-spacing:-.6px!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row {
+  grid-template-columns:minmax(0,1fr) 27mm 49mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > svg.barcode-dividers {
+  inset:auto 0 0!important;
+  top:7mm!important;
+  width:100%!important;
+  height:calc(100% - 7mm)!important;
+}
+
+/* Multi docket: larger reference-style digits and QR, without affecting single. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row {
+ grid-template-columns:minmax(0,1fr) 31mm 49mm!important;
+ gap:1mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+ font-size:61pt!important;font-weight:900!important;letter-spacing:-.9px!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > svg.qr-vector {
+ width:29mm!important;height:29mm!important;max-width:96%!important;max-height:96%!important;
+}
+/* Multi: same rules apply to both live and cloned print sheets. */
+@media print {
+ body.printing-basket #basketPrint .print-page { overflow:hidden!important; }
+ body.printing-basket #basketPrint .basket-mixed-sheet { max-width:none!important; max-height:none!important; }
+}
+/* iPhone print stability: one actual A4 page, with the same docket classes
+   and dimensions used by the preview. Leave ample room for iOS pagination. */
+@media print {
+  @page { size:A4 portrait; margin:4mm; }
+  html, body { width:202mm!important; min-height:0!important; height:auto!important; overflow:hidden!important; }
+  body.printing-basket main { width:200mm!important; max-width:200mm!important; height:auto!important; min-height:0!important; overflow:visible!important; }
+  body.printing-basket #basketPrint { width:200mm!important; max-width:200mm!important; height:auto!important; }
+  body.printing-basket #basketPrint .print-page {
+    width:200mm!important; height:285mm!important; max-height:285mm!important;
+    margin:0!important; padding:0!important; overflow:hidden!important;
+    break-inside:avoid!important; page-break-inside:avoid!important;
+  }
+  body.printing-basket #basketPrint .sheet {
+    left:calc(50% - 138.5mm)!important;
+    top:calc(50% - 95mm)!important;
+    transform:rotate(90deg) scale(.99)!important;
+    transform-origin:50% 50%!important;
+  }
+}
+
+/* FINAL PRINT/PREVIEW PARITY: rotate the same 277 x 190 mm sheet at 1:1.
+   The sheet centre is the page centre; no independent print font scaling. */
+@media print {
+  @page { size:A4 portrait; margin:4mm; }
+  html,body { width:auto!important; height:auto!important; overflow:visible!important; }
+  body.printing-basket main { width:202mm!important; max-width:202mm!important; }
+  body.printing-basket #basketPrint { width:202mm!important; max-width:202mm!important; }
+  body.printing-basket #basketPrint .print-page {
+    width:202mm!important; height:289mm!important; max-height:289mm!important;
+    position:relative!important; margin:0!important; padding:0!important;
+    overflow:hidden!important;
+  }
+  body.printing-basket #basketPrint .sheet {
+    position:absolute!important;
+    left:calc(50% - 138.5mm)!important;
+    top:calc(50% - 95mm)!important;
+    width:277mm!important; height:190mm!important;
+    min-width:277mm!important; min-height:190mm!important;
+    transform:rotate(90deg)!important;
+    transform-origin:center center!important;
+    zoom:1!important;
+  }
+}
+
+/* Match the heavy reference artwork in both live preview and A4 output.
+   Stroke increases ink weight without changing glyph measurements or wrapping. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-weight:900!important;
+  -webkit-text-stroke:1.1px currentColor!important;
+  paint-order:stroke fill!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description .entry,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-info .date-value,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-value {
+  font-weight:900!important;
+  -webkit-text-stroke:.45px currentColor!important;
+}
+
+/* Reference-led typography: one set of rules shared by preview and printed clones. */
+.sheet:is(#singleSheet,.basket-single-sheet) .mixed-title,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .mixed-title {
+ font-family:Arial,Helvetica,sans-serif!important;font-size:40pt!important;font-weight:900!important;
+ -webkit-text-stroke:1.1px #111!important;letter-spacing:-1px!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area > .single-barcode-grid > span {
+ font-size:53pt!important;font-weight:900!important;-webkit-text-stroke:1.5px #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading {
+ justify-content:flex-start!important;padding-left:2mm!important;font-size:15pt!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .single-description .date-value {
+ font-size:49pt!important;font-weight:900!important;-webkit-text-stroke:1px #111!important;
+ overflow-wrap:normal!important;word-break:normal!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span {
+ font-size:56pt!important;font-weight:900!important;-webkit-text-stroke:1.4px #111!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+ font-size:61pt!important;font-weight:900!important;-webkit-text-stroke:1.5px #111!important;
+}
+
+/* REBUILT DOCKET GEOMETRY — the SAME physical sheet is used on screen and in print. */
+.sheet:is(#singleSheet,.basket-single-sheet,#mixedSheet,.basket-mixed-sheet){width:277mm!important;height:190mm!important;min-width:277mm!important;min-height:190mm!important;padding:3mm!important;box-sizing:border-box!important;overflow:hidden!important;font-family:Arial,Helvetica,sans-serif!important;}
+.sheet:is(#singleSheet,.basket-single-sheet,#mixedSheet,.basket-mixed-sheet) .mixed-title{flex:0 0 23mm!important;height:23mm!important;min-height:23mm!important;font-size:39pt!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;font-weight:900!important;letter-spacing:-1px!important;-webkit-text-stroke:.7px #111!important;border:1.5px solid #111!important;padding:0!important;margin:0 0 1.5mm!important;}
+/* SINGLE: barcode/QR, description/quantity, five equally framed footer fields. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row{flex:0 0 49mm!important;height:49mm!important;grid-template-columns:minmax(0,1fr) 37mm!important;gap:1.5mm!important;padding:0!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area{grid-template-rows:8mm minmax(0,1fr)!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading{font-size:12pt!important;justify-content:flex-start!important;padding-left:2mm!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area > .single-barcode-grid > span{font-size:37pt!important;font-weight:900!important;-webkit-text-stroke:1px #111!important;letter-spacing:-.6px!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row > .single-qr-box{width:37mm!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty{flex:0 0 61mm!important;height:61mm!important;grid-template-columns:minmax(0,1fr) 49mm!important;gap:1.5mm!important;margin-top:1.5mm!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .single-description .date-value{font-size:39pt!important;line-height:1.03!important;font-weight:900!important;-webkit-text-stroke:.8px #111!important;overflow:hidden!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span{font-size:44pt!important;font-weight:900!important;-webkit-text-stroke:1px #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row{padding-top:1.5mm!important;gap:1mm!important;grid-template-columns:1.15fr 1.2fr 1.18fr 1fr 1.2fr!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-label{font-size:10pt!important;letter-spacing:-.35px!important;overflow:hidden!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-value{font-size:19pt!important;font-weight:900!important;-webkit-text-stroke:.35px #111!important;}
+/* MULTI: four equal-height barcode / QR / quantity rows and four-field footer. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows{gap:1.5mm!important;padding:0!important;flex:1 1 0!important;min-height:0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row{grid-template-columns:minmax(0,1fr) 28mm 47mm!important;gap:1mm!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code,.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty{padding-top:6mm!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-row-heading{height:6mm!important;font-size:11pt!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > svg.barcode-dividers{top:6mm!important;height:calc(100% - 6mm)!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span,.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span{font-size:37pt!important;font-weight:900!important;letter-spacing:-.4px!important;-webkit-text-stroke:1px #111!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > svg.qr-vector{width:24mm!important;height:24mm!important;max-width:95%!important;max-height:95%!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed{grid-template-columns:1.4fr 1.25fr 1.15fr 1.25fr!important;gap:1mm!important;height:22mm!important;flex:0 0 22mm!important;padding-top:1mm!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item{grid-template-rows:7mm minmax(0,1fr)!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-label{font-size:10pt!important;letter-spacing:-.2px!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item > .date-value{font-size:16pt!important;font-weight:900!important;}
+/* iOS A4: no alternate font rules or zoom. Rotate the exact preview sheet. */
+@media print{
+ @page{size:A4 portrait;margin:4mm;}
+ html,body{margin:0!important;padding:0!important;width:auto!important;height:auto!important;overflow:visible!important;}
+ body.printing-basket main{width:202mm!important;max-width:202mm!important;margin:0!important;padding:0!important;}
+ body.printing-basket #basketPrint{width:202mm!important;max-width:202mm!important;}
+ body.printing-basket #basketPrint .print-page{position:relative!important;width:202mm!important;height:288mm!important;max-height:288mm!important;margin:0!important;padding:0!important;overflow:hidden!important;box-sizing:border-box!important;}
+ body.printing-basket #basketPrint .sheet{position:absolute!important;left:calc(50% - 138.5mm)!important;top:calc(50% - 95mm)!important;transform:rotate(90deg)!important;transform-origin:center center!important;zoom:1!important;margin:0!important;padding:3mm!important;}
+}
+
+/* FINAL unified layout: all measurements physical, used identically on preview and print. */
+.sheet:is(#singleSheet,.basket-single-sheet,#mixedSheet,.basket-mixed-sheet){
+ width:277mm!important;height:190mm!important;min-width:277mm!important;min-height:190mm!important;
+ padding:3mm!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ overflow:hidden!important;font-family:Arial,Helvetica,sans-serif!important;background:white!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet,#mixedSheet,.basket-mixed-sheet) .mixed-title{
+ flex:0 0 20mm!important;height:20mm!important;min-height:20mm!important;margin:0 0 1.5mm!important;
+ font-size:39pt!important;line-height:1!important;font-weight:900!important;-webkit-text-stroke:.5px #111!important;
+ border:2px solid #111!important;display:flex!important;justify-content:center!important;align-items:center!important;
+}
+/* Single: large digits, QR alongside, description+QTY, five-cell footer */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row{flex:0 0 55mm!important;height:55mm!important;display:grid!important;grid-template-columns:minmax(0,1fr) 38mm!important;gap:1.5mm!important;padding:0!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area{display:grid!important;grid-template-rows:9mm minmax(0,1fr)!important;min-height:0!important;border:2px solid #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading{font-size:15pt!important;justify-content:flex-start!important;padding-left:2mm!important;border-bottom:2px solid #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area .single-barcode-grid{display:grid!important;grid-template-columns:repeat(13,minmax(0,1fr))!important;grid-template-rows:1fr!important;height:100%!important;min-height:0!important;border:0!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area .single-barcode-grid>span{font-size:43pt!important;font-weight:900!important;-webkit-text-stroke:1px #111!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;border-right:2px solid #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box{width:38mm!important;height:55mm!important;border:2px solid #111!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box img{width:33mm!important;height:33mm!important;max-width:95%!important;max-height:95%!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty{flex:0 0 60mm!important;height:60mm!important;display:grid!important;grid-template-columns:minmax(0,1fr) 48mm!important;gap:1.5mm!important;margin:1.5mm 0 0!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty>.single-info-item{display:grid!important;grid-template-rows:10mm minmax(0,1fr)!important;min-width:0!important;min-height:0!important;border:2px solid #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .date-label{font-size:16pt!important;border-bottom:2px solid #111!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description .date-value{font-size:40pt!important;font-weight:900!important;-webkit-text-stroke:.7px #111!important;border:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:0!important;height:100%!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells>span{font-size:44pt!important;font-weight:900!important;-webkit-text-stroke:1px #111!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;border-right:2px solid #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row{flex:1 1 0!important;min-height:0!important;display:grid!important;grid-template-columns:1.13fr 1.2fr 1.2fr 1fr 1.2fr!important;gap:1mm!important;padding-top:1.5mm!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row>.single-info-item{min-width:0!important;min-height:0!important;display:grid!important;grid-template-rows:10mm minmax(0,1fr)!important;border:2px solid #111!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-label{font-size:11pt!important;font-weight:800!important;letter-spacing:-.25px!important;border:0!important;border-bottom:2px solid #111!important;white-space:nowrap!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-value{font-size:18pt!important;font-weight:900!important;border:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;}
+/* Multi: four full-width stacked lines, prominent digits and a continuous footer. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows{flex:1 1 0!important;min-height:0!important;display:grid!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:1.5mm!important;padding:0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row{display:grid!important;grid-template-columns:minmax(0,1fr) 31mm 48mm!important;gap:1mm!important;min-height:0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code,.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty{padding-top:7mm!important;position:relative!important;border:2px solid #111!important;min-width:0!important;min-height:0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-row-heading{height:7mm!important;font-size:12pt!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;border-bottom:2px solid #111!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code>span,.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty>span{font-size:39pt!important;font-weight:900!important;-webkit-text-stroke:1px #111!important;letter-spacing:0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code>svg.barcode-dividers{top:7mm!important;height:calc(100% - 7mm)!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr{display:flex!important;align-items:center!important;justify-content:center!important;border:2px solid #111!important;min-height:0!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr>svg.qr-vector{width:25mm!important;height:25mm!important;max-height:95%!important;max-width:95%!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed{flex:0 0 25mm!important;height:25mm!important;display:grid!important;grid-template-columns:1.3fr 1.2fr 1fr 1.25fr!important;gap:1mm!important;padding-top:1.5mm!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item{min-width:0!important;min-height:0!important;display:grid!important;grid-template-rows:9mm minmax(0,1fr)!important;border:2px solid #111!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item>.date-label{font-size:11pt!important;font-weight:800!important;border:0!important;border-bottom:2px solid #111!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed-item>.date-value{font-size:18pt!important;font-weight:900!important;border:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+@media print{
+ @page{size:A4 portrait;margin:4mm;}
+ body.printing-basket #basketPrint .print-page{width:202mm!important;height:288mm!important;position:relative!important;overflow:hidden!important;break-after:page!important;page-break-after:always!important;}
+ body.printing-basket #basketPrint .print-page:last-child{break-after:auto!important;page-break-after:auto!important;}
+ body.printing-basket #basketPrint .sheet{width:277mm!important;height:190mm!important;position:absolute!important;left:-37.5mm!important;top:49mm!important;transform:rotate(90deg)!important;transform-origin:center center!important;zoom:1!important;margin:0!important;padding:3mm!important;}
+}
+
+/* Preview isolation: inactive docket sheets must not leave visual layers on iOS Edge. */
+@media screen {
+  #previewWrap > .sheet[hidden],
+  #previewWrap > .sheet:not(.preview-active) {
+    display:none!important; visibility:hidden!important;
+    position:absolute!important; width:0!important; height:0!important;
+    min-height:0!important; max-height:0!important;
+    overflow:hidden!important; zoom:1!important; transform:none!important;
+  }
+  #previewWrap > .sheet.preview-active:not([hidden]) {
+    display:flex!important; visibility:visible!important;
+    position:relative!important;
+  }
+  #previewWrap { position:relative!important; overflow:hidden!important; }
+  #basketPrint { display:none!important; visibility:hidden!important; }
+}
+
+/* Reference artwork geometry, measured from supplied illustration (single).
+   Overrides legacy incremental styles for BOTH the live and basket clones. */
+.sheet:is(#singleSheet,.basket-single-sheet){border:2px solid #111!important;gap:0!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .mixed-title{
+ flex:0 0 29mm!important;height:29mm!important;min-height:29mm!important;
+ margin:0 0 2mm!important;font-size:61pt!important;font-weight:900!important;
+ -webkit-text-stroke:1.35px #111!important;letter-spacing:-2px!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row{
+ flex:0 0 43mm!important;height:43mm!important;grid-template-columns:minmax(0,1fr) 40mm!important;
+ gap:2mm!important;margin:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area{grid-template-rows:10mm minmax(0,1fr)!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading{font-size:17pt!important;font-weight:900!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area .single-barcode-grid>span{
+ font-size:55pt!important;font-weight:900!important;-webkit-text-stroke:1.8px #111!important;
+ letter-spacing:-1.5px!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box{width:40mm!important;height:43mm!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box img,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box svg{
+ width:36mm!important;height:36mm!important;max-width:96%!important;max-height:96%!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty{
+ flex:0 0 59mm!important;height:59mm!important;grid-template-columns:minmax(0,1fr) 54mm!important;
+ gap:2mm!important;margin:2mm 0 0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty>.single-info-item{grid-template-rows:10mm minmax(0,1fr)!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .date-label{
+ font-size:17pt!important;font-weight:900!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description .date-value{
+ font-size:49pt!important;font-weight:900!important;-webkit-text-stroke:1.5px #111!important;
+ letter-spacing:-1.5px!important;white-space:nowrap!important;overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells>span{
+ font-size:58pt!important;font-weight:900!important;-webkit-text-stroke:1.7px #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row{
+ flex:1 1 0!important;height:auto!important;grid-template-columns:1.2fr 1.2fr 1fr .82fr .85fr!important;
+ gap:2mm!important;padding-top:2mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row>.single-info-item{grid-template-rows:11mm minmax(0,1fr)!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-label{
+ font-size:12.5pt!important;font-weight:900!important;letter-spacing:-.45px!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row .date-value{
+ font-size:22pt!important;font-weight:900!important;-webkit-text-stroke:.7px #111!important;
+}
+/* Ensure long descriptions scale to fit rather than overflowing the reference box. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description .date-value{min-width:0!important;}
+
+
+/* Single docket footer: three columns, with location/date and operator fields stacked. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row {
+  display:grid!important;
+  grid-template-columns:1.05fr 1.45fr 1.2fr!important;
+  gap:2mm!important;
+  align-items:stretch!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-footer-stack {
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:1.5mm!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-footer-stack>.single-info-item {
+  min-width:0!important;min-height:0!important;
+  display:grid!important;grid-template-rows:7mm minmax(0,1fr)!important;
+  border:2px solid #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-footer-stack .date-label {
+  font-size:11pt!important;font-weight:900!important;
+  border:0!important;border-bottom:2px solid #111!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  white-space:nowrap!important;overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-footer-stack .date-value {
+  font-size:18pt!important;font-weight:900!important;
+  border:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;overflow:hidden!important;
+}
+
+
+/* A4 full-page print correction: one docket per physical sheet.
+   A4 is 210 x 297 mm. A 277 x 190 mm docket rotated 90 degrees
+   and enlarged 1.045x occupies 198.55 x 289.47 mm. */
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  html, body { width:210mm!important; margin:0!important; padding:0!important; overflow:visible!important; }
+  body.printing-basket > header { display:none!important; }
+  body.printing-basket main { width:210mm!important; max-width:none!important; margin:0!important; padding:0!important; }
+  body.printing-basket main > :not(#basketPrint) { display:none!important; }
+  body.printing-basket #basketPrint { display:block!important; position:static!important; width:210mm!important; max-width:none!important; margin:0!important; padding:0!important; overflow:visible!important; }
+  body.printing-basket #basketPrint .print-page {
+    display:block!important; position:relative!important; width:210mm!important;
+    height:297mm!important; min-height:0!important; max-height:none!important;
+    margin:0!important; padding:0!important; border:0!important;
+    box-sizing:border-box!important; overflow:hidden!important;
+    break-before:auto!important; page-break-before:auto!important;
+    break-after:auto!important; page-break-after:auto!important;
+    break-inside:avoid!important; page-break-inside:avoid!important;
+  }
+  body.printing-basket #basketPrint .print-page:not(:last-child) {
+    break-after:page!important; page-break-after:always!important;
+  }
+  body.printing-basket #basketPrint .sheet {
+    display:flex!important; position:absolute!important;
+    width:277mm!important; min-width:277mm!important; max-width:277mm!important;
+    height:190mm!important; min-height:190mm!important; max-height:190mm!important;
+    left:-33.5mm!important; top:53.5mm!important;
+    margin:0!important; padding:3mm!important; box-sizing:border-box!important;
+    zoom:1!important; transform:rotate(90deg) scale(1.045)!important;
+    transform-origin:center center!important; overflow:hidden!important;
+  }
+}
+
+
+/* iOS Edge print isolation: only the prepared docket is printable. */
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  html, body { margin:0!important; padding:0!important; width:210mm!important; height:auto!important; min-height:0!important; overflow:visible!important; background:white!important; }
+  body.printing-basket > :not(#basketPrint) { display:none!important; }
+  body.printing-basket #basketPrint {
+    display:block!important; visibility:visible!important; position:static!important;
+    width:209mm!important; height:auto!important; min-height:0!important;
+    max-width:none!important; margin:0!important; padding:0!important;
+    overflow:visible!important; border:0!important; background:white!important;
+  }
+  body.printing-basket #basketPrint .print-page {
+    display:block!important; visibility:visible!important; position:relative!important;
+    width:209mm!important; height:296mm!important; min-height:0!important;
+    max-height:296mm!important; margin:0!important; padding:0!important;
+    overflow:hidden!important; border:0!important; box-sizing:border-box!important;
+    break-inside:avoid!important; page-break-inside:avoid!important;
+    break-before:auto!important; page-break-before:auto!important;
+    break-after:auto!important; page-break-after:auto!important;
+  }
+  body.printing-basket #basketPrint .print-page:not(:last-child) { break-after:page!important; page-break-after:always!important; }
+  body.printing-basket #basketPrint .sheet {
+    display:flex!important; visibility:visible!important; position:absolute!important;
+    width:277mm!important; min-width:277mm!important; max-width:277mm!important;
+    height:190mm!important; min-height:190mm!important; max-height:190mm!important;
+    left:-34mm!important; top:53mm!important; margin:0!important;
+    padding:3mm!important; box-sizing:border-box!important;
+    zoom:1!important; transform:rotate(90deg) scale(1.04)!important;
+    transform-origin:center center!important; overflow:hidden!important;
+  }
+}
+
+/* FINAL PRINT OVERRIDE: print only the prepared docket, never the form or preview.
+   Works even if iOS evaluates print styles before the printing-basket class. */
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body { margin:0!important; padding:0!important; width:210mm!important; min-height:0!important; height:auto!important; background:#fff!important; }
+  body > header, body > main, body > footer, body > nav,
+  body > .tabs, body > .panel { display:none!important; }
+  body > #basketPrint { display:block!important; visibility:visible!important; position:static!important; width:210mm!important; max-width:210mm!important; height:auto!important; margin:0!important; padding:0!important; overflow:visible!important; }
+  body > #basketPrint > .print-page { display:block!important; position:relative!important; width:210mm!important; height:297mm!important; min-height:297mm!important; max-height:297mm!important; overflow:hidden!important; margin:0!important; padding:0!important; box-sizing:border-box!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  body > #basketPrint > .print-page:not(:last-child) { break-after:page!important; page-break-after:always!important; }
+  body > #basketPrint > .print-page:last-child { break-after:auto!important; page-break-after:auto!important; }
+  body > #basketPrint .sheet { position:absolute!important; display:flex!important; visibility:visible!important; width:277mm!important; min-width:277mm!important; max-width:277mm!important; height:190mm!important; min-height:190mm!important; max-height:190mm!important; left:-33.5mm!important; top:53.5mm!important; margin:0!important; padding:3mm!important; box-sizing:border-box!important; zoom:1!important; transform:rotate(90deg) scale(1.04)!important; transform-origin:center center!important; }
+}
+
+/* LANDSCAPE A4 PRINT: one prepared docket per landscape sheet, no rotation. */
+@page { size: A4 landscape; margin: 0; }
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  html, body { width:297mm!important; height:auto!important; margin:0!important; padding:0!important; overflow:visible!important; }
+  body > #basketPrint { width:297mm!important; max-width:297mm!important; margin:0!important; padding:0!important; }
+  body > #basketPrint > .print-page {
+    width:297mm!important; height:210mm!important; min-height:210mm!important; max-height:210mm!important;
+    margin:0!important; padding:0!important; overflow:hidden!important; position:relative!important;
+    break-inside:avoid!important; page-break-inside:avoid!important;
+  }
+  body > #basketPrint .sheet {
+    position:absolute!important; left:10mm!important; top:10mm!important;
+    width:277mm!important; min-width:277mm!important; max-width:277mm!important;
+    height:190mm!important; min-height:190mm!important; max-height:190mm!important;
+    margin:0!important; padding:3mm!important; box-sizing:border-box!important;
+    zoom:1!important; transform:none!important; transform-origin:center center!important;
+    overflow:hidden!important;
+  }
+}
+
+/* Adaptive quantity: one cell per entered digit (1, 2 or 3), also in basket clones. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty { background:#fff!important; background-image:none!important; }
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells>span:last-child { border-right:0!important; }
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty>span:last-of-type { border-right:0!important; }
+
+/* Align the QR panel with the right-hand inner edge of the docket. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row {
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  grid-template-columns:minmax(0,1fr) 40mm!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  margin-right:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row > .single-qr-box {
+  grid-column:2!important;
+  justify-self:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+}
+
+/* Location removed from Single and Multi dockets; retain Location Docket tab. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row {
+  grid-template-columns: 1.15fr 1.35fr 1.5fr!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed {
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+/* Completed by replaces the two operator fields on both docket types. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row {
+  grid-template-columns:1fr 1fr 1fr!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .completed {
+  grid-template-columns:1fr 1fr!important;
+}
+
+/* Barcode digits: heavier ink without changing cell dimensions or other text. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area .single-barcode-grid > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span {
+  font-family: Arial Black, Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  -webkit-text-stroke: 2.6px #000 !important;
+  paint-order: stroke fill;
+  text-shadow: .35px 0 #000, -.35px 0 #000 !important;
+}
+/* Match QTY digits to the extra-bold barcode styling on Single and Multi dockets. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span {
+  font-family: Arial Black, Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  -webkit-text-stroke: 2.6px #000 !important;
+  paint-order: stroke fill;
+  text-shadow: .35px 0 #000, -.35px 0 #000 !important;
+}
+/* Optional expiry: two equal footer boxes when disabled, three when enabled. */
+#singleForm .expiry-toggle{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:12px!important;grid-column:1/-1;font-weight:700;cursor:pointer;text-align:left!important;}
+#singleForm .expiry-toggle span{display:inline-block!important;margin:0!important;line-height:24px!important;}
+#singleForm .expiry-toggle input{display:inline-block!important;width:22px!important;height:22px!important;flex:0 0 22px!important;margin:0!important;vertical-align:middle!important;}
+#expiryInputWrap[hidden]{display:none!important;}
+.sheet:is(#singleSheet,.basket-single-sheet).no-expiry .single-bottom-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+.sheet:is(#singleSheet,.basket-single-sheet).no-expiry .single-expiry-item{display:none!important;}
+
+/* Optional Single Docket location, independent of the optional expiry date. */
+#singleForm .location-toggle{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:12px!important;grid-column:1/-1;font-weight:700;cursor:pointer;text-align:left!important;}
+#singleForm .location-toggle span{display:inline-block!important;margin:0!important;line-height:24px!important;}
+#singleForm .location-toggle input{display:inline-block!important;width:22px!important;height:22px!important;flex:0 0 22px!important;margin:0!important;}
+#singleLocationInputWrap[hidden]{display:none!important;}
+.sheet:is(#singleSheet,.basket-single-sheet).no-single-location .single-location-item{display:none!important;}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-bottom-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+.sheet:is(#singleSheet,.basket-single-sheet).no-single-location .single-bottom-row,
+.sheet:is(#singleSheet,.basket-single-sheet).no-expiry .single-bottom-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+.sheet:is(#singleSheet,.basket-single-sheet).no-single-location.no-expiry .single-bottom-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+
+/* Location docket: match the bold, high-visibility typography of the description.
+   Apply to both the live preview and any cloned sheet in the print basket. */
+.sheet:is(#locationSheet,.basket-location-sheet) .location-docket-digits > span {
+  font-family: "Arial Black", Arial, Helvetica, sans-serif !important;
+  font-size: 61pt !important;
+  font-weight: 900 !important;
+  -webkit-text-stroke: 2.4px #000 !important;
+  paint-order: stroke fill;
+  text-shadow: .3px 0 #000, -.3px 0 #000 !important;
+  line-height: 1 !important;
+  min-width: 0 !important;
+}
+/* Centre the BARCODE label within the Single Docket heading row. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+/* Multi docket: only show active entry rows; distribute active barcode rows evenly. */
+#mixedForm #mixedLines > div[hidden]{display:none!important;}
+#mixedForm .multi-row-controls{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+#mixedForm .multi-row-controls button{padding:12px 16px;border:1px solid #b8c4cf;border-radius:8px;background:#fff;color:#17212c;font:inherit;font-weight:600;cursor:pointer;}
+#mixedForm .multi-row-controls button:disabled{opacity:.4;cursor:default;}
+#mixedForm .multi-row-controls span{color:#4b5563;font-size:14px;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"]{grid-template-rows:repeat(2,minmax(0,1fr))!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="3"]{grid-template-rows:repeat(3,minmax(0,1fr))!important;}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="4"]{grid-template-rows:repeat(4,minmax(0,1fr))!important;}
+
+/* Two-barcode layout: QR above QTY in the right column. Three/four
+   barcode layouts retain their existing side-by-side format. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] .multi-stable-row {
+  grid-template-columns:minmax(0,1fr) 49mm!important;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:1mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] .multi-stable-code {
+  grid-column:1!important;grid-row:1 / 3!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] .multi-stable-qr {
+  grid-column:2!important;grid-row:1!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] .multi-stable-qty {
+  grid-column:2!important;grid-row:2!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] .multi-stable-divider {
+  display:none!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] .multi-stable-qr > svg.qr-vector {
+  width:34mm!important;height:34mm!important;max-width:95%!important;max-height:95%!important;
+}
+
+/* Print heading parity: labels were much smaller in iOS Edge's print renderer.
+   Keep their box dimensions unchanged; enlarge only the label glyphs. */
+@media print {
+ body.printing-basket #basketPrint .basket-single-sheet .single-barcode-heading {font-size:21pt!important;}
+ body.printing-basket #basketPrint .basket-single-sheet .single-description-qty .date-label {font-size:23pt!important;}
+ body.printing-basket #basketPrint .basket-single-sheet .single-bottom-row .date-label {font-size:18pt!important;letter-spacing:-.4px!important;}
+ body.printing-basket #basketPrint .basket-mixed-sheet .completed-item > .date-label {font-size:16pt!important;}
+ body.printing-basket #basketPrint .basket-location-sheet .date-label {font-size:18pt!important;}
+}
 </style>
 </head>
 <body>
@@ -1097,20 +2056,24 @@ textarea { min-height:65px; resize:vertical; }
       <div class="single-barcode-entry">
         <strong>Barcode 1</strong>
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
-        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">▣ Scan Barcode</button>
+        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">Scan Barcode</button>
       </div>
-      <label>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
+      <label class="expiry-toggle"><input id="includeExpiry" type="checkbox" onchange="updatePreview()"><span>EXPIRY DATE</span></label>
+      <label class="location-toggle"><input id="includeSingleLocation" type="checkbox" onchange="updatePreview()"><span>LOCATION</span></label>
+      <label id="singleLocationInputWrap" hidden>Location<input id="singleLocationInput" inputmode="numeric" maxlength="10" placeholder="000-00-000" oninput="updatePreview()"></label>
+      <label id="expiryInputWrap" hidden>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
       <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
-      <label>Forklifted by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
-      <label>Located by<input id="located" placeholder="Name or initials" oninput="updatePreview()"></label>
-      <label>Location<input id="location" inputmode="numeric" maxlength="10" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" placeholder="000-00-000" oninput="updatePreview()"></label>
+      <label>Completed by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <input type="hidden" id="located" value="">
+      <input type="hidden" id="location" value="">
     </div>
     <div id="mixedForm" class="fields" hidden>
       <div id="mixedLines" style="grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr);gap:12px"></div>
+      <div class="multi-row-controls"><button type="button" id="addMultiBarcode" onclick="changeMultiBarcodeCount(1)">+ Add barcode</button><button type="button" id="removeMultiBarcode" onclick="changeMultiBarcodeCount(-1)">− Remove barcode</button><span id="multiBarcodeCountLabel" aria-live="polite"></span></div>
       <label>Located date<input id="completedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
-      <label>Forklifted by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
-      <label>Located by<input id="mixedLocated" placeholder="Name or initials" oninput="updatePreview()"></label>
-      <label>Location<input id="mixedLocation" inputmode="numeric" maxlength="10" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" placeholder="000-00-000" oninput="updatePreview()"></label>
+      <label>Completed by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <input type="hidden" id="mixedLocated" value="">
+      <input type="hidden" id="mixedLocation" value="">
     </div>
     <div id="locationForm" class="fields" hidden>
       <label>Description<input id="locationDescription" placeholder="Description" oninput="updatePreview()"></label>
@@ -1127,8 +2090,8 @@ textarea { min-height:65px; resize:vertical; }
     <h2>Print basket <span id="basketCount">(0 dockets)</span></h2>
     <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
     <div class="actions cloud-basket-actions" style="margin:12px 0;flex-wrap:wrap">
-      <button class="action primary" id="saveCloudBasketButton" type="button">☁ Save basket</button>
-      <button class="action" id="resumeCloudBasketButton" type="button">↩ Resume basket</button>
+      <button class="action primary" id="saveCloudBasketButton" type="button">Save basket</button>
+      <button class="action" id="resumeCloudBasketButton" type="button">Resume basket</button>
     </div>
     <div id="cloudBasketCodeBox" style="display:none;margin:10px 0;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc">
       <div style="font-weight:700">Your basket code</div>
@@ -1142,42 +2105,38 @@ textarea { min-height:65px; resize:vertical; }
       <button class="action" type="button" id="clearBasketButton">Empty basket</button>
     </div>
   </section>
+  <span id="pLocation" hidden></span><span id="pMixedLocation" hidden></span><span id="pLocated" hidden></span><span id="pMixedLocated" hidden></span>
   <div id="basketPrint" aria-hidden="true"></div>
   <h2 class="preview-title">Print preview</h2>
   <div id="previewWrap">
-    <section class="sheet" id="singleSheet">
+    <section class="sheet preview-active" id="singleSheet">
       <h2 class="mixed-title">PALLET NOTE</h2>
-      <div class="mixed-head"><span></span><span></span><span></span><div class="qty-head">QTY</div></div>
       <div class="single-mixed-row">
-        <div class="mixed-code single-barcode-grid" id="singleCodeCells"></div>
+        <div class="single-barcode-area"><div class="single-barcode-heading">BARCODE</div><div class="mixed-code single-barcode-grid" id="singleCodeCells"></div></div>
         <div class="single-qr-box"><img id="singleQr" class="mixed-qr" alt="QR code for pallet barcode"></div>
-        <div class="greybar"></div>
-        <div class="qty-cells" id="singleQtyCells"></div>
       </div>
-      <div class="single-info">
-        <div class="single-info-item single-info-wide"><div class="date-label">Description</div><div class="date-value" id="pDescription"></div></div>
-        <div class="single-info-item"><div class="date-label">Expiry date</div><div class="date-value" id="pExpiry"></div></div>
-        <div class="single-info-item"><div class="date-label">Location</div><div class="date-value location-digit-grid" id="pLocation"></div></div>
+      <div class="single-description-qty">
+        <div class="single-info-item single-description"><div class="date-label">Description</div><div class="date-value" id="pDescription"></div></div>
+        <div class="single-info-item single-quantity"><div class="date-label">QTY</div><div class="qty-cells" id="singleQtyCells"></div></div>
       </div>
-      <div class="completed">
-        <div class="completed-item"><div class="date-label">Forklifted by</div><div class="date-value" id="pForklifted"></div></div>
-        <div class="completed-item"><div class="date-label">Located by</div><div class="date-value" id="pLocated"></div></div>
-        <div class="completed-item"><div class="date-label">Located date</div><div class="date-value" id="pLocatedDate"></div></div>
+      <div class="single-bottom-row">
+        <div class="single-info-item"><div class="date-label">Located date</div><div class="date-value" id="pLocatedDate"></div></div>
+        <div class="single-info-item"><div class="date-label">Completed by</div><div class="date-value" id="pForklifted"></div></div>
+        <div class="single-info-item single-location-item"><div class="date-label">Location</div><div class="date-value" id="pSingleLocation"></div></div>
+        <div class="single-info-item single-expiry-item"><div class="date-label">Expiry date</div><div class="date-value" id="pExpiry"></div></div>
       </div>
     </section>
     <section class="sheet" id="mixedSheet" hidden>
-      <h2 class="mixed-title">MIXED PALLET NOTE</h2>
-      <div class="multi-stable-head"><span></span><span></span><div class="qty-head">QTY</div></div>
+      <h2 class="mixed-title">PALLET NOTE</h2>
+      
       <div class="multi-stable-rows" id="pMixedRows"></div>
       <div class="completed">
         <div class="completed-item"><div class="date-label">Located date</div><div class="date-value" id="pCompletedDate"></div></div>
-        <div class="completed-item"><div class="date-label">Forklifted by</div><div class="date-value" id="pMixedForklifted"></div></div>
-        <div class="completed-item"><div class="date-label">Located by</div><div class="date-value" id="pMixedLocated"></div></div>
-        <div class="completed-item"><div class="date-label">Location</div><div class="date-value location-digit-grid" id="pMixedLocation"></div></div>
+        <div class="completed-item"><div class="date-label">Completed by</div><div class="date-value" id="pMixedForklifted"></div></div>
       </div>
     </section>
     <section class="sheet location-docket-sheet" id="locationSheet" hidden>
-      <h2 class="mixed-title">LOCATION DOCKET</h2>
+      <h2 class="mixed-title">PALLET NOTE</h2>
       <div class="location-docket-description">
         <div class="location-docket-label">DESCRIPTION</div>
         <div class="location-docket-description-value" id="pLocationDescription"></div>
@@ -1345,8 +2304,30 @@ function setType(next){
   document.getElementById('singleSheet').hidden=type!=='single';
   document.getElementById('mixedSheet').hidden=type!=='mixed';
   document.getElementById('locationSheet').hidden=type!=='location';
+  // Remove zoom from inactive sheets before hiding: WebKit can retain their
+  // composited paint layers below the visible preview otherwise.
+  for (const [kind,id] of [['single','singleSheet'],['mixed','mixedSheet'],['location','locationSheet']]) {
+    const el=document.getElementById(id);
+    el.classList.toggle('preview-active',kind===type);
+    if(kind!==type){el.style.zoom='1';el.style.transform='none';}
+  }
   document.getElementById('formTitle').textContent=type==='single'?'Single docket details':type==='mixed'?'Multi docket details':'Location docket details';
   updatePreview();
+}
+let multiBarcodeCount=2;
+function changeMultiBarcodeCount(delta){
+  multiBarcodeCount=Math.max(2,Math.min(4,multiBarcodeCount+delta));
+  syncMultiBarcodeInputs();
+  updatePreview();
+}
+function syncMultiBarcodeInputs(){
+  for(let i=1;i<=4;i++){
+    const input=document.getElementById("mcode"+i);
+    if(input) input.parentElement.parentElement.hidden=i>multiBarcodeCount;
+  }
+  document.getElementById("addMultiBarcode").disabled=multiBarcodeCount>=4;
+  document.getElementById("removeMultiBarcode").disabled=multiBarcodeCount<=2;
+  document.getElementById("multiBarcodeCountLabel").textContent=multiBarcodeCount+" of 4 barcodes";
 }
 function buildMixedInputs(){
   const host=document.getElementById('mixedLines');
@@ -1354,9 +2335,10 @@ function buildMixedInputs(){
   for(let i=1;i<=4;i++){
     const group=document.createElement('div');
     group.style.cssText='border:1px solid #d9dee4;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 100px;gap:8px';
-    group.innerHTML=`<strong style="grid-column:1/-1">Barcode ${i}</strong><label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="mcode${i}" aria-label="Scan barcode ${i} with camera">▣ Scan Barcode</button>`;
+    group.innerHTML=`<strong style="grid-column:1/-1">Barcode ${i}</strong><label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="mcode${i}" aria-label="Scan barcode ${i} with camera">Scan Barcode</button>`;
     host.appendChild(group);
   }
+  syncMultiBarcodeInputs();
 }
 function fitPreview(){
   if (window.matchMedia('print').matches) return;
@@ -1396,7 +2378,7 @@ function addBarcodeDividers(container) {
 function formatDocketDate(value){
   if (!value) return '';
   const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  return iso ? `${iso[3]}/${iso[2]}/${iso[1]}` : value;
+  return iso ? `${iso[3]}/${iso[2]}/${iso[1].slice(-2)}` : value;
 }
 function normalizeDateForInput(value){
   if (!value) return '';
@@ -1407,19 +2389,33 @@ function formatLocationCode(value){
   const digits=String(value || '').replace(/\D/g,'').slice(0,8);
   return digits.replace(/^(\d{3})(?=\d)/,'$1-').replace(/^(\d{3}-\d{2})(?=\d)/,'$1-');
 }
+function syncOptionalExpiry(){
+  const enabled=document.getElementById('includeExpiry').checked;
+  document.getElementById('expiryInputWrap').hidden=!enabled;
+  document.getElementById('singleSheet').classList.toggle('no-expiry',!enabled);
+  const showLocation=document.getElementById('includeSingleLocation').checked;
+  document.getElementById('singleLocationInputWrap').hidden=!showLocation;
+  document.getElementById('singleSheet').classList.toggle('no-single-location',!showLocation);
+  return enabled;
+}
 function updatePreview(){
+  const showExpiry=syncOptionalExpiry();
+  const singleLocationField=document.getElementById('singleLocationInput');
+  if(singleLocationField) singleLocationField.value=formatLocationCode(singleLocationField.value);
+  document.getElementById('pSingleLocation').textContent=document.getElementById('includeSingleLocation').checked ? val('singleLocationInput').toUpperCase() : '';
   const locationField=document.getElementById('location');
   if(locationField) locationField.value=formatLocationCode(locationField.value);
   const mixedLocationField=document.getElementById('mixedLocation');
   if(mixedLocationField) mixedLocationField.value=formatLocationCode(mixedLocationField.value);
   // Normalize text fields to uppercase so the printed text and QR/barcode data match.
-  ['description','qty','forklifted','expiry','located','locatedDate','location','mixedLocation','singleCode','completedDate','mixedForklifted','mixedLocated','mixedLocation','mcode1','mcode2','mcode3','mcode4'].forEach(id=>{
+  ['description','qty','forklifted','expiry','located','locatedDate','location','mixedLocation','singleCode','includeExpiry','singleLocationInput','completedDate','mixedForklifted','mixedLocated','mixedLocation','mcode1','mcode2','mcode3','mcode4'].forEach(id=>{
     const el=document.getElementById(id); if(el && typeof el.value==='string') el.value=el.value.toUpperCase();
   });
   ['Description','Forklifted','Expiry','Located','LocatedDate'].forEach(k=>{
     const ids={Description:'description',Forklifted:'forklifted',Expiry:'expiry',Located:'located',LocatedDate:'locatedDate'};
-    document.getElementById('p'+k).textContent=['Expiry','LocatedDate'].includes(k) ? formatDocketDate(val(ids[k])) : val(ids[k]);
+    document.getElementById('p'+k).textContent=k==='Expiry'&&!showExpiry ? '' : (['Expiry','LocatedDate'].includes(k) ? formatDocketDate(val(ids[k])) : val(ids[k]));
   });
+  document.getElementById('pDescription').dataset.fitOriginal=val('description').toUpperCase();
   const singleBarcode=val('singleCode');
   const singleCodeCells=document.getElementById('singleCodeCells');
   singleCodeCells.innerHTML='';
@@ -1429,28 +2425,29 @@ function updatePreview(){
   const singleQtyCells=document.getElementById('singleQtyCells');
   singleQtyCells.innerHTML='';
   const singleQty=val('qty');
-  for(let j=0;j<3;j++){const s=document.createElement('span');s.textContent=singleQty[j]||'';singleQtyCells.appendChild(s);}
+  singleQtyCells.style.setProperty('grid-template-columns',`repeat(${Math.max(1,Math.min(3,singleQty.length))},minmax(0,1fr))`,'important');
+  for(let j=0;j<Math.max(1,Math.min(3,singleQty.length));j++){const s=document.createElement('span');s.textContent=singleQty[j]||'';singleQtyCells.appendChild(s);}
   const locationDigits=val('location').replace(/\D/g,'').slice(0,8);
   const locationCells=document.getElementById('pLocation');
-  locationCells.replaceChildren();
-  for(let j=0;j<10;j++){
-    const cell=document.createElement('span');
-    cell.textContent=(j===3||j===6)?'-':(locationDigits[j-(j>6?2:j>3?1:0)]||'');
-    locationCells.appendChild(cell);
-  }
+  locationCells.textContent=locationDigits.length ? [locationDigits.slice(0,3),locationDigits.slice(3,5),locationDigits.slice(5,8)].filter(Boolean).join('-') : '';
   const rows=document.getElementById('pMixedRows'); rows.innerHTML='';
-  const count=4;
-  for(let i=1;i<=4;i++){
+  const count=multiBarcodeCount;
+  rows.style.setProperty("grid-template-rows",`repeat(${count},minmax(0,1fr))`,"important");
+  rows.dataset.rowCount=String(count);
+  for(let i=1;i<=count;i++){
     const row=document.createElement('div'); row.className='multi-stable-row';
     const code=document.createElement('div'); code.className='multi-stable-code';
+    const barcodeHeading=document.createElement('div'); barcodeHeading.className='multi-row-heading'; barcodeHeading.textContent='BARCODE'; code.appendChild(barcodeHeading);
     const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
     for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';code.appendChild(s);}
     addBarcodeDividers(code);
     const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i;
     const grey=document.createElement('div');grey.className='multi-stable-divider';
     const qty=document.createElement('div');qty.className='multi-stable-qty';
+    const qtyHeading=document.createElement('div');qtyHeading.className='multi-row-heading';qtyHeading.textContent='QTY';qty.appendChild(qtyHeading);
     const q=i<=count?val('mqty'+i):'';
-    for(let j=0;j<3;j++){const s=document.createElement('span');s.textContent=q[j]||'';qty.appendChild(s);}
+    qty.style.setProperty('grid-template-columns',`repeat(${Math.max(1,Math.min(3,q.length))},minmax(0,1fr))`,'important');
+    for(let j=0;j<Math.max(1,Math.min(3,q.length));j++){const s=document.createElement('span');s.textContent=q[j]||'';qty.appendChild(s);}
     const qrBox=document.createElement('div'); qrBox.className='multi-stable-qr'; qrBox.appendChild(qr);
     row.append(code,qrBox,grey,qty); rows.appendChild(row); setQrImage(qr, codeVal);
   }
@@ -1459,12 +2456,9 @@ function updatePreview(){
   document.getElementById('pMixedLocated').textContent=val('mixedLocated');
   const mixedLocationDigits=val('mixedLocation').replace(/\D/g,'').slice(0,8);
   const mixedLocationCells=document.getElementById('pMixedLocation');
-  mixedLocationCells.replaceChildren();
-  for(let j=0;j<10;j++){
-    const cell=document.createElement('span');
-    cell.textContent=(j===3||j===6)?'-':(mixedLocationDigits[j-(j>6?2:j>3?1:0)]||'');
-    mixedLocationCells.appendChild(cell);
-  }
+  mixedLocationCells.textContent=mixedLocationDigits.length
+    ? [mixedLocationDigits.slice(0,3),mixedLocationDigits.slice(3,5),mixedLocationDigits.slice(5,8)].filter(Boolean).join('-')
+    : '';
   const shortField=document.getElementById('locationShort');
   if(shortField){
     const digits=shortField.value.replace(/\D/g,'').slice(0,5);
@@ -1477,16 +2471,93 @@ function updatePreview(){
       cells.appendChild(cell);
     }
     document.getElementById('pLocationDescription').textContent=val('locationDescription').toUpperCase();
+    document.getElementById('pLocationDescription').dataset.fitOriginal=val('locationDescription').toUpperCase();
     setQrImage(document.getElementById('locationQr'),digits.length===5 ? digits.slice(0,3)+'-'+digits.slice(3) : '');
   }
   requestAnimationFrame(()=>{ fitTextToBoxes(); fitPreview(); });
 }
 
+// Fit the four requested value types to the available interior of their boxes.
+// Measure the actual text width (not scrollWidth, which can hide overflow in flex).
+function fitDocketValues(root=document){
+  const selector = '.single-description .date-value, .single-bottom-row .date-value, .completed .date-value, .location-docket-description-value';
+  const canvas = fitDocketValues.canvas || (fitDocketValues.canvas=document.createElement('canvas'));
+  const ctx=canvas.getContext('2d');
+  root.querySelectorAll(selector).forEach(el=>{
+    if(el.closest('.sheet[hidden]'))return;
+    const value=(el.dataset.fitOriginal || el.textContent || '').trim();
+    if(el.classList.contains('location-docket-description-value') || el.closest('.single-description')){
+      if(el.dataset.fitOriginal!==value){el.dataset.fitOriginal=value;}
+      el.textContent=value;
+    }
+    el.style.removeProperty('font-size');
+    if(!value)return;
+    const rect=el.getBoundingClientRect();
+    // offsetWidth/Height are layout dimensions unaffected by mobile preview zoom.
+    const w=el.clientWidth, h=el.clientHeight;
+    if(w<8||h<8)return;
+    const css=getComputedStyle(el);
+    const padX=(parseFloat(css.paddingLeft)||0)+(parseFloat(css.paddingRight)||0);
+    const padY=(parseFloat(css.paddingTop)||0)+(parseFloat(css.paddingBottom)||0);
+    const availableW=Math.max(4,w-padX-8), availableH=Math.max(4,h-padY-5);
+    const isDescription=!!el.closest('.single-description, .location-docket-description');
+    const cap=isDescription?125:95;
+    const family=css.fontFamily||'Arial, sans-serif';
+    const weight=900;
+    const text=value.replace(/\s+/g,' ');
+    const isLocationDescription=!!el.closest('.location-docket-description, .single-description');
+    // Location and Single Docket descriptions can use up to two centred lines. Prefer a single
+    // line when it fits at the same font size, otherwise split at word spaces.
+    const layoutAt=size=>{
+      ctx.font=`${weight} ${size}px ${family}`;
+      const measure=t=>ctx.measureText(t).width+size*.06;
+      const oneLine=measure(text)<=availableW && size*1.13<=availableH;
+      if(oneLine)return [text];
+      if(!isLocationDescription || size*2.26>availableH)return null;
+      const words=text.split(' ');
+      if(words.length<2)return null;
+      let best=null, bestBalance=Infinity;
+      for(let split=1;split<words.length;split++){
+        const a=words.slice(0,split).join(' '),b=words.slice(split).join(' ');
+        const wa=measure(a),wb=measure(b);
+        if(wa<=availableW && wb<=availableW){
+          const balance=Math.abs(wa-wb);
+          if(balance<bestBalance){best=[a,b];bestBalance=balance;}
+        }
+      }
+      return best;
+    };
+    const fits=size=>{
+      if(isLocationDescription)return !!layoutAt(size);
+      ctx.font=`${weight} ${size}px ${family}`;
+      // A small allowance for thick lettering/strokes.
+      return ctx.measureText(text).width+size*.06<=availableW && size*1.13<=availableH;
+    };
+    let low=5,high=cap;
+    for(let i=0;i<15;i++){
+      const mid=(low+high)/2;
+      if(fits(mid))low=mid;else high=mid;
+    }
+    el.style.setProperty('font-size',low.toFixed(2)+'px','important');
+    if(isLocationDescription){
+      const lines=layoutAt(low);
+      // textContent stays intact for saving and printing; visual line break
+      // is inserted only into the rendered value and is recomputed on updates.
+      if(lines && lines.length===2)el.innerHTML=lines.map(line=>line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')).map(line=>'<span>'+line+'</span>').join('');
+      el.style.setProperty('flex-direction','column','important');
+      el.style.setProperty('white-space','normal','important');
+      el.style.setProperty('overflow-wrap','normal','important');
+    }else el.style.setProperty('white-space','nowrap','important');
+    el.style.setProperty('overflow','hidden','important');
+    el.style.setProperty('line-height','1','important');
+  });
+}
 function fitTextToBoxes(root=document){
   // Start at the designed font size and shrink only as much as necessary.
   // Use a binary search so long text stays as large as possible while fitting.
-  const targets = root.querySelectorAll('.sheet:not([hidden]) .location-docket-description-value, .sheet:not([hidden]) .entry, .sheet:not([hidden]) #singleCodeText, .sheet:not([hidden]) .location-cells .cellgroup.loc span, .sheet:not([hidden]) .completed .date-value, .sheet:not([hidden]) .single-info .date-value, .sheet:not([hidden]) .mixed-code span, .sheet:not([hidden]) .qty-cells span');
+  const targets = root.querySelectorAll('.sheet:not([hidden]) .entry, .sheet:not([hidden]) #singleCodeText, .sheet:not([hidden]) .location-cells .cellgroup.loc span, .sheet:not([hidden]) .completed .date-value, .sheet:not([hidden]) .single-info .date-value, .sheet:not([hidden]) .mixed-code span, .sheet:not([hidden]) .qty-cells span');
   targets.forEach(el=>{
+    if(el.matches('.single-description .date-value, .single-bottom-row .date-value, .completed .date-value, .location-docket-description-value'))return;
     el.style.fontSize='';
     const base=parseFloat(getComputedStyle(el).fontSize)||24;
     const min=8;
@@ -1503,22 +2574,25 @@ function fitTextToBoxes(root=document){
     }
     el.style.fontSize=low.toFixed(2)+'px';
   });
+  fitDocketValues(root);
 }
 function clearForm(){
   document.querySelectorAll('#singleForm input, #mixedForm input, #locationForm input').forEach(el=>{
-    el.value='';
+    if(el.type==='checkbox')el.checked=false; else el.value='';
   });
+  multiBarcodeCount=2;
+  syncMultiBarcodeInputs();
   updatePreview();
   fitPreview();
 }
 const docketBasket = [];
-const basketFieldIds = ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode',
+const basketFieldIds = ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode','includeExpiry','includeSingleLocation','singleLocationInput',
   'completedDate','mixedForklifted','mixedLocated','mixedLocation',
   'mcode1','mcode2','mcode3','mcode4','mqty1','mqty2','mqty3','mqty4','locationDescription','locationShort'];
 let editingBasketIndex = -1;
 function snapshotFields(){
   const values = {};
-  basketFieldIds.forEach(id => { const field=document.getElementById(id); if(field) values[id]=field.value; });
+  basketFieldIds.forEach(id => { const field=document.getElementById(id); if(field) values[id]=field.type==='checkbox' ? field.checked : field.value; });
   return values;
 }
 function setEditingState(index){
@@ -1532,8 +2606,10 @@ function editBasketDocket(index){
   setType(item.type);
   basketFieldIds.forEach(id => {
     const field=document.getElementById(id);
-    if(field) { const saved=(item.values && item.values[id]) || ''; field.value=field.type==='date' ? normalizeDateForInput(saved) : saved; }
+    if(field) { const saved=(item.values && item.values[id]) || ''; if(field.type==='checkbox')field.checked=saved===true||saved==='true'; else field.value=field.type==='date' ? normalizeDateForInput(saved) : saved; }
   });
+  multiBarcodeCount=Math.max(2,Math.min(4,Number(item.values?.multiBarcodeCount)||2));
+  syncMultiBarcodeInputs();
   setEditingState(index);
   updatePreview();
   document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1549,6 +2625,8 @@ function addToBasket(){
   const clone = active.cloneNode(true);
   clone.hidden = false;
   clone.removeAttribute('id');
+  clone.classList.add(type === 'single' ? 'basket-single-sheet' : type === 'mixed' ? 'basket-mixed-sheet' : 'basket-location-sheet');
+  // Preserve the exact preview font sizes in the printed clone.
   clone.style.transform = '';
   clone.style.zoom = '';
   clone.style.removeProperty('--preview-scale');
@@ -1558,7 +2636,7 @@ function addToBasket(){
   // Duplicate IDs are harmless here because basket clones are print-only and scripts target the original preview.
   const item = {
     type,
-    values: snapshotFields(),
+    values: {...snapshotFields(), multiBarcodeCount},
     label: (type === 'single' ? 'Single docket' : type === 'mixed' ? 'Multi docket' : 'Location docket') + ' #' + (docketBasket.length + 1),
     markup: clone.outerHTML,
     copies: (editingBasketIndex >= 0 && docketBasket[editingBasketIndex]) ? (docketBasket[editingBasketIndex].copies || 1) : 1
@@ -1570,13 +2648,17 @@ function addToBasket(){
   }
   setEditingState(-1);
   // Clear fields that change from docket to docket, while keeping the operator/location audit fields.
-  ['description','qty','expiry','location','singleCode',
+  ['description','qty','expiry','location','singleCode','singleLocationInput',
    'mcode1','mcode2','mcode3','mcode4',
    'mqty1','mqty2','mqty3','mqty4','locationDescription','locationShort'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  // Keep forklifted by, located by, and located date populated for the next docket.
+  multiBarcodeCount=2;
+  syncMultiBarcodeInputs();
+  document.getElementById('includeExpiry').checked=false;
+  document.getElementById('includeSingleLocation').checked=false;
+  // Keep completed by and located date populated for the next docket.
   updatePreview();
   fitPreview();
   renderBasket();
@@ -1746,22 +2828,46 @@ function restorePrintTextSizes(sheet){
     el.style.removeProperty('font-size');
   });
 }
+// iOS Edge prints the landscape sheet at a different physical scale than the
+// zoomed phone preview. Enlarge only the auto-fitted values on print clones;
+// keep their inline !important sizes so older print CSS cannot reset them.
+function matchPrintValueTypography(sheet){
+  const selectors='.single-description .date-value, .single-bottom-row .date-value, .completed .date-value, .location-docket-description-value';
+  sheet.querySelectorAll(selectors).forEach(el=>{
+    const raw=el.style.getPropertyValue('font-size');
+    const n=parseFloat(raw);
+    if(!Number.isFinite(n) || n<=0)return;
+    const isDescription=!!el.closest('.single-description, .location-docket-description');
+    const factor=isDescription?1.10:1.23;
+    el.style.setProperty('font-size',(n*factor).toFixed(2)+'px','important');
+  });
+}
+function prepareIsolatedPrintArea(){
+  const area = document.getElementById('basketPrint');
+  if (area.parentElement !== document.body) document.body.appendChild(area);
+  return area;
+}
 function printCurrentDocket(){
-  const printArea = document.getElementById('basketPrint');
+  fitTextToBoxes();
+  const printArea = prepareIsolatedPrintArea();
   const active = document.getElementById(type === 'single' ? 'singleSheet' : type === 'mixed' ? 'mixedSheet' : 'locationSheet');
   const clone = active.cloneNode(true);
   clone.hidden = false;
   clone.removeAttribute('id');
+  clone.classList.add(type === 'single' ? 'basket-single-sheet' : type === 'mixed' ? 'basket-mixed-sheet' : 'basket-location-sheet');
+  // Preserve the exact preview font sizes in the printed clone.
   clone.style.transform = '';
   clone.style.zoom = '';
   clone.style.removeProperty('--preview-scale');
+  matchPrintValueTypography(clone);
   printArea.innerHTML = '<div class=\"print-page\">' + clone.outerHTML + '</div>';
   document.body.classList.add('printing-basket');
-  window.print();
+  // Preview values already carry measured inline font sizes. Do not refit in print media.
+  requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
 }
 function printBasket(){
   if(!docketBasket.length) return;
-  const printArea = document.getElementById('basketPrint');
+  const printArea = prepareIsolatedPrintArea();
   // Create one physical print page per requested copy, rather than relying on
   // the printer's own Copies setting (which is unreliable in iOS Edge).
   const pages = [];
@@ -1773,13 +2879,15 @@ function printBasket(){
       const printClone = document.createElement('div');
       printClone.innerHTML = item.markup;
       const sheet = printClone.querySelector('.sheet');
-      if(sheet) restorePrintTextSizes(sheet);
+      // Match the printed value sizes to the on-screen fitted typography.
+      if(sheet)matchPrintValueTypography(sheet);
       pages.push('<div class="print-page">' + printClone.innerHTML + '</div>');
     }
   });
   printArea.innerHTML = pages.join('');
   document.body.classList.add('printing-basket');
   // Allow the browser to lay out all new pages before opening print preview.
+  // Preview values already carry measured inline font sizes. Do not refit in print media.
   requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
 }
 function currentDateString(){
@@ -1821,8 +2929,7 @@ document.addEventListener('click', function(event) {
 // during those events: Safari/Edge may re-render the print preview from the DOM.
 window.addEventListener('resize', () => { fitPreview(); sizeBasketPreviews(); });
 window.addEventListener('beforeprint', () => {
-  // Do not run screen-size text fitting in print mode: iOS measures the
-  // rotated print sheet incorrectly and reduces values to tiny fonts.
+  // Preserve preview-fitted font sizes; iOS print layout measurements are unreliable.
 });
 window.addEventListener('afterprint', () => {
   document.body.classList.remove('printing-basket');
