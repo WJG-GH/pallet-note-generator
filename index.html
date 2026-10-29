@@ -2039,6 +2039,39 @@ textarea { min-height:65px; resize:vertical; }
  body.printing-basket #basketPrint .basket-mixed-sheet .completed-item > .date-label {font-size:16pt!important;}
  body.printing-basket #basketPrint .basket-location-sheet .date-label {font-size:18pt!important;}
 }
+
+/* Desktop Chrome/Edge: single unrotated docket on each A4 landscape page.
+   Overrides older portrait/rotate print rules (including higher-specificity ones). */
+@page { size: A4 landscape; margin: 0; }
+@media print {
+  html, body, body.printing-basket { width:297mm!important; min-width:0!important; max-width:297mm!important; height:auto!important; min-height:0!important; margin:0!important; padding:0!important; overflow:visible!important; background:white!important; }
+  body.printing-basket > :not(#basketPrint) { display:none!important; }
+  body.printing-basket > #basketPrint {
+    display:block!important; visibility:visible!important; position:static!important;
+    width:297mm!important; min-width:0!important; max-width:297mm!important;
+    height:auto!important; margin:0!important; padding:0!important; overflow:visible!important;
+  }
+  body.printing-basket > #basketPrint > .print-page {
+    display:block!important; position:relative!important; visibility:visible!important;
+    width:297mm!important; min-width:297mm!important; max-width:297mm!important;
+    height:210mm!important; min-height:210mm!important; max-height:210mm!important;
+    box-sizing:border-box!important; margin:0!important; padding:0!important;
+    overflow:hidden!important; break-inside:avoid!important; page-break-inside:avoid!important;
+    break-before:auto!important; page-break-before:auto!important;
+    break-after:auto!important; page-break-after:auto!important;
+  }
+  body.printing-basket > #basketPrint > .print-page:not(:last-child) { break-after:page!important; page-break-after:always!important; }
+  body.printing-basket > #basketPrint > .print-page:last-child { break-after:auto!important; page-break-after:auto!important; }
+  body.printing-basket > #basketPrint > .print-page > .sheet {
+    display:flex!important; visibility:visible!important; position:absolute!important;
+    left:10mm!important; top:10mm!important; right:auto!important; bottom:auto!important;
+    width:277mm!important; min-width:277mm!important; max-width:277mm!important;
+    height:190mm!important; min-height:190mm!important; max-height:190mm!important;
+    box-sizing:border-box!important; margin:0!important; padding:3mm!important;
+    transform:none!important; rotate:none!important; transform-origin:center center!important;
+    zoom:1!important; overflow:hidden!important;
+  }
+}
 </style>
 </head>
 <body>
