@@ -3207,9 +3207,18 @@ window.addEventListener('afterprint', () => {
  byId('productDbLoginButton').onclick=async()=>{
    const entered=byId('productDbPassword').value;
    if(!entered){status('Enter administrator password.');return;}
+   const button=byId('productDbLoginButton');
+   button.disabled=true;status('Checking password...');
    password=entered;
-   // The function verifies passwords on writes; do not claim authentication until a server check is available.
-   byId('productDbPassword').value='';setAdmin(true);status('Management controls shown. Password will be checked when you save or remove a product.');
+   try {
+     const result=await request('POST',{action:'verify-password'});
+     if(!result.authenticated)throw Error('Password verification failed');
+     byId('productDbPassword').value='';
+     setAdmin(true);status('Management unlocked.');
+   } catch(e) {
+     password='';setAdmin(false);status(e.message||'Incorrect administrator password');
+   } finally {button.disabled=false;}
+
  };
  byId('productDbLogoutButton').onclick=()=>{password='';clearFields();setAdmin(false);status('Management locked.');};
  byId('saveProductDb').onclick=async()=>{
