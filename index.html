@@ -2193,6 +2193,19 @@ textarea { min-height:65px; resize:vertical; }
 .product-db-item .product-db-name{overflow-wrap:anywhere;flex:1 1 170px}.product-db-item button{padding:8px 12px;border:1px solid #bbc5ce;background:white;border-radius:7px}
 @media(max-width:550px){.product-manager-fields{grid-template-columns:1fr 1fr}.product-manager-fields label:first-child{grid-column:1/-1}}
 @media print{#productDatabasePanel{display:none!important}}
+
+/* Last four entered barcode digits: reverse white-on-black, matching expiry date.
+   Applies to Single, Multi, and basket/print clones. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span.barcode-last-four,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span.barcode-last-four {
+  background:#000!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  -webkit-text-stroke:2.6px #fff!important;
+  text-shadow:.35px 0 #fff,-.35px 0 #fff!important;
+  -webkit-print-color-adjust:exact!important;
+  print-color-adjust:exact!important;
+}
 </style>
 </head>
 <body>
@@ -2328,6 +2341,7 @@ textarea { min-height:65px; resize:vertical; }
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
         <label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
+        <label class="expiry-toggle" style="grid-column:1/-1"><input id="productDbExpiryRequired" type="checkbox"><span>EXPIRY DATE REQUIRED</span></label>
       </div>
       <div class="actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
       </div><p id="productDbMessage" role="status" aria-live="polite" class="hint"></p>
@@ -2614,7 +2628,7 @@ function updatePreview(){
   const singleBarcode=val('singleCode');
   const singleCodeCells=document.getElementById('singleCodeCells');
   singleCodeCells.innerHTML='';
-  for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=singleBarcode[j]||'';singleCodeCells.appendChild(s);}
+  for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=singleBarcode[j]||'';if(j>=Math.max(0,singleBarcode.length-4)&&j<singleBarcode.length)s.classList.add('barcode-last-four');singleCodeCells.appendChild(s);}
   addBarcodeDividers(singleCodeCells);
   setQrImage(document.getElementById('singleQr'), singleBarcode);
   const singleQtyCells=document.getElementById('singleQtyCells');
@@ -2634,7 +2648,7 @@ function updatePreview(){
     const code=document.createElement('div'); code.className='multi-stable-code';
     const barcodeHeading=document.createElement('div'); barcodeHeading.className='multi-row-heading'; barcodeHeading.textContent='BARCODE'; code.appendChild(barcodeHeading);
     const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
-    for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';code.appendChild(s);}
+    for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';if(j>=Math.max(0,codeVal.length-4)&&j<codeVal.length)s.classList.add('barcode-last-four');code.appendChild(s);}
     addBarcodeDividers(code);
     const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i;
     const grey=document.createElement('div');grey.className='multi-stable-divider';
@@ -3175,7 +3189,7 @@ window.addEventListener('afterprint', () => {
    return data;
  }
  function setAdmin(value){byId('productDbLogin').hidden=value;byId('productDbAdmin').hidden=!value;refresh();}
- function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');}
+ function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');byId('productDbExpiryRequired').checked=false;}
  function refresh(){
    const list=byId('savedProductDescriptions');list.replaceChildren();
    const output=byId('productDbList');output.replaceChildren();
@@ -3185,10 +3199,10 @@ window.addEventListener('afterprint', () => {
      const item=document.createElement('div');item.className='product-db-item';
      const name=document.createElement('div');name.className='product-db-name';
      const strong=document.createElement('strong');strong.textContent=p.description;
-     const details=document.createElement('div');details.textContent=p.barcode+' · QTY '+p.quantity;
+     const details=document.createElement('div');details.textContent=p.barcode+' · QTY '+p.quantity+(p.expiry_required?' · EXPIRY REQUIRED':' · NO EXPIRY');
      name.append(strong,details);item.append(name);
      if(password){
-       const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>{editingId=p.id;byId('productDbDescription').value=p.description;byId('productDbBarcode').value=p.barcode;byId('productDbQty').value=p.quantity;byId('productDbDescription').focus();};
+       const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>{editingId=p.id;byId('productDbDescription').value=p.description;byId('productDbBarcode').value=p.barcode;byId('productDbQty').value=p.quantity;byId('productDbExpiryRequired').checked=p.expiry_required===true;byId('productDbDescription').focus();};
        const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.onclick=async()=>{if(!confirm('Remove '+p.description+'?'))return;try{await request('DELETE',{id:p.id});await load();status('Product removed.');}catch(e){status(e.message);}};
        item.append(edit,remove);
      }
@@ -3200,7 +3214,12 @@ window.addEventListener('afterprint', () => {
  window.productDescriptionChanged=function(){
    const description=normalize(byId('description').value);
    const product=products.find(p=>normalize(p.description)===description);
-   if(product){byId('singleCode').value=product.barcode;byId('qty').value=product.quantity;}
+   if(product){
+     byId('singleCode').value=product.barcode;
+     byId('qty').value=product.quantity;
+     byId('includeExpiry').checked=product.expiry_required===true;
+     byId('expiry').value=''; // Expiry date is always entered manually for each docket.
+   }
    updatePreview();
  };
  byId('toggleProductDatabase').onclick=()=>{const body=byId('productDatabaseBody');body.hidden=!body.hidden;byId('toggleProductDatabase').setAttribute('aria-expanded',String(!body.hidden));};
@@ -3225,7 +3244,7 @@ window.addEventListener('afterprint', () => {
    const description=normalize(byId('productDbDescription').value);
    const barcode=byId('productDbBarcode').value.trim();const quantity=Number(byId('productDbQty').value.trim());
    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^\d{1,3}$/.test(byId('productDbQty').value.trim())){status('Enter description, numeric barcode (up to 13 digits), and quantity (up to 3 digits).');return;}
-   try{await request(editingId===null?'POST':'PUT',{...(editingId===null?{}:{id:editingId}),description,barcode,quantity});await load();status('Product saved for all devices.');clearFields();}
+   try{await request(editingId===null?'POST':'PUT',{...(editingId===null?{}:{id:editingId}),description,barcode,quantity,expiry_required:byId('productDbExpiryRequired').checked});await load();status('Product saved for all devices.');clearFields();}
    catch(e){status(e.message);}
  };
  byId('clearProductDb').onclick=()=>{clearFields();status('');};
