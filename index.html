@@ -2155,6 +2155,13 @@ textarea { min-height:65px; resize:vertical; }
   -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
 }
 
+/* Keep the expiry value white until a date has actually been entered. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-expiry-item .date-value:empty,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-expiry-item .date-value:not(.expiry-has-date) {
+  background:#fff!important;color:#000!important;-webkit-text-fill-color:#000!important;
+  -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+
 /* Match LOCATION docket PALLET NOTE heading to the Single Docket,
    including print-basket clones. */
 .sheet:is(#locationSheet,.basket-location-sheet) .mixed-title {
@@ -2624,6 +2631,7 @@ function updatePreview(){
     const ids={Description:'description',Forklifted:'forklifted',Expiry:'expiry',Located:'located',LocatedDate:'locatedDate'};
     document.getElementById('p'+k).textContent=k==='Expiry'&&!showExpiry ? '' : (['Expiry','LocatedDate'].includes(k) ? formatDocketDate(val(ids[k])) : val(ids[k]));
   });
+  document.getElementById('pExpiry').classList.toggle('expiry-has-date', showExpiry && !!val('expiry').trim());
   document.getElementById('pDescription').dataset.fitOriginal=val('description').toUpperCase();
   const singleBarcode=val('singleCode');
   const singleCodeCells=document.getElementById('singleCodeCells');
