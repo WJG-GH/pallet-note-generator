@@ -2191,6 +2191,102 @@ textarea { min-height:65px; resize:vertical; }
 .sheet:is(#otherSheet,.basket-other-sheet)[hidden] { display:none!important; }
 .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content { font-family:Arial,Helvetica,sans-serif!important; font-weight:900!important; font-size:76pt!important; line-height:1.04!important; text-align:center!important; max-width:100%!important; overflow-wrap:normal!important; padding:10mm!important; letter-spacing:-2px!important; -webkit-text-stroke:1px #000!important; }
 @media print { body.printing-basket > #basketPrint > .print-page > .basket-other-sheet, body > #basketPrint > .print-page > .basket-other-sheet { display:flex!important; align-items:center!important; justify-content:center!important; } }
+
+/* SINGLE-only: full-width barcode, description left, QR above quantity right.
+   Applied to preview and basket/print clones. Footer is unchanged. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row {
+ display:block!important; height:43mm!important; flex:0 0 43mm!important;
+ width:100%!important; padding:0!important; margin:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row > .single-barcode-area {
+ display:grid!important; width:100%!important; height:100%!important;
+ grid-template-rows:10mm minmax(0,1fr)!important; min-width:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row .single-barcode-grid {
+ width:100%!important; height:100%!important; min-width:0!important;
+ grid-template-columns:repeat(13,minmax(0,1fr))!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty {
+ display:grid!important; grid-template-columns:minmax(0,1fr) 49mm!important;
+ grid-template-rows:minmax(0,1fr)!important; gap:2mm!important;
+ height:75mm!important; flex:0 0 75mm!important; margin:2mm 0 0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty > .single-description {
+ grid-column:1!important; grid-row:1!important; height:100%!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack {
+ grid-column:2!important; grid-row:1!important; display:grid!important;
+ grid-template-rows:minmax(0,1.2fr) minmax(0,.8fr)!important;
+ gap:2mm!important; min-width:0!important; min-height:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box {
+ grid-column:auto!important; grid-row:auto!important; display:flex!important;
+ position:relative!important; justify-self:stretch!important;
+ width:100%!important; min-width:0!important; max-width:none!important;
+ height:100%!important; max-height:none!important; box-sizing:border-box!important;
+ border:2px solid #111!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box > :is(img.mixed-qr,svg.qr-vector) {
+ position:absolute!important; top:50%!important; left:50%!important;
+ transform:translate(-50%,-50%)!important;
+ width:36mm!important; height:36mm!important;
+ max-width:95%!important; max-height:95%!important; object-fit:contain!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-quantity {
+ display:grid!important; grid-template-rows:9mm minmax(0,1fr)!important;
+ min-height:0!important; height:100%!important; min-width:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack .qty-cells {min-height:0!important;}
+
+
+/* Make the main and basket action buttons fill their entire available row. */
+@media screen and (min-width:601px) {
+  .main-form-actions { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px!important; width:100%; }
+  .main-form-actions > .action { width:100%; min-width:0; min-height:52px; text-align:center; white-space:normal; }
+  .main-form-actions #cancelEditButton[hidden] { display:none!important; }
+  .main-form-actions #cancelEditButton:not([hidden]) { grid-column:1/-1; }
+  .cloud-basket-actions, .basket-print-actions { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px!important; width:100%; }
+  .cloud-basket-actions > .action, .basket-print-actions > .action { width:100%; min-width:0; min-height:52px; text-align:center; }
+}
+
+/* MULTI barcode controls: two equal-width buttons across the form. */
+#mixedForm .multi-row-controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+#mixedForm .multi-row-controls > button {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  box-sizing: border-box;
+  text-align: center;
+}
+#mixedForm .multi-row-controls > span {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+@media (max-width: 560px) {
+  #mixedForm .multi-row-controls { gap: 10px; }
+}
+
+/* MULTI entry footer: full-width, balanced desktop fields matching SINGLE. */
+#mixedForm .multi-details-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+#mixedForm .multi-details-row > label { min-width: 0; width: 100%; }
+#mixedForm .multi-details-row input { display: block; width: 100%; box-sizing: border-box; }
+@media (max-width: 560px) {
+  #mixedForm .multi-details-row { gap: 10px; }
+}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -2214,6 +2310,221 @@ textarea { min-height:65px; resize:vertical; }
   print-color-adjust:exact!important;
 }
 </style>
+<style>
+/* SINGLE form layout only: desktop full-width description, paired optional fields,
+   and equal-width footer inputs. No docket preview or print styles changed. */
+#singleForm { grid-template-columns:minmax(0,1fr)!important; gap:14px; }
+#singleForm > label:first-child { grid-column:1/-1; width:100%; }
+#singleForm > label:first-child input { display:block; width:100%; box-sizing:border-box; }
+#singleForm .single-barcode-entry { grid-column:1/-1; }
+#singleForm .single-optional-row,
+#singleForm .single-details-row { grid-column:1/-1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; width:100%; min-width:0; }
+#singleForm .single-optional-field { min-width:0; display:flex; flex-direction:column; gap:8px; }
+#singleForm .single-optional-field .expiry-toggle,
+#singleForm .single-optional-field .location-toggle { grid-column:auto!important; margin:0; min-height:30px; }
+#singleForm .single-optional-field > label:not(.expiry-toggle):not(.location-toggle),
+#singleForm .single-details-row > label { min-width:0; width:100%; }
+#singleForm .single-optional-field input:not([type="checkbox"]),
+#singleForm .single-details-row input { display:block; width:100%; box-sizing:border-box; }
+@media(max-width:560px) {
+  #singleForm .single-optional-row,
+  #singleForm .single-details-row { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+}
+</style>
+<style>
+/* Match native iOS date fields to the adjacent text inputs on SINGLE and MULTI. */
+@media screen and (max-width: 600px) {
+  #singleForm input[type="date"],
+  #mixedForm input[type="date"] {
+    font-family: Arial, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    line-height: normal !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+  #singleForm input[type="date"]::-webkit-date-and-time-value,
+  #mixedForm input[type="date"]::-webkit-date-and-time-value,
+  #singleForm input[type="date"]::-webkit-datetime-edit,
+  #mixedForm input[type="date"]::-webkit-datetime-edit {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    line-height: 22px !important;
+  }
+}
+/* iOS date controls: reserve an exact-height slot so native intrinsic sizing
+   cannot stretch the two-column footer or overlap its neighbour. */
+@media screen and (max-width: 600px) {
+  #singleForm label:has(> #locatedDate),
+  #mixedForm label:has(> #completedDate),
+  #singleForm label:has(> #expiry) {
+    position: relative !important;
+    display: block !important;
+    padding-bottom: 44px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  #singleForm #locatedDate,
+  #mixedForm #completedDate,
+  #singleForm #expiry {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 44px !important;
+    min-height: 0 !important;
+    max-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+    border: 1px solid #c7cdd4 !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    font-size: 16px !important;
+    line-height: 20px !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+}
+/* iPhone Edge/Safari: vertically and horizontally centre the native date value. */
+@media screen and (max-width:600px) {
+  #singleForm #locatedDate, #mixedForm #completedDate, #singleForm #expiry {
+    padding:0 !important;
+    line-height:44px !important;
+    text-align:center !important;
+  }
+  #singleForm input[type="date"]::-webkit-date-and-time-value,
+  #mixedForm input[type="date"]::-webkit-date-and-time-value {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:100% !important;
+    min-height:44px !important;
+    width:100% !important;
+    padding:0 !important;
+    margin:0 !important;
+    line-height:normal !important;
+  }
+  #singleForm input[type="date"]::-webkit-datetime-edit,
+  #mixedForm input[type="date"]::-webkit-datetime-edit {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:100% !important;
+    min-height:44px !important;
+    padding:0 !important;
+    margin:0 !important;
+    line-height:normal !important;
+  }
+  #singleForm input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+  #mixedForm input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:100% !important;
+    padding:0 !important;
+  }
+}
+</style>
+
+<style>
+/* Mobile date layout: keep native date inputs in normal document flow.
+   Previous absolute positioning and padding-bottom caused footer misalignment. */
+@media screen and (max-width:600px) {
+  #singleForm #expiryInputWrap[hidden],
+  #singleForm #singleLocationInputWrap[hidden] { display:none !important; }
+  #singleForm label:has(> #locatedDate),
+  #mixedForm label:has(> #completedDate),
+  #singleForm label:has(> #expiry) {
+    position:static !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:6px !important;
+    padding:0 !important;
+    margin:0 !important;
+    min-width:0 !important;
+    height:auto !important;
+  }
+  #singleForm #locatedDate,
+  #mixedForm #completedDate,
+  #singleForm #expiry {
+    position:static !important;
+    inset:auto !important;
+    display:block !important;
+    width:100% !important;
+    height:44px !important;
+    min-height:44px !important;
+    max-height:44px !important;
+    margin:0 !important;
+    padding:0 8px !important;
+    box-sizing:border-box !important;
+    line-height:normal !important;
+    text-align:center !important;
+    vertical-align:middle !important;
+  }
+  #singleForm input[type=date]::-webkit-date-and-time-value,
+  #mixedForm input[type=date]::-webkit-date-and-time-value {
+    min-height:0 !important;
+    height:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+}
+/* Hidden expiry and location inputs must stay hidden at all screen sizes. */
+#singleForm #expiryInputWrap[hidden],
+#singleForm #singleLocationInputWrap[hidden] { display:none !important; }
+</style>
+<style>
+/* Equalise footer label and input rows in both entry forms, including iOS. */
+@media screen {
+ #singleForm .single-details-row, #mixedForm .multi-details-row { align-items:stretch!important; }
+ #singleForm .single-details-row > label, #mixedForm .multi-details-row > label {
+   display:grid!important; grid-template-rows: 20px 44px!important;
+   gap:6px!important; align-content:start!important; min-height:70px!important;
+   padding:0!important; margin:0!important; line-height:20px!important;
+ }
+ #singleForm .single-details-row > label > input,
+ #mixedForm .multi-details-row > label > input {
+   position:static!important; inset:auto!important; display:block!important;
+   height:44px!important; min-height:44px!important; max-height:44px!important;
+   width:100%!important; margin:0!important; box-sizing:border-box!important;
+   border:1px solid #c7cdd4!important; border-radius:6px!important;
+   padding:0 10px!important; line-height:normal!important;
+ }
+ #singleForm .single-details-row input[type=date],
+ #mixedForm .multi-details-row input[type=date] { text-align:center!important; }
+}
+</style>
+<style>
+/* Keep optional location and expiry entries aligned with the footer inputs. */
+@media screen {
+ #singleForm .single-optional-field > label:not(.expiry-toggle):not(.location-toggle):not([hidden]) {
+   display:grid!important; grid-template-rows:20px 44px!important;
+   gap:6px!important; align-content:start!important; min-height:70px!important;
+   padding:0!important; margin:0!important; line-height:20px!important;
+ }
+ #singleForm #singleLocationInput,
+ #singleForm #expiry {
+   position:static!important; inset:auto!important; display:block!important;
+   width:100%!important; height:44px!important; min-height:44px!important;
+   max-height:44px!important; margin:0!important; padding:0 10px!important;
+   box-sizing:border-box!important; border:1px solid #c7cdd4!important;
+   border-radius:6px!important; line-height:normal!important;
+ }
+ #singleForm #expiryInputWrap[hidden],
+ #singleForm #singleLocationInputWrap[hidden] { display:none!important; }
+}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -2234,20 +2545,30 @@ textarea { min-height:65px; resize:vertical; }
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
         <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">Scan Barcode</button>
       </div>
-      <label class="expiry-toggle"><input id="includeExpiry" type="checkbox" onchange="updatePreview()"><span>EXPIRY DATE</span></label>
-      <label id="expiryInputWrap" hidden>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
-      <label class="location-toggle"><input id="includeSingleLocation" type="checkbox" onchange="updatePreview()"><span>LOCATION</span></label>
-      <label id="singleLocationInputWrap" hidden>Location<input id="singleLocationInput" inputmode="numeric" maxlength="10" placeholder="000-00-000" oninput="updatePreview()"></label>
-      <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
-      <label>Completed by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <div class="single-details-row">
+        <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
+        <label>Completed by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      </div>
+      <div class="single-optional-row">
+        <div class="single-optional-field">
+          <label class="expiry-toggle"><input id="includeExpiry" type="checkbox" onchange="updatePreview()"><span>EXPIRY DATE</span></label>
+          <label id="expiryInputWrap" hidden>Expiry date<input id="expiry" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
+        </div>
+        <div class="single-optional-field">
+          <label class="location-toggle"><input id="includeSingleLocation" type="checkbox" onchange="updatePreview()"><span>LOCATION</span></label>
+          <label id="singleLocationInputWrap" hidden>Location<input id="singleLocationInput" inputmode="numeric" maxlength="10" placeholder="000-00-000" oninput="updatePreview()"></label>
+        </div>
+      </div>
       <input type="hidden" id="located" value="">
       <input type="hidden" id="location" value="">
     </div>
     <div id="mixedForm" class="fields" hidden>
       <div id="mixedLines" style="grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr);gap:12px"></div>
       <div class="multi-row-controls"><button type="button" id="addMultiBarcode" onclick="changeMultiBarcodeCount(1)">+ Add barcode</button><button type="button" id="removeMultiBarcode" onclick="changeMultiBarcodeCount(-1)">− Remove barcode</button><span id="multiBarcodeCountLabel" aria-live="polite"></span></div>
-      <label>Located date<input id="completedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
-      <label>Completed by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      <div class="multi-details-row">
+        <label>Located date<input id="completedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
+        <label>Completed by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+      </div>
       <input type="hidden" id="mixedLocated" value="">
       <input type="hidden" id="mixedLocation" value="">
     </div>
@@ -2281,11 +2602,13 @@ textarea { min-height:65px; resize:vertical; }
       <h2 class="mixed-title">PALLET NOTE</h2>
       <div class="single-mixed-row">
         <div class="single-barcode-area"><div class="single-barcode-heading">BARCODE</div><div class="mixed-code single-barcode-grid" id="singleCodeCells"></div></div>
-        <div class="single-qr-box"><img id="singleQr" class="mixed-qr" alt="QR code for pallet barcode"></div>
       </div>
       <div class="single-description-qty">
+        <div class="single-right-stack">
+          <div class="single-qr-box"><img id="singleQr" class="mixed-qr" alt="QR code for pallet barcode"></div>
+          <div class="single-info-item single-quantity"><div class="date-label">QTY</div><div class="qty-cells" id="singleQtyCells"></div></div>
+        </div>
         <div class="single-info-item single-description"><div class="date-label">Description</div><div class="date-value" id="pDescription"></div></div>
-        <div class="single-info-item single-quantity"><div class="date-label">QTY</div><div class="qty-cells" id="singleQtyCells"></div></div>
       </div>
       <div class="single-bottom-row">
         <div class="single-info-item"><div class="date-label">Located date</div><div class="date-value" id="pLocatedDate"></div></div>
