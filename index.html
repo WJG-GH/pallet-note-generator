@@ -2287,6 +2287,26 @@ textarea { min-height:65px; resize:vertical; }
 @media (max-width: 560px) {
   #mixedForm .multi-details-row { gap: 10px; }
 }
+/* Single docket: balanced barcode height and legible quantity in screen and print. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-mixed-row {
+ height:35mm!important; flex:0 0 35mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty {
+ height:83mm!important; flex:0 0 83mm!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack {
+ grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box > :is(img.mixed-qr,svg.qr-vector) {
+ width:29mm!important; height:29mm!important;
+ max-width:94%!important; max-height:94%!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-quantity {
+ grid-template-rows:8mm minmax(0,1fr)!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span {
+ font-size:40pt!important; line-height:1!important;
+}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
