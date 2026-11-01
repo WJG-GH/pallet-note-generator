@@ -2541,6 +2541,55 @@ textarea { min-height:65px; resize:vertical; }
  body.printing-basket #basketPrint .basket-single-sheet .single-quantity .qty-cells > span {font-size:43pt!important;}
 }
 </style>
+<style id="high-contrast-without-reverse">
+/* Keep the final four digits white-backed and slightly heavier, without underlining. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span.barcode-last-four,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span.barcode-last-four {
+  background:#fff!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  -webkit-text-stroke:3px #000!important;
+  text-shadow:.5px 0 #000,-.5px 0 #000!important;
+  text-decoration:none!important;
+}
+/* Highlight entered expiry dates with bold black type on white, without underline. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-expiry-item .date-value,
+.sheet:is(#singleSheet,.basket-single-sheet) .single-expiry-item .date-value.expiry-has-date {
+  background:#fff!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-expiry-item .date-value.expiry-has-date {
+  font-weight:900!important;
+  text-decoration:none!important;
+}
+</style>
+<style id="extra-bold-last-four-digits">
+/* Stronger emphasis for the last four digits, without fill or underline. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span.barcode-last-four,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span.barcode-last-four {
+  font-weight: 1000 !important;
+  -webkit-text-stroke: 4px #000 !important;
+  text-shadow: .8px 0 #000, -.8px 0 #000 !important;
+  background: #fff !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  text-decoration: none !important;
+}
+</style>
+<style id="uniform-barcode-digit-style">
+/* Last four barcode digits match the other digits exactly. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span.barcode-last-four,
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span.barcode-last-four {
+  font-weight:900!important;
+  -webkit-text-stroke:1px #111!important;
+  text-shadow:none!important;
+  text-decoration:none!important;
+  background:#fff!important;
+  color:#111!important;
+  -webkit-text-fill-color:#111!important;
+}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -2975,7 +3024,7 @@ function updatePreview(){
   const singleBarcode=val('singleCode');
   const singleCodeCells=document.getElementById('singleCodeCells');
   singleCodeCells.innerHTML='';
-  for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=singleBarcode[j]||'';if(j>=Math.max(0,singleBarcode.length-4)&&j<singleBarcode.length)s.classList.add('barcode-last-four');singleCodeCells.appendChild(s);}
+  for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=singleBarcode[j]||'';singleCodeCells.appendChild(s);}
   addBarcodeDividers(singleCodeCells);
   setQrImage(document.getElementById('singleQr'), singleBarcode);
   const singleQtyCells=document.getElementById('singleQtyCells');
@@ -2995,7 +3044,7 @@ function updatePreview(){
     const code=document.createElement('div'); code.className='multi-stable-code';
     const barcodeHeading=document.createElement('div'); barcodeHeading.className='multi-row-heading'; barcodeHeading.textContent='BARCODE'; code.appendChild(barcodeHeading);
     const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
-    for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';if(j>=Math.max(0,codeVal.length-4)&&j<codeVal.length)s.classList.add('barcode-last-four');code.appendChild(s);}
+    for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';code.appendChild(s);}
     addBarcodeDividers(code);
     const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i;
     const grey=document.createElement('div');grey.className='multi-stable-divider';
@@ -3055,9 +3104,9 @@ function fitDocketValues(root=document){
     const css=getComputedStyle(el);
     const padX=(parseFloat(css.paddingLeft)||0)+(parseFloat(css.paddingRight)||0);
     const padY=(parseFloat(css.paddingTop)||0)+(parseFloat(css.paddingBottom)||0);
-    const availableW=Math.max(4,w-padX-8), availableH=Math.max(4,h-padY-5);
+    const availableW=Math.max(4,w-padX-4), availableH=Math.max(4,h-padY-3);
     const isDescription=!!el.closest('.single-description, .location-docket-description');
-    const cap=isDescription?125:95;
+    const cap=isDescription?150:130;
     const family=css.fontFamily||'Arial, sans-serif';
     const weight=900;
     const text=value.replace(/\s+/g,' ');
@@ -3109,26 +3158,52 @@ function fitDocketValues(root=document){
   });
 }
 function fitTextToBoxes(root=document){
-  // Start at the designed font size and shrink only as much as necessary.
-  // Use a binary search so long text stays as large as possible while fitting.
-  const targets = root.querySelectorAll('.sheet:not([hidden]) .entry, .sheet:not([hidden]) #singleCodeText, .sheet:not([hidden]) .location-cells .cellgroup.loc span, .sheet:not([hidden]) .completed .date-value, .sheet:not([hidden]) .single-info .date-value, .sheet:not([hidden]) .mixed-code span, .sheet:not([hidden]) .qty-cells span');
-  targets.forEach(el=>{
-    if(el.matches('.single-description .date-value, .single-bottom-row .date-value, .completed .date-value, .location-docket-description-value'))return;
-    el.style.fontSize='';
-    const base=parseFloat(getComputedStyle(el).fontSize)||24;
-    const min=8;
-    const fits = size => {
-      el.style.fontSize=size+'px';
-      return el.clientWidth>0 && el.clientHeight>0 && el.scrollWidth<=el.clientWidth+1 && el.scrollHeight<=el.clientHeight+1;
+  // Fit every docket value against its actual box, using the same rules for
+  // live preview, basket thumbnails and the saved print clone.
+  const canvas=fitTextToBoxes.canvas||(fitTextToBoxes.canvas=document.createElement('canvas'));
+  const ctx=canvas.getContext('2d');
+  const selector=[
+    '.single-barcode-grid > span','.multi-stable-code > span',
+    '.mixed-code > span','.qty-cells > span','.multi-stable-qty > span',
+    '.single-info .date-value','.single-bottom-row .date-value',
+    '.single-description .date-value','.completed .date-value',
+    '.location-docket-description-value','.location-cells .cellgroup span',
+    '.location-docket-bottom .date-value','.sheet .entry',
+    '.sheet #singleCodeText'
+  ].join(',');
+  root.querySelectorAll(selector).forEach(el=>{
+    if(el.closest('.sheet[hidden]') || el.classList.contains('barcode-dividers'))return;
+    // Descriptions are handled by the two-line-aware fitting routine below.
+    if(el.matches('.single-description .date-value,.location-docket-description-value'))return;
+    const value=(el.textContent||'').trim();
+    el.style.removeProperty('font-size');
+    if(!value)return;
+    const w=el.clientWidth,h=el.clientHeight;
+    if(w<5||h<5)return;
+    const css=getComputedStyle(el);
+    const px=(parseFloat(css.paddingLeft)||0)+(parseFloat(css.paddingRight)||0);
+    const py=(parseFloat(css.paddingTop)||0)+(parseFloat(css.paddingBottom)||0);
+    const maxW=Math.max(3,w-px-3),maxH=Math.max(3,h-py-3);
+    const family=css.fontFamily||'Arial,Helvetica,sans-serif';
+    const weight=css.fontWeight==='normal'?'700':(css.fontWeight||'700');
+    const spacing=parseFloat(css.letterSpacing)||0;
+    // Common caps ensure a consistent type scale across equivalent boxes.
+    const isDigit=el.matches('.mixed-code > span,.single-barcode-grid > span,.multi-stable-code > span,.qty-cells > span,.multi-stable-qty > span');
+    const cap=isDigit?110:125;
+    const fits=size=>{
+      ctx.font=`${weight} ${size}px ${family}`;
+      const width=ctx.measureText(value).width+Math.max(0,value.length-1)*spacing;
+      return width<=maxW && size*1.13<=maxH;
     };
-    if (fits(base)) return;
-    let low=min, high=base;
-    if (!fits(low)) { el.style.fontSize=min+'px'; return; }
-    for(let i=0;i<12;i++){
+    let low=5,high=cap;
+    for(let i=0;i<17;i++){
       const mid=(low+high)/2;
-      if(fits(mid)) low=mid; else high=mid;
+      if(fits(mid))low=mid;else high=mid;
     }
-    el.style.fontSize=low.toFixed(2)+'px';
+    el.style.setProperty('font-size',low.toFixed(2)+'px','important');
+    el.style.setProperty('line-height','1','important');
+    el.style.setProperty('overflow','hidden','important');
+    el.style.setProperty('text-align','center','important');
   });
   fitDocketValues(root);
 }
