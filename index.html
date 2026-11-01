@@ -2287,6 +2287,55 @@ textarea { min-height:65px; resize:vertical; }
 @media (max-width: 560px) {
   #mixedForm .multi-details-row { gap: 10px; }
 }
+
+/* Alternating QR position on Multi docket, including basket and printed clones.
+   Row 1 right, row 2 left, row 3 right, row 4 left. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) .multi-stable-row.qr-left {
+  grid-template-columns:31mm minmax(0,1fr) 48mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) .multi-stable-row.qr-left > .multi-stable-qr {
+  grid-column:1!important;grid-row:1!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) .multi-stable-row.qr-left > .multi-stable-code {
+  grid-column:2!important;grid-row:1!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) .multi-stable-row.qr-left > .multi-stable-qty {
+  grid-column:3!important;grid-row:1!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) .multi-stable-row.qr-left > .multi-stable-divider {
+  display:none!important;
+}
+
+
+/* Multi docket: give Located Date and Completed By more room with 2 or 3 barcodes.
+   The selector also applies to basket and printed copies without altering 4 rows. */
+.sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows[data-row-count="3"]) > .completed {
+  height:39mm!important;
+  flex:0 0 39mm!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:3mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows[data-row-count="2"]) > .completed {
+  height:48mm!important;
+  flex:0 0 48mm!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:3mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows:is([data-row-count="2"],[data-row-count="3"])) > .completed > .completed-item {
+  grid-template-rows:11mm minmax(0,1fr)!important;
+  min-height:0!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows:is([data-row-count="2"],[data-row-count="3"])) > .completed .date-label {
+  justify-content:center!important;
+  text-align:center!important;
+  font-size:19pt!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows:is([data-row-count="2"],[data-row-count="3"])) > .completed .date-value {
+  justify-content:center!important;
+  text-align:center!important;
+  font-size:32pt!important;
+  min-height:0!important;
+}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -3040,7 +3089,7 @@ function updatePreview(){
   rows.style.setProperty("grid-template-rows",`repeat(${count},minmax(0,1fr))`,"important");
   rows.dataset.rowCount=String(count);
   for(let i=1;i<=count;i++){
-    const row=document.createElement('div'); row.className='multi-stable-row';
+    const row=document.createElement('div'); row.className='multi-stable-row' + (count >= 3 && i % 2 === 0 ? ' qr-left' : ' qr-right');
     const code=document.createElement('div'); code.className='multi-stable-code';
     const barcodeHeading=document.createElement('div'); barcodeHeading.className='multi-row-heading'; barcodeHeading.textContent='BARCODE'; code.appendChild(barcodeHeading);
     const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
