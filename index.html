@@ -2348,6 +2348,13 @@ textarea { min-height:65px; resize:vertical; }
 .product-db-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #d9dee4;padding:10px 0;flex-wrap:wrap}
 .product-db-item .product-db-name{overflow-wrap:anywhere;flex:1 1 170px}.product-db-item button{padding:8px 12px;border:1px solid #bbc5ce;background:white;border-radius:7px}
 @media(max-width:550px){.product-manager-fields{grid-template-columns:1fr 1fr}.product-manager-fields label:first-child{grid-column:1/-1}}
+/* Product database: wide barcode field, compact three-digit quantity and inline expiry checkbox. */
+.product-manager-fields{grid-template-columns:minmax(0,3fr) minmax(100px,1fr)!important;gap:12px!important}
+.product-manager-fields > label:first-child{grid-column:1/-1!important}
+#productDbExpiryRequired{width:22px!important;height:22px!important;min-width:22px!important;flex:0 0 22px!important;margin:0!important}
+.product-manager-fields > label.expiry-toggle{grid-column:1/-1!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;cursor:pointer}
+.product-manager-fields > label.expiry-toggle span{display:inline!important;line-height:1.3!important}
+@media(max-width:550px){.product-manager-fields{grid-template-columns:minmax(0,3fr) minmax(85px,1fr)!important}}
 @media print{#productDatabasePanel{display:none!important}}
 
 /* Last four entered barcode digits: reverse white-on-black, matching expiry date.
@@ -2784,7 +2791,7 @@ textarea { min-height:65px; resize:vertical; }
   <section class="panel" id="productDatabasePanel">
     <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">PRODUCT DATABASE ▾</button>
     <div id="productDatabaseBody" hidden style="padding-top:16px">
-      <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div><div id="productDbAdmin" hidden><button class="action" id="productDbLogoutButton" type="button" style="margin-bottom:10px">Lock management</button><div class="product-manager-fields">
+      <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div><div id="productDbAdmin" hidden><button class="action" id="productDbLogoutButton" type="button" style="margin-bottom:10px">LOG OUT</button><div class="product-manager-fields">
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
         <label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
