@@ -844,6 +844,10 @@ textarea { min-height:65px; resize:vertical; }
 #barcodeScannerReader video{max-width:100%;height:auto}
 #barcodeScannerStatus{font-size:14px;margin:10px 0;min-height:20px}
 #barcodeScannerClose{padding:12px 18px;border-radius:8px;border:1px solid #9ca3af;background:#f8fafc;font-weight:700}
+.scanner-controls{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}
+.scanner-controls button{flex:1 1 145px;padding:12px 10px;border:1px solid #9ca3af;border-radius:8px;background:#f8fafc;color:#17212b;font-size:15px;font-weight:700;cursor:pointer}
+.scanner-controls button[aria-pressed="true"]{background:#17212b;color:white}
+.scanner-controls button:disabled{opacity:.5;cursor:not-allowed}
 @media print{#barcodeScannerOverlay,.scan-barcode-btn{display:none!important}}
 
 /* Responsive action buttons: use the available phone width evenly. */
@@ -2798,6 +2802,7 @@ textarea { min-height:65px; resize:vertical; }
   <div id="barcodeScannerPanel">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><strong>Scan product barcode</strong><button id="barcodeScannerClose" type="button">Close ✕</button></div>
     <p style="font-size:14px;margin:10px 0">Point the rear camera at a product barcode. The number will fill the selected field automatically.</p>
+    <div class="scanner-controls"><button id="barcodeTorchToggle" type="button" aria-pressed="false" disabled>Torch: Starting…</button></div>
     <div id="barcodeScannerReader"></div>
     <p id="barcodeScannerStatus" role="status">Starting camera…</p>
   </div>
@@ -2807,6 +2812,27 @@ textarea { min-height:65px; resize:vertical; }
 // Camera barcode scanning (EAN-8, EAN-13, UPC, Code 128, etc.).
 // The scanner library is loaded on demand, so printing and offline form use stay unchanged.
 let activeBarcodeScanner=null, activeBarcodeTarget=null, barcodeScannerBusy=false;
+let barcodeTorchOn=false, barcodeTorchSupported=false;
+function updateScannerControls(){
+  const torch=document.getElementById('barcodeTorchToggle');
+  torch.textContent='Torch: '+(barcodeTorchOn?'ON':'OFF');
+  torch.setAttribute('aria-pressed',String(barcodeTorchOn));
+  torch.disabled=!activeBarcodeScanner||!barcodeTorchSupported;
+  torch.title=barcodeTorchSupported?'Turn the camera torch on or off':'Torch is unavailable on this camera/browser';
+}
+async function setBarcodeTorch(on){
+  if(!activeBarcodeScanner||!barcodeTorchSupported)return;
+  try{
+    await activeBarcodeScanner.applyVideoConstraints({advanced:[{torch:on}]});
+    barcodeTorchOn=on;
+  }catch(e){barcodeTorchOn=false;barcodeScannerStatus('Torch control is not supported by this camera/browser. Scanning still works.');}
+  updateScannerControls();
+}
+async function stopBarcodeCamera(){
+  const scanner=activeBarcodeScanner;activeBarcodeScanner=null;
+  barcodeTorchOn=false;barcodeTorchSupported=false;updateScannerControls();
+  if(scanner){try{await scanner.stop();}catch(e){}try{scanner.clear();}catch(e){}}
+}
 function barcodeScannerStatus(message){document.getElementById('barcodeScannerStatus').textContent=message;}
 function loadBarcodeScannerLibrary(){
   if(window.Html5Qrcode) return Promise.resolve();
@@ -2823,9 +2849,7 @@ function loadBarcodeScannerLibrary(){
 async function closeBarcodeScanner(){
   document.getElementById('barcodeScannerOverlay').hidden=true;
   activeBarcodeTarget=null;
-  const scanner=activeBarcodeScanner;
-  activeBarcodeScanner=null;
-  if(scanner){try{await scanner.stop();}catch(e){}try{scanner.clear();}catch(e){}}
+  await stopBarcodeCamera();
   barcodeScannerBusy=false;
 }
 async function openBarcodeScanner(targetId){
@@ -2835,7 +2859,8 @@ async function openBarcodeScanner(targetId){
   if(!window.isSecureContext){alert('Camera scanning requires HTTPS. Open your deployed Render website to scan.');return;}
   if(!navigator.mediaDevices?.getUserMedia){alert('This browser does not support camera access. You can still type or use a handheld scanner.');return;}
   barcodeScannerBusy=true;
-  activeBarcodeTarget=targetId;
+  barcodeTorchOn=false;barcodeTorchSupported=false;
+  activeBarcodeTarget=targetId;updateScannerControls();
   document.getElementById('barcodeScannerOverlay').hidden=false;
   barcodeScannerStatus('Loading barcode scanner…');
   try{
@@ -2859,6 +2884,12 @@ async function openBarcodeScanner(targetId){
       await closeBarcodeScanner();
     },()=>{});
     barcodeScannerBusy=false;
+    try{
+      const caps=scanner.getRunningTrackCameraCapabilities?.();
+      barcodeTorchSupported=!!(caps?.torchFeature?.().isSupported?.() || scanner.getRunningTrackCapabilities?.()?.torch);
+    }catch(e){barcodeTorchSupported=false;}
+    updateScannerControls();
+    if(barcodeTorchSupported && activeBarcodeScanner===scanner) await setBarcodeTorch(true);
   }catch(error){
     barcodeScannerBusy=false;
     barcodeScannerStatus('Camera could not start: '+(error?.message||error)+'. Check camera permission and use the live HTTPS website.');
@@ -2868,6 +2899,8 @@ document.addEventListener('click',event=>{
   const scan=event.target.closest('[data-scan-target]');
   if(scan){openBarcodeScanner(scan.dataset.scanTarget);return;}
   if(event.target.id==='barcodeScannerClose')closeBarcodeScanner();
+  if(event.target.id==='barcodeTorchToggle')setBarcodeTorch(!barcodeTorchOn);
+
 });
 
 let type = 'single';
