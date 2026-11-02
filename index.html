@@ -3608,11 +3608,14 @@ function fitTextToBoxes(root=document){
     const spacing=parseFloat(css.letterSpacing)||0;
     // Common caps ensure a consistent type scale across equivalent boxes.
     const isDigit=el.matches('.mixed-code > span,.single-barcode-grid > span,.multi-stable-code > span,.qty-cells > span,.multi-stable-qty > span');
+    const isQtyDigit=el.matches('.qty-cells > span,.multi-stable-qty > span');
     const cap=isDigit?110:125;
     const fits=size=>{
       ctx.font=`${weight} ${size}px ${family}`;
       const width=ctx.measureText(value).width+Math.max(0,value.length-1)*spacing;
-      return width<=maxW && size*1.13<=maxH;
+      // QTY has spare vertical space: fit closer to its actual box edges.
+      // Preserve horizontal clearance for the thicker QTY stroke.
+      return width <= (isQtyDigit ? maxW-5 : maxW) && size*(isQtyDigit ? 0.98 : 1.13)<=maxH;
     };
     let low=5,high=cap;
     for(let i=0;i<17;i++){
