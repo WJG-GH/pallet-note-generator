@@ -2446,6 +2446,7 @@ html body .sheet .location-docket-description-value {
  font-family:"PalletCalibriBold",Calibri,Carlito,sans-serif !important;
  font-weight:700 !important;
 }
+.other-sign-content.custom-sign-text{white-space:pre-line!important;overflow-wrap:anywhere!important;letter-spacing:0!important;line-height:1.08!important;box-sizing:border-box!important;min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden!important;}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -2875,6 +2876,81 @@ html body .sheet .mixed-title {
   }
 }
 </style>
+<style id="qty-match-barcode-v10">
+/* Match barcode's real Comic bold face and visual weight, without outlines. */
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .qty-cells > span,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .multi-stable-qty > span {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;font-synthesis:none!important;
+ font-size:49pt!important;line-height:1!important;
+ -webkit-text-stroke:0!important;text-shadow:none!important;filter:none!important;
+}
+</style>
+<style id="qty-exact-barcode-match-v11">
+/* Keep the QTY glyphs identical to the barcode glyphs, including printed copies. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span,
+html body.printing-basket #basketPrint .basket-single-sheet .single-quantity .qty-cells > span {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;font-synthesis:none!important;
+ font-size:43pt!important;line-height:1!important;letter-spacing:0!important;
+ -webkit-text-stroke:0!important;text-shadow:none!important;filter:none!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qty > span {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;font-synthesis:none!important;
+ font-size:39pt!important;line-height:1!important;letter-spacing:0!important;
+ -webkit-text-stroke:0!important;text-shadow:none!important;filter:none!important;
+}
+</style>
+
+<style id="qty-bold-refinement-v13">
+/* Only QTY digits: same embedded Comic face as barcode, with a stronger solid ink increase. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-quantity .qty-cells > span,
+html body.printing-basket #basketPrint .basket-single-sheet .single-quantity .qty-cells > span,
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qty > span,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qty > span {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important; font-synthesis:none!important;
+ -webkit-text-fill-color:#111!important;
+ -webkit-text-stroke:0.65px #111!important;
+ text-shadow:none!important; filter:none!important;
+}
+</style>
+<style id="comic-black-digits-v14">
+/* Comic Black treatment: solid black expansion of the same Comic Bold glyphs.
+   Applies equally to barcode and QTY, live/basket/print. */
+html body .sheet .single-barcode-grid > span,
+html body .sheet #singleCodeCells > span,
+html body .sheet .mixed-code > span,
+html body .sheet .multi-stable-code > span,
+html body .sheet #singleQtyCells > span,
+html body .sheet .qty-cells > span,
+html body .sheet .multi-stable-qty > span {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;
+ font-synthesis:none!important;
+ color:#000!important;
+ -webkit-text-fill-color:#000!important;
+ -webkit-text-stroke:1.1px #000!important;
+ text-shadow:none!important;
+ filter:none!important;
+}
+</style>
+<style id="qty-visibly-heavier-v15">
+/* QTY deliberately heavier than the barcode: v14 thickened both equally. */
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .single-quantity .qty-cells > span,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .multi-stable-qty > span,
+html body.printing-basket #basketPrint .basket-single-sheet .single-quantity .qty-cells > span,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qty > span {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;
+ -webkit-text-fill-color:#000!important;
+ -webkit-text-stroke:2.4px #000!important;
+ paint-order:stroke fill!important;
+ text-shadow:none!important;
+}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -2929,7 +3005,11 @@ html body .sheet .mixed-title {
           <option value="black-friday">BLACK FRIDAY</option>
           <option value="special-buy">SPECIAL BUY</option>
           <option value="do-not-count">DO NOT COUNT</option>
+          <option value="custom">CUSTOM LABEL</option>
         </select>
+      </label>
+      <label id="customSignField" style="grid-column:1/-1" hidden>Custom label text
+        <textarea id="customSignText" rows="3" maxlength="250" placeholder="Enter the text for your A4 label" oninput="updateOtherPreview()"></textarea>
       </label>
       <p class="hint" style="grid-column:1/-1">Select a sign and add it to the basket. Each sign prints on its own A4 landscape page.</p>
     </div>
@@ -3200,12 +3280,38 @@ function setQrImage(img, text){
     img.parentNode.appendChild(vector);
   } catch(e){img.removeAttribute('src');img.style.display='block';img.style.visibility='hidden';img.alt=e.message;const note=document.createElement('span');note.className='qr-error';note.textContent='QR unavailable';note.style.cssText='font-size:8pt;flex:0 0 auto;color:#111;';if(img.parentNode&&!img.parentNode.querySelector('.qr-error'))img.parentNode.appendChild(note);}
 }
+function fitCustomSignText(el){
+  if(!el || !el.classList.contains('custom-sign-text'))return;
+  const value=el.textContent.trim();
+  if(!value)return;
+  const box=el.parentElement;
+  if(!box)return;
+  // Measure against the actual printable inner dimensions, not the scaled screen preview.
+  const width=box.clientWidth-48, height=box.clientHeight-48;
+  if(width<=0 || height<=0)return;
+  const ctx=document.createElement('canvas').getContext('2d');
+  const lines=value.split('\n');
+  let lo=8,hi=125;
+  for(let i=0;i<20;i++){
+    const size=(lo+hi)/2;
+    ctx.font=`900 ${size}px Arial`;
+    const widest=Math.max(...lines.map(line=>ctx.measureText(line||' ').width));
+    if(widest<=width-32 && size*1.08*lines.length<=height-32)lo=size;
+    else hi=size;
+  }
+  el.style.setProperty('font-size',Math.floor(lo)+'px','important');
+}
 function updateOtherPreview(){
   const select=document.getElementById('otherSign');
   const content=document.getElementById('otherSignContent');
-  content.textContent=select.value==='do-not-count'?'DO NOT COUNT':select.value==='special-buy'?'SPECIAL BUY':select.value==='black-friday'?'BLACK FRIDAY':'';
+  const custom=select.value==='custom';
+  document.getElementById('customSignField').hidden=!custom;
+  content.textContent=custom?document.getElementById('customSignText').value:select.value==='do-not-count'?'DO NOT COUNT':select.value==='special-buy'?'SPECIAL BUY':select.value==='black-friday'?'BLACK FRIDAY':'';
+  content.classList.toggle('custom-sign-text',custom);
+  if(custom) requestAnimationFrame(()=>fitCustomSignText(content));
   document.getElementById('otherSheet').dataset.sign=select.value;
   fitPreview();
+  if(select.value==='custom')requestAnimationFrame(()=>fitCustomSignText(content));
 }
 function setType(next){
   type=next;
@@ -3522,6 +3628,7 @@ function fitTextToBoxes(root=document){
 }
 function clearForm(){
   document.getElementById('otherSign').value='';
+  document.getElementById('customSignText').value='';
   document.querySelectorAll('#singleForm input, #mixedForm input, #locationForm input').forEach(el=>{
     if(el.type==='checkbox')el.checked=false; else el.value='';
   });
@@ -3533,7 +3640,7 @@ function clearForm(){
 const docketBasket = [];
 const basketFieldIds = ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode','includeExpiry','includeSingleLocation','singleLocationInput',
   'completedDate','mixedForklifted','mixedLocated','mixedLocation',
-  'mcode1','mcode2','mcode3','mcode4','mqty1','mqty2','mqty3','mqty4','locationDescription','locationShort','otherSign'];
+  'mcode1','mcode2','mcode3','mcode4','mqty1','mqty2','mqty3','mqty4','locationDescription','locationShort','otherSign','customSignText'];
 let editingBasketIndex = -1;
 function snapshotFields(){
   const values = {};
@@ -3565,6 +3672,7 @@ function cancelBasketEdit(){
 }
 function addToBasket(){
   if(type==='other' && !document.getElementById('otherSign').value){alert('Please select an A4 sign first.');return;}
+  if(type==='other' && document.getElementById('otherSign').value==='custom' && !document.getElementById('customSignText').value.trim()){alert('Please enter your custom label text.');return;}
   if(type==='other')updateOtherPreview();else updatePreview();
   fitTextToBoxes();
   const active = document.getElementById(type === 'single' ? 'singleSheet' : type === 'mixed' ? 'mixedSheet' : type === 'location' ? 'locationSheet' : 'otherSheet');
@@ -3572,6 +3680,7 @@ function addToBasket(){
   clone.hidden = false;
   clone.removeAttribute('id');
   clone.classList.add(type === 'single' ? 'basket-single-sheet' : type === 'mixed' ? 'basket-mixed-sheet' : type === 'location' ? 'basket-location-sheet' : 'basket-other-sheet');
+  if(type==='other')fitCustomSignText(clone.querySelector('.other-sign-content'));
   // Preserve the exact preview font sizes in the printed clone.
   clone.style.transform = '';
   clone.style.zoom = '';
@@ -3639,7 +3748,7 @@ function renderBasket(){
     top.className = 'basket-entry-top';
     const title = document.createElement('span');
     title.className = 'basket-entry-title';
-    title.textContent = (index + 1) + '. ' + (item.type === 'single' ? 'Single Docket' : item.type === 'mixed' ? 'Multi Docket' : item.type === 'location' ? 'Location Docket' : (item.values?.otherSign === 'do-not-count' ? 'DO NOT COUNT' : item.values?.otherSign === 'special-buy' ? 'SPECIAL BUY' : 'BLACK FRIDAY'));
+    title.textContent = (index + 1) + '. ' + (item.type === 'single' ? 'Single Docket' : item.type === 'mixed' ? 'Multi Docket' : item.type === 'location' ? 'Location Docket' : (item.values?.otherSign === 'do-not-count' ? 'DO NOT COUNT' : item.values?.otherSign === 'special-buy' ? 'SPECIAL BUY' : (item.values?.otherSign === 'custom' ? ('CUSTOM: ' + (item.values?.customSignText || '').slice(0,45)) : 'BLACK FRIDAY')));
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'action';
