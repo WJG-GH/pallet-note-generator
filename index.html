@@ -2951,6 +2951,279 @@ html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qty > s
  text-shadow:none!important;
 }
 </style>
+<style id="date-ink-weight-match-v18">
+/* Match date ink density to the bold barcode in screen and browser print. */
+html body .sheet #pLocatedDate,
+html body .sheet #pExpiry,
+html body .sheet #pCompletedDate,
+html body .sheet .single-bottom-row .single-info-item:first-child .date-value,
+html body .sheet .single-bottom-row .single-expiry-item .date-value,
+html body .sheet .completed .completed-item:first-child .date-value {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;
+ -webkit-text-fill-color:#000!important;
+ -webkit-text-stroke:1.6px #000!important;
+ paint-order:stroke fill!important;
+}
+</style>
+
+<style id="consistent-barcode-date-v19">
+/* Same embedded font face and ink thickness for barcode and date digits.
+   Earlier V18 used 1.6px for dates versus 1.1px for barcodes. */
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) #pLocatedDate,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) #pExpiry,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) #pCompletedDate,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .single-bottom-row .single-info-item:first-child .date-value,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .single-bottom-row .single-expiry-item .date-value,
+html body .sheet:is(#singleSheet,#mixedSheet,.basket-single-sheet,.basket-mixed-sheet) .completed .completed-item:first-child .date-value,
+html body.printing-basket #basketPrint .sheet .single-bottom-row .single-info-item:first-child .date-value,
+html body.printing-basket #basketPrint .sheet .single-bottom-row .single-expiry-item .date-value,
+html body.printing-basket #basketPrint .sheet .completed .completed-item:first-child .date-value {
+ font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+ font-weight:700!important;font-synthesis:none!important;
+ color:#000!important;-webkit-text-fill-color:#000!important;
+ -webkit-text-stroke:1.1px #000!important;
+ paint-order:stroke fill!important; text-shadow:none!important;filter:none!important;
+}
+</style>
+<style id="barcode-date-stroke-v22">
+/* Apply one ink thickness to barcode and date values, in preview and print.
+   QTY retains its independent 2.4px stroke. */
+html body .sheet .single-barcode-grid > span,
+html body .sheet #singleCodeCells > span,
+html body .sheet .mixed-code > span,
+html body .sheet .multi-stable-code > span,
+html body .sheet #pLocatedDate,
+html body .sheet #pExpiry,
+html body .sheet #pCompletedDate,
+html body .sheet .single-bottom-row .single-info-item:first-child .date-value,
+html body .sheet .single-bottom-row .single-expiry-item .date-value,
+html body .sheet .completed .completed-item:first-child .date-value {
+  -webkit-text-stroke:1.3px #000!important;
+  paint-order:stroke fill!important;
+}
+</style>
+<style id="linear-barcode-v25">
+/* EAN-13 in the former QR slot. */
+.sheet .single-qr-box > svg.linear-barcode,
+.sheet .multi-stable-qr > svg.linear-barcode,
+.sheet .multi-qr-box > svg.linear-barcode,
+body.printing-basket #basketPrint .sheet svg.linear-barcode {
+ display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+ min-width:0!important;min-height:0!important;object-fit:contain!important;flex:1 1 auto!important;
+}
+</style>
+<style id="ean13-rectangle-qty-space-v27">
+/* Balance the Single label: taller rectangular EAN-13 window, smaller QTY area. */
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack {
+  display:flex!important; flex-direction:column!important; min-height:0!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack .single-qr-box {
+  box-sizing:border-box!important; position:relative!important;
+  width:100%!important; min-width:0!important; max-width:none!important;
+  height:32mm!important; min-height:32mm!important; max-height:32mm!important;
+  flex:0 0 32mm!important; overflow:hidden!important;
+}
+.sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack .single-quantity {
+  flex:1 1 0!important; min-height:0!important; height:auto!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row {
+  grid-template-columns:minmax(0,1fr) 37mm 54mm!important;
+}
+.sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr {
+  min-width:0!important; width:auto!important; overflow:hidden!important;
+}
+.sheet .single-qr-box > svg.linear-barcode,
+.sheet .multi-stable-qr > svg.linear-barcode,
+body.printing-basket #basketPrint .sheet svg.linear-barcode {
+  display:block!important; width:calc(100% - 2mm)!important; height:calc(100% - 2mm)!important;
+  max-width:100%!important; max-height:100%!important;
+  min-width:0!important; min-height:0!important; flex:0 1 auto!important;
+}
+.sheet .ean13-warning {font:700 8pt Arial,sans-serif!important; color:#a00; text-align:center; padding:2mm; align-self:center;}
+</style>
+<style id="ean13-print-image-v31">
+.sheet .single-qr-box > img.linear-ean13-image,
+.sheet .multi-stable-qr > img.linear-ean13-image,
+.sheet .multi-qr-box > img.linear-ean13-image,
+body.printing-basket #basketPrint .sheet img.linear-ean13-image {
+ display:block!important; visibility:visible!important;
+ width:100%!important; height:100%!important;
+ min-width:0!important; min-height:0!important;
+ max-width:100%!important; max-height:100%!important;
+ object-fit:fill!important; flex:1 1 auto!important;
+}
+</style>
+<style id="ean13-fill-slot-v32">
+/* Override old QR-specific 36mm / contain rules: use the complete rectangular slot. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box > img.mixed-qr.linear-ean13-image,
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > img.mixed-qr.linear-ean13-image,
+html body .sheet .multi-qr-box > img.mixed-qr.linear-ean13-image,
+html body.printing-basket #basketPrint .sheet .single-right-stack > .single-qr-box > img.mixed-qr.linear-ean13-image,
+html body.printing-basket #basketPrint .sheet .multi-stable-qr > img.mixed-qr.linear-ean13-image {
+  display:block!important; visibility:visible!important;
+  position:absolute!important; inset:0!important;
+  left:0!important; top:0!important; right:0!important; bottom:0!important;
+  transform:none!important; margin:0!important; padding:0!important;
+  width:100%!important; height:100%!important;
+  max-width:none!important; max-height:none!important;
+  min-width:0!important; min-height:0!important;
+  object-fit:fill!important; flex:none!important;
+}
+html body .sheet .multi-stable-qr,
+html body .sheet .multi-qr-box {position:relative!important;}
+</style>
+<style id="qty-match-barcode-date-stroke-v34">
+/* Use the same 1.3px ink stroke as barcode and date digits, in preview and print. */
+html body .sheet .single-quantity .qty-cells > span,
+html body .sheet #singleQtyCells > span,
+html body .sheet .multi-stable-qty > span,
+html body.printing-basket #basketPrint .sheet .qty-cells > span,
+html body.printing-basket #basketPrint .sheet .multi-stable-qty > span {
+  -webkit-text-stroke:1.3px #000!important;
+  paint-order:stroke fill!important;
+}
+</style>
+<style id="multi-geometry-repair-v38">
+/* Restore the working V34 row markup and keep all tracks explicit. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows > .multi-stable-row,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-rows > .multi-stable-row {
+ display:grid!important;grid-template-columns:minmax(0,1fr) 31mm 48mm!important;
+ grid-template-rows:minmax(0,1fr)!important;gap:1mm!important;
+ width:100%!important;min-width:0!important;min-height:0!important;
+ height:100%!important;box-sizing:border-box!important;overflow:hidden!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows > .multi-stable-row.qr-left,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-rows > .multi-stable-row.qr-left {
+ grid-template-columns:31mm minmax(0,1fr) 48mm!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-stable-code,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-row > .multi-stable-code {
+ grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-stable-qr,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-row > .multi-stable-qr {
+ grid-column:2!important;grid-row:1!important;width:100%!important;min-width:0!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row.qr-left > .multi-stable-code,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-row.qr-left > .multi-stable-code {grid-column:2!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row.qr-left > .multi-stable-qr,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-row.qr-left > .multi-stable-qr {grid-column:1!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-stable-qty,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-row > .multi-stable-qty {
+ grid-column:3!important;grid-row:1!important;width:100%!important;min-width:0!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-stable-divider {display:none!important;}
+</style>
+<style id="scannable-barcode-heading-v39">
+/* A separate heading in each scannable barcode box, for preview and printed clones. */
+html body .sheet .single-qr-box,
+html body .sheet .multi-stable-qr {position:relative!important;}
+html body .sheet .single-qr-box > .scan-barcode-heading,
+html body .sheet .multi-stable-qr > .scan-barcode-heading {
+  position:absolute!important;top:0!important;left:0!important;right:0!important;
+  height:4.5mm!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  background:#fff!important;color:#111!important;font-family:Arial,Calibri,sans-serif!important;
+  font-size:8pt!important;font-weight:700!important;line-height:1!important;
+  border-bottom:1px solid #111!important;z-index:2!important;box-sizing:border-box!important;
+}
+html body .sheet .single-qr-box > img.linear-ean13-image,
+html body .sheet .multi-stable-qr > img.linear-ean13-image {
+  box-sizing:border-box!important;padding-top:4.5mm!important;
+}
+</style>
+<style id="scannable-heading-alignment-v40">
+/* Match the scannable EAN heading row to the adjacent heading row exactly. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box > .scan-barcode-heading {
+  height:10mm!important; font-size:17pt!important; font-weight:900!important;
+  border-bottom:2px solid #111!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > .scan-barcode-heading {
+  height:7mm!important; font-size:12pt!important; font-weight:700!important;
+  border-bottom:2px solid #111!important;
+}
+/* Reserve a real area beneath the heading, rather than covering the barcode bars. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-qr-box > img.mixed-qr.linear-ean13-image {
+  top:10mm!important; bottom:0!important; height:calc(100% - 10mm)!important;
+  padding:0!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > img.mixed-qr.linear-ean13-image {
+  top:7mm!important; bottom:0!important; height:calc(100% - 7mm)!important;
+  padding:0!important;
+}
+</style>
+<style id="single-barcode-more-room-v41">
+/* Give the scannable EAN-13 barcode 3 mm more height, taking it from QTY only. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box,
+html body.printing-basket #basketPrint .basket-single-sheet .single-right-stack > .single-qr-box {
+ height:35mm!important;min-height:35mm!important;max-height:35mm!important;flex:0 0 35mm!important;
+}
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-quantity,
+html body.printing-basket #basketPrint .basket-single-sheet .single-right-stack > .single-quantity {
+ flex:1 1 0!important;min-height:0!important;height:auto!important;
+}
+</style>
+<style id="single-scannable-heading-gap-v42">
+/* Clear breathing room between the heading rule and the EAN-13 bars.
+   Keep the heading aligned with DESCRIPTION and preserve barcode proportions. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box > img.mixed-qr.linear-ean13-image,
+html body.printing-basket #basketPrint .basket-single-sheet .single-right-stack > .single-qr-box > img.mixed-qr.linear-ean13-image {
+  top:11.5mm!important;
+  bottom:1mm!important;
+  height:calc(100% - 12.5mm)!important;
+  padding:0!important;
+  object-fit:fill!important;
+}
+</style>
+
+<style id="multi-scan-barcode-width-v43">
+/* Preserve the numeric 13-digit barcode width while moving 10mm from QTY to the
+   scannable EAN-13 area. Applies to alternating rows and printed basket copies. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows > .multi-stable-row:not(.qr-left),
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-rows > .multi-stable-row:not(.qr-left) {
+  grid-template-columns:minmax(0,1fr) 41mm 38mm!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows > .multi-stable-row.qr-left,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-rows > .multi-stable-row.qr-left {
+  grid-template-columns:41mm minmax(0,1fr) 38mm!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > .scan-barcode-heading {
+  font-size:11pt!important;white-space:nowrap!important;overflow:hidden!important;
+}
+</style>
+
+<style id="multi-layout-consistency-v44">
+/* Two rows: numeric barcode spans the full left column; scan and QTY stack right. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] > .multi-stable-row,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-rows[data-row-count="2"] > .multi-stable-row {
+ grid-template-columns:minmax(0,1fr) 41mm!important;
+ grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] > .multi-stable-row > .multi-stable-code {
+ grid-column:1!important;grid-row:1 / 3!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] > .multi-stable-row > .multi-stable-qr {
+ grid-column:2!important;grid-row:1!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows[data-row-count="2"] > .multi-stable-row > .multi-stable-qty {
+ grid-column:2!important;grid-row:2!important;
+}
+/* Three or four rows: identical numeric barcode widths in both orientations. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row:not(.qr-left) {
+ grid-template-columns:minmax(0,1fr) 41mm 38mm!important;
+ grid-template-rows:minmax(0,1fr)!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row.qr-left {
+ grid-template-columns:41mm minmax(0,1fr) 38mm!important;
+ grid-template-rows:minmax(0,1fr)!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row:not(.qr-left) > .multi-stable-code {grid-column:1!important;grid-row:1!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row:not(.qr-left) > .multi-stable-qr {grid-column:2!important;grid-row:1!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row.qr-left > .multi-stable-code {grid-column:2!important;grid-row:1!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row.qr-left > .multi-stable-qr {grid-column:1!important;grid-row:1!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row > .multi-stable-qty {grid-column:3!important;grid-row:1!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-stable-divider {display:none!important;}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -2967,7 +3240,7 @@ html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qty > s
       <label>Product / description<input id="description" list="savedProductDescriptions" autocomplete="off" placeholder="Product description" oninput="productDescriptionChanged()"></label>
       <datalist id="savedProductDescriptions"></datalist>
       <div class="single-barcode-entry">
-        <strong>Barcode 1</strong>
+        
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
         <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">Scan Barcode</button>
       </div>
@@ -3035,7 +3308,7 @@ html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qty > s
       </div>
       <div class="single-description-qty">
         <div class="single-right-stack">
-          <div class="single-qr-box"><img id="singleQr" class="mixed-qr" alt="QR code for pallet barcode"></div>
+          <div class="single-qr-box"><div class="scan-barcode-heading">BARCODE</div><img id="singleQr" class="mixed-qr" alt="EAN-13 barcode for pallet barcode"></div>
           <div class="single-info-item single-quantity"><div class="date-label">QTY</div><div class="qty-cells" id="singleQtyCells"></div></div>
         </div>
         <div class="single-info-item single-description"><div class="date-label">Description</div><div class="date-value" id="pDescription"></div></div>
@@ -3224,7 +3497,52 @@ function cells(container, count, values='') {
   }
 }
 function val(id){ return (document.getElementById(id)?.value || '').trim(); }
+// EAN-13 linear barcode for Single and Multi notes; Location retains its QR code.
+function setLinearBarcode(img, value){
+  const parent=img.parentNode;
+  parent.querySelectorAll('svg.linear-barcode,svg.qr-vector,.qr-error,.ean13-warning').forEach(el=>el.remove());
+  img.removeAttribute('src'); img.alt=''; img.classList.remove('linear-ean13-image'); img.style.display='none';
+  const digits=String(value||'').replace(/\D/g,'');
+  if(!digits)return;
+  // EAN-13 requires exactly 13 digits and a correct check digit.
+  const check = digits.length===13 ? (10 - ([...digits.slice(0,12)].reduce((sum,d,i)=>sum+Number(d)*(i%2?3:1),0)%10))%10 : -1;
+  if(digits.length!==13 || Number(digits[12])!==check){
+    const note=document.createElement('div');note.className='ean13-warning';
+    note.textContent=digits.length===13?'INVALID EAN-13 CHECK DIGIT':'EAN-13 NEEDS 13 DIGITS';
+    parent.appendChild(note);return;
+  }
+  const L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  const G=['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
+  const R=['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
+  const parity=['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+  let bits='101';
+  for(let i=1;i<=6;i++)bits+=(parity[Number(digits[0])][i-1]==='L'?L:G)[Number(digits[i])];
+  bits+='01010';
+  for(let i=7;i<=12;i++)bits+=R[Number(digits[i])];
+  bits+='101';
+  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('class','linear-barcode');svg.setAttribute('viewBox','0 0 109 70');
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('role','img');svg.setAttribute('aria-label','EAN-13 barcode '+digits);
+  const bg=document.createElementNS(ns,'rect');bg.setAttribute('width','109');bg.setAttribute('height','70');bg.setAttribute('fill','#fff');svg.appendChild(bg);
+  for(let i=0;i<bits.length;i++)if(bits[i]==='1'){
+    const r=document.createElementNS(ns,'rect');r.setAttribute('x',String(i+7));r.setAttribute('y','3');
+    r.setAttribute('width','1');r.setAttribute('height','64');r.setAttribute('fill','#000');svg.appendChild(r);
+  }
+  // Use a self-contained SVG image rather than an inline SVG element. This
+  // survives iOS Edge print cloning and prints exactly as the preview does.
+  const serialized = new XMLSerializer().serializeToString(svg);
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized);
+  img.classList.add('linear-ean13-image');
+  img.style.setProperty('display','block');
+  img.style.setProperty('visibility','visible');
+  img.style.setProperty('width','100%');
+  img.style.setProperty('height','100%');
+  img.style.setProperty('object-fit','fill');
+}
+
 function setQrImage(img, text){
+  if(img.closest('.single-qr-box,.multi-stable-qr,.multi-qr-box')) { setLinearBarcode(img,text); return; }
   img.alt = ""; // Never expose fallback text in print engines.
   const oldVector=img.parentNode && img.parentNode.querySelector('.qr-vector');
   if(oldVector) oldVector.remove();
@@ -3358,7 +3676,7 @@ function buildMixedInputs(){
   for(let i=1;i<=4;i++){
     const group=document.createElement('div');
     group.style.cssText='border:1px solid #d9dee4;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 100px;gap:8px';
-    group.innerHTML=`<strong style="grid-column:1/-1">Barcode ${i}</strong><label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="mcode${i}" aria-label="Scan barcode ${i} with camera">Scan Barcode</button>`;
+    group.innerHTML=`<label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="mcode${i}" aria-label="Scan barcode ${i} with camera">Scan Barcode</button>`;
     host.appendChild(group);
   }
   syncMultiBarcodeInputs();
@@ -3465,14 +3783,14 @@ function updatePreview(){
     const codeVal=i<=count?val('mcode'+i).toUpperCase():'';
     for(let j=0;j<13;j++){const s=document.createElement('span');s.textContent=codeVal[j]||'';code.appendChild(s);}
     addBarcodeDividers(code);
-    const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='QR code for barcode row '+i;
+    const qr=document.createElement('img'); qr.className='mixed-qr'; qr.alt='EAN-13 barcode for barcode row '+i;
     const grey=document.createElement('div');grey.className='multi-stable-divider';
     const qty=document.createElement('div');qty.className='multi-stable-qty';
     const qtyHeading=document.createElement('div');qtyHeading.className='multi-row-heading';qtyHeading.textContent='QTY';qty.appendChild(qtyHeading);
     const q=i<=count?val('mqty'+i):'';
     qty.style.setProperty('grid-template-columns',`repeat(${Math.max(1,Math.min(3,q.length))},minmax(0,1fr))`,'important');
     for(let j=0;j<Math.max(1,Math.min(3,q.length));j++){const s=document.createElement('span');s.textContent=q[j]||'';qty.appendChild(s);}
-    const qrBox=document.createElement('div'); qrBox.className='multi-stable-qr'; qrBox.appendChild(qr);
+    const qrBox=document.createElement('div'); qrBox.className='multi-stable-qr'; const scanHeading=document.createElement('div'); scanHeading.className='scan-barcode-heading'; scanHeading.textContent='BARCODE'; qrBox.append(scanHeading,qr);
     row.append(code,qrBox,grey,qty); rows.appendChild(row); setQrImage(qr, codeVal);
   }
   document.getElementById('pCompletedDate').textContent=formatDocketDate(val('completedDate'));
@@ -3525,6 +3843,10 @@ function fitDocketValues(root=document){
     const padY=(parseFloat(css.paddingTop)||0)+(parseFloat(css.paddingBottom)||0);
     const availableW=Math.max(4,w-padX-4), availableH=Math.max(4,h-padY-3);
     const isDescription=!!el.closest('.single-description, .location-docket-description');
+    // Dates should use the available height as fully as the enlarged QTY digits.
+    // Keep Completed By and description fitting unchanged.
+    const dateLabel=(el.parentElement?.querySelector('.date-label')?.textContent||'').trim().toLowerCase();
+    const isDateField=/\b(date|expiry)\b/.test(dateLabel);
     const cap=isDescription?150:130;
     const family=css.fontFamily||'Arial, sans-serif';
     const weight=900;
@@ -3555,7 +3877,7 @@ function fitDocketValues(root=document){
       if(isLocationDescription)return !!layoutAt(size);
       ctx.font=`${weight} ${size}px ${family}`;
       // A small allowance for thick lettering/strokes.
-      return ctx.measureText(text).width+size*.06<=availableW && size*1.13<=availableH;
+      return ctx.measureText(text).width+size*.06<=availableW && size*(isDateField ? 0.96 : 1.13)<=availableH;
     };
     let low=5,high=cap;
     for(let i=0;i<15;i++){
@@ -3609,13 +3931,15 @@ function fitTextToBoxes(root=document){
     // Common caps ensure a consistent type scale across equivalent boxes.
     const isDigit=el.matches('.mixed-code > span,.single-barcode-grid > span,.multi-stable-code > span,.qty-cells > span,.multi-stable-qty > span');
     const isQtyDigit=el.matches('.qty-cells > span,.multi-stable-qty > span');
+    const dateLabel=(el.parentElement?.querySelector('.date-label')?.textContent||'').trim().toLowerCase();
+    const isDateField=el.matches('.date-value') && /\b(date|expiry)\b/.test(dateLabel);
     const cap=isDigit?110:125;
     const fits=size=>{
       ctx.font=`${weight} ${size}px ${family}`;
       const width=ctx.measureText(value).width+Math.max(0,value.length-1)*spacing;
       // QTY has spare vertical space: fit closer to its actual box edges.
       // Preserve horizontal clearance for the thicker QTY stroke.
-      return width <= (isQtyDigit ? maxW-5 : maxW) && size*(isQtyDigit ? 0.98 : 1.13)<=maxH;
+      return width <= (isQtyDigit ? maxW-5 : maxW) && size*(isQtyDigit ? 0.98 : isDateField ? 0.96 : 1.13)<=maxH;
     };
     let low=5,high=cap;
     for(let i=0;i<17;i++){
@@ -3626,6 +3950,17 @@ function fitTextToBoxes(root=document){
     el.style.setProperty('line-height','1','important');
     el.style.setProperty('overflow','hidden','important');
     el.style.setProperty('text-align','center','important');
+  });
+  // Single and Multi QTY: fit each digit independently for measurement, then use the
+  // smallest fitted size for every digit in that QTY group. This prevents
+  // narrow glyphs (1) from appearing larger than wide glyphs (0/8).
+  root.querySelectorAll('.multi-stable-qty, .qty-cells').forEach(group=>{
+    const digits=[...group.children].filter(el=>el.tagName==='SPAN' && (el.textContent||'').trim());
+    if(digits.length<2)return;
+    const sizes=digits.map(el=>parseFloat(el.style.getPropertyValue('font-size'))).filter(Number.isFinite);
+    if(sizes.length!==digits.length)return;
+    const commonSize=Math.min(...sizes).toFixed(2)+'px';
+    digits.forEach(el=>el.style.setProperty('font-size',commonSize,'important'));
   });
   fitDocketValues(root);
 }
@@ -3907,9 +4242,9 @@ function matchPrintValueTypography(sheet){
     const ns='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(ns,'svg');
     svg.setAttribute('viewBox',`0 0 ${measured+10} 116`);
-    svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+    svg.setAttribute('preserveAspectRatio','xMidYMid meet'); // Uniform scaling; never stretch glyphs independently in width and height.
     svg.setAttribute('width','100%');svg.setAttribute('height','100%');
-    svg.style.cssText='display:block;width:100%;height:100%;overflow:visible';
+    svg.style.cssText='display:block;width:100%;height:100%;overflow:hidden;flex:0 1 auto';
     // Rasterise using the loaded embedded font before printing. iOS AirPrint
     // may substitute SVG <text> fonts even when HTML @font-face works.
     const scale=4;
@@ -3922,11 +4257,13 @@ function matchPrintValueTypography(sheet){
     ink.fillStyle='#111';
     ink.textAlign='center';
     ink.textBaseline='alphabetic';
+    if(!completed){ink.lineJoin='round';ink.strokeStyle='#111';ink.lineWidth=2.2;ink.strokeText(value,(measured+10)/2,87);}
     ink.fillText(value,(measured+10)/2,87);
     const glyph=document.createElementNS(ns,'image');
     glyph.setAttribute('x','0');glyph.setAttribute('y','0');
     glyph.setAttribute('width',String(measured+10));
     glyph.setAttribute('height','116');
+    glyph.setAttribute('preserveAspectRatio','xMidYMid meet');
     glyph.setAttribute('href',bitmap.toDataURL('image/png'));
     svg.appendChild(glyph);
     el.replaceChildren(svg);
@@ -3948,7 +4285,7 @@ async function fitPreparedPrintFooters(){
 // even when an SVG QR code is present beside it.
 function cleanPrintQrPlaceholders(root){
   if(!root) return;
-  root.querySelectorAll('img.mixed-qr').forEach(img => img.remove());
+  root.querySelectorAll('img.mixed-qr:not(.linear-ean13-image)').forEach(img => img.remove());
   root.querySelectorAll('.qr-vector').forEach(svg => {
     svg.removeAttribute('aria-label');
     svg.setAttribute('aria-hidden','true');
@@ -3977,6 +4314,7 @@ async function printCurrentDocket(){
   printArea.innerHTML = '<div class=\"print-page\">' + clone.outerHTML + '</div>';
   document.body.classList.add('printing-basket');
   await fitPreparedPrintFooters();
+  await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
 }
 async function printBasket(){
@@ -4002,6 +4340,7 @@ async function printBasket(){
   document.body.classList.add('printing-basket');
   // Allow the browser to lay out all new pages before opening print preview.
   await fitPreparedPrintFooters();
+  await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
 }
 function currentDateString(){
