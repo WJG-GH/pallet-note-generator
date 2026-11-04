@@ -3224,6 +3224,436 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([dat
 html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-rows:not([data-row-count="2"]) > .multi-stable-row > .multi-stable-qty {grid-column:3!important;grid-row:1!important;}
 html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-stable-divider {display:none!important;}
 </style>
+
+<style id="multi-scannable-top-padding-v45">
+/* Add clearance between the multi BARCODE heading and the EAN-13 bars.
+   Applies equally to preview and cloned print sheets, including alternating rows. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > img.mixed-qr.linear-ean13-image,
+html body.printing-basket #basketPrint .basket-mixed-sheet .multi-stable-qr > img.mixed-qr.linear-ean13-image {
+  top:8.5mm!important;
+  bottom:1mm!important;
+  height:calc(100% - 9.5mm)!important;
+  padding:0!important;
+}
+</style>
+<style id="remove-inner-scannable-box-v46">
+/* Only the outer scannable BARCODE box has a border; no inner image outline. */
+html body .sheet .single-qr-box > img,
+html body .sheet .single-qr-box > svg,
+html body .sheet .multi-stable-qr > img,
+html body .sheet .multi-stable-qr > svg,
+html body .sheet .multi-qr-box > img,
+html body .sheet .multi-qr-box > svg,
+html body.printing-basket #basketPrint .sheet .single-qr-box > img,
+html body.printing-basket #basketPrint .sheet .multi-stable-qr > img {
+ border:0!important;outline:0!important;box-shadow:none!important;
+ background:transparent!important;
+}
+</style>
+<style id="remove-actual-inner-placeholder-v47">
+/* Remove the old QR placeholder rectangle itself, not just its border. */
+html body .sheet .single-qr-box svg.qr-vector,
+html body .sheet .multi-stable-qr svg.qr-vector,
+html body .sheet .multi-qr-box svg.qr-vector,
+html body #basketPrint .single-qr-box svg.qr-vector,
+html body #basketPrint .multi-stable-qr svg.qr-vector {display:none!important;visibility:hidden!important;}
+/* Blank image placeholders should never draw an inset rectangle. */
+html body .sheet .single-qr-box img.mixed-qr:not(.linear-ean13-image),
+html body .sheet .multi-stable-qr img.mixed-qr:not(.linear-ean13-image) {display:none!important;}
+html body .sheet .single-qr-box img.linear-ean13-image,
+html body .sheet .multi-stable-qr img.linear-ean13-image {border:0!important;outline:0!important;box-shadow:none!important;}
+</style>
+<style id="single-empty-barcode-no-placeholder-v48">
+/* The single docket must not display the empty IMG element as a grey inset box. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box > img.mixed-qr:not([src]),
+html body.printing-basket #basketPrint .basket-single-sheet .single-right-stack > .single-qr-box > img.mixed-qr:not([src]) {
+ display:none!important;visibility:hidden!important;border:0!important;outline:0!important;box-shadow:none!important;
+}
+/* A generated EAN-13 image remains visible in the same borderless slot. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack > .single-qr-box > img.mixed-qr.linear-ean13-image[src] {
+ display:block!important;visibility:visible!important;border:0!important;outline:0!important;box-shadow:none!important;
+}
+</style>
+<style id="location-linear-barcode-v50">
+.sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > img.location-linear-image {
+ display:block!important;visibility:visible!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;object-fit:fill!important;
+}
+.sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr {padding:2mm!important;}
+</style>
+<style id="location-rectangular-barcode-v51">
+/* Same dimensions in live preview, basket copies and A4 print. */
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-bottom,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-bottom {
+  grid-template-columns:minmax(0,1fr) 82mm!important;
+  height:43mm!important;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr {
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  justify-content:flex-start!important;padding:0!important;min-width:0!important;
+  min-height:0!important;overflow:hidden!important;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-scan-heading {
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  height:9mm;box-sizing:border-box;border-bottom:1.5px solid #111;
+  font-family:Arial,sans-serif;font-weight:800;font-size:17pt;line-height:1;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-scan-content {
+  flex:1 1 0;min-height:0;min-width:0;padding:2.5mm 3mm;
+  display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-scan-content > img.location-linear-image {
+  display:block!important;visibility:visible!important;width:100%!important;height:100%!important;
+  max-width:100%!important;max-height:100%!important;object-fit:fill!important;
+}
+</style>
+<style id="location-heading-divider-v52">
+/* Explicit divider under LOCATION, matching the other barcode headings. */
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-heading,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-qr > .location-scan-heading {
+  position:relative!important;
+  border-bottom:1px solid #111!important;
+  box-sizing:border-box!important;
+  flex-shrink:0!important;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-content {
+  border-top:0!important;
+}
+</style>
+<style id="location-divider-visible-v53">
+/* Draw the separator as a real inset rule, avoiding collapsed/clipped heading borders on iOS. */
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-heading,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-qr > .location-scan-heading {
+ position:relative!important; isolation:isolate!important;
+ border-bottom:0!important; overflow:visible!important;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-heading::after,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-qr > .location-scan-heading::after {
+ content:""!important;position:absolute!important;left:0!important;right:0!important;
+ bottom:0!important;height:1.5px!important;background:#111!important;
+ display:block!important;z-index:10!important;pointer-events:none!important;
+}
+</style>
+<style id="location-matched-headings-v54">
+/* Both location panels share one header treatment in preview, basket and print. */
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-code > .location-docket-label,
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-heading,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-code > .location-docket-label,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-qr > .location-scan-heading {
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  text-align:center!important;height:9mm!important;min-height:9mm!important;
+  flex:0 0 9mm!important;padding:0!important;box-sizing:border-box!important;
+  font:800 17pt/1 Arial,sans-serif!important;
+  border:0!important;border-bottom:1.5px solid #111!important;
+  position:relative!important;overflow:visible!important;
+}
+/* The separator is a real border on both headings, not a second overlay. */
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-heading::after,
+html body.printing-basket #basketPrint .basket-location-sheet .location-docket-qr > .location-scan-heading::after {content:none!important;display:none!important;}
+</style>
+<style id="location-barcode-preview-print-v55">
+/* Render the same Code 39 SVG in live preview and in cloned print/basket sheets.
+   Do not apply old QR-image hiding rules to the location barcode. */
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-scan-content > img.location-barcode-image[src],
+html body.printing-basket #basketPrint .basket-location-sheet .location-scan-content > img.location-barcode-image[src] {
+ display:block!important;visibility:visible!important;opacity:1!important;
+ width:100%!important;height:100%!important;max-width:100%!important;
+ max-height:100%!important;min-width:0!important;min-height:0!important;
+ object-fit:fill!important;border:0!important;outline:0!important;
+ box-shadow:none!important;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-scan-content {
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ overflow:hidden!important;padding:2.5mm 3mm!important;
+}
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-code > .location-docket-label,
+html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr > .location-scan-heading {
+ border-bottom:1.5px solid #111!important;
+}
+</style>
+
+<style id="location-preview-stable-v58">
+/* Screen preview only: use the original flex/grid construction, with fixed full-width cells. */
+@media screen {
+ html body #locationSheet .location-docket-bottom {display:grid!important;grid-template-columns:minmax(0,1fr) 82mm!important;gap:3mm!important;height:43mm!important;}
+ html body #locationSheet .location-docket-code,
+ html body #locationSheet .location-docket-qr {display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;min-width:0!important;min-height:0!important;padding:0!important;border:1.5px solid #111!important;box-sizing:border-box!important;overflow:hidden!important;}
+ html body #locationSheet .location-docket-code > .location-docket-label,
+ html body #locationSheet .location-docket-qr > .location-scan-heading {display:flex!important;position:relative!important;flex:0 0 9mm!important;width:100%!important;height:9mm!important;min-height:9mm!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;text-align:center!important;margin:0!important;padding:0!important;border:0!important;border-bottom:1.5px solid #111!important;background:#fff!important;font:800 17pt/1 Arial,sans-serif!important;}
+ html body #locationSheet .location-docket-code > .location-docket-label::after,
+ html body #locationSheet .location-docket-qr > .location-scan-heading::after {content:none!important;display:none!important;}
+ html body #locationSheet .location-docket-digits {display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:column!important;flex:1 1 0!important;align-self:stretch!important;width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;overflow:hidden!important;}
+ html body #locationSheet .location-docket-digits > span {display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;height:100%!important;border-right:1.5px solid #111!important;}
+ html body #locationSheet .location-docket-digits > span:last-child {border-right:0!important;}
+ html body #locationSheet .location-scan-content {display:flex!important;flex:1 1 0!important;width:100%!important;min-width:0!important;min-height:0!important;align-items:center!important;justify-content:center!important;padding:2.5mm 3mm!important;box-sizing:border-box!important;overflow:hidden!important;}
+ html body #locationSheet .location-scan-content > img.location-barcode-image[src] {display:block!important;width:100%!important;height:100%!important;object-fit:fill!important;}
+}
+</style><style id="location-divider-hard-fix-v59">
+/* A visible separator belongs to the content edge, independent of heading border rendering. */
+@media screen {
+ html body #locationSheet .location-docket-digits,
+ html body #locationSheet .location-scan-content {
+   border-top:1.5px solid #111!important;
+   box-sizing:border-box!important;
+ }
+ html body #locationSheet .location-docket-code > .location-docket-label,
+ html body #locationSheet .location-docket-qr > .location-scan-heading {
+   border-bottom:0!important;
+ }
+}
+</style><style id="location-preview-divider-v60">
+/* Paint the separator on the OUTER scannable barcode box, not on its
+   inner heading/content: iOS Edge can drop borders on nested flex items. */
+@media screen {
+ html body #locationSheet .location-docket-qr {
+   position:relative!important;
+   background-image:linear-gradient(#111,#111)!important;
+   background-size:100% 1.5px!important;
+   background-position:left calc(9mm - 1px)!important;
+   background-repeat:no-repeat!important;
+ }
+ html body #locationSheet .location-docket-qr > .location-scan-heading {
+   border-bottom:1.5px solid #111!important;
+ }
+ html body #locationSheet .location-docket-qr > .location-scan-content {
+   border-top:0!important;
+ }
+}
+</style><style id="uniform-barcode-headings-v61">
+/* Identical heading typography across numeric, scannable and quantity boxes. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-heading,
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack .single-qr-box > .scan-barcode-heading,
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-quantity > .date-label {
+  font-family:Arial,Calibri,sans-serif!important;
+  font-size:12pt!important;font-weight:800!important;line-height:1!important;
+  letter-spacing:0!important;text-transform:uppercase!important;
+  text-align:center!important;justify-content:center!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-row-heading,
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-qr > .scan-barcode-heading {
+  font-family:Arial,Calibri,sans-serif!important;
+  font-size:11pt!important;font-weight:800!important;line-height:1!important;
+  letter-spacing:0!important;text-transform:uppercase!important;
+  text-align:center!important;justify-content:center!important;
+}
+</style><style id="consistent-label-heading-v62">
+/* All Single docket field headings share one typographic scale in preview and print. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-area > .single-barcode-heading,
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack .single-qr-box > .scan-barcode-heading,
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-right-stack .single-quantity > .date-label,
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .single-description .date-label {
+ font-family:Arial,Calibri,sans-serif!important;font-size:12pt!important;
+ font-weight:800!important;line-height:1!important;letter-spacing:0!important;
+ text-align:center!important;justify-content:center!important;align-items:center!important;
+ padding-left:0!important;padding-right:0!important;
+}
+@media print {
+ html body #singleSheet .single-barcode-heading,
+ html body #singleSheet .single-qr-box > .scan-barcode-heading,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-barcode-heading,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-qr-box > .scan-barcode-heading,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-quantity > .date-label {
+  font-size:12pt!important;font-weight:800!important;letter-spacing:0!important;
+ }
+}
+</style>
+<style id="ios-print-heading-parity-v63">
+/* iOS Edge print uses a smaller physical type scale than the on-page preview.
+   Correct only the printed sheet; do not alter the accurate screen preview. */
+@media print {
+ html body.printing-basket #basketPrint .basket-single-sheet .single-barcode-area > .single-barcode-heading,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-right-stack .single-qr-box > .scan-barcode-heading,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-right-stack .single-quantity > .date-label,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-description-qty .single-description .date-label,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-bottom-row .date-label,
+ html body.printing-basket #basketPrint .basket-single-sheet .single-bottom-row .field-label {
+   font-family:Arial,Calibri,sans-serif!important;
+   font-size:18pt!important;font-weight:800!important;line-height:1!important;
+   letter-spacing:0!important;text-align:center!important;
+ }
+}
+</style>
+<style id="ios-print-headings-v64">
+/* Larger printed field headings; keep label geometry and on-screen preview intact. */
+@media print {
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-barcode-area > .single-barcode-heading,
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-right-stack .single-qr-box > .scan-barcode-heading,
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-right-stack .single-quantity > .date-label,
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-description-qty .single-description > .date-label,
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-bottom-row .date-label {
+   font-size:27pt!important;font-weight:900!important;line-height:1!important;
+   letter-spacing:0!important;text-align:center!important;
+ }
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-right-stack .single-qr-box > .scan-barcode-heading,
+ html body.printing-basket #basketPrint .sheet.basket-single-sheet .single-right-stack .single-quantity > .date-label {
+   font-size:23pt!important;
+ }
+}
+</style>
+
+<style id="device-appearance-v68">
+/* Follow the device appearance automatically; printable labels stay white. */
+:root { color-scheme: light dark; }
+@media (prefers-color-scheme: dark) {
+  body { background:#10151b !important; color:#edf1f5 !important; }
+  header { background:#0b1016 !important; color:#f4f6f8 !important; }
+  header p { color:#b8c4cf !important; }
+  .panel, main > section, main > .panel { background:#1b242e !important; color:#edf1f5 !important; border-color:#394653 !important; }
+  .tabs button, .action, button:not(.primary):not(.active), select, input, textarea {
+    background:#26313d !important; color:#f3f6fa !important; border-color:#576574 !important;
+  }
+  .tabs button.active, .action.primary, button.primary { background:#394e64 !important; color:#fff !important; border-color:#6d879e !important; }
+  label, .hint, .panel p, .panel summary, .panel small { color:#c9d3dc !important; }
+  input::placeholder, textarea::placeholder { color:#a9b5c1 !important; opacity:1; }
+  #previewWrap { background:#303a45 !important; }
+  /* Preview, basket miniatures and their barcodes are paper, not app chrome. */
+  .sheet, .sheet *, .basket-thumbnail, .basket-thumbnail * { color:#111; color-scheme:light; }
+  .sheet { background:#fff !important; }
+  .sheet input, .sheet textarea, .sheet select { background:#fff !important; color:#111 !important; }
+}
+@media print {
+  :root { color-scheme:light !important; }
+  html, body { background:#fff !important; color:#111 !important; }
+  .sheet, .sheet * { color-scheme:light !important; }
+}
+</style>
+<style id="interface-visual-refresh">
+@media screen {
+ :root{--ui-ink:#15243b;--ui-muted:#64748b;--ui-accent:#2563eb;--ui-border:#e1e8f0}
+ html{scroll-behavior:smooth}
+ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(180deg,#eef4fb 0,#f7f9fc 390px,#f7f9fc 100%);color:var(--ui-ink);line-height:1.5}
+ body>header{background:linear-gradient(115deg,#101f35,#1b3555 75%,#23456b);padding:29px max(20px,calc((100% - 1120px)/2));border-bottom:1px solid #294767;box-shadow:0 6px 22px #13243c16}
+ body>header h1{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.75px;line-height:1.2;margin:0}
+ body>header h1:before{content:"▦";display:inline-grid;place-items:center;margin-right:13px;background:#ffffff1a;border:1px solid #ffffff2a;border-radius:11px;width:43px;height:43px;color:#9cc7ff;font-size:26px;vertical-align:middle}
+ main{max-width:1120px;margin:26px auto 0;padding:0 20px 70px}
+ .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;background:#e9eff7;padding:6px;border:1px solid #dce5f0;border-radius:15px;margin:0 0 22px}
+ .tabs button{border:0!important;background:transparent!important;color:#65758b!important;font-size:13px;font-weight:800;letter-spacing:.08em;border-radius:10px!important;padding:13px 8px!important;transition:background .18s,box-shadow .18s,color .18s}
+ .tabs button:hover{background:#ffffffa6!important;color:#1e3b60!important}
+ .tabs button.active{background:#fff!important;color:#1d4ed8!important;box-shadow:0 2px 9px #1a36541b,0 0 0 1px #dce5f0!important}
+ .panel{background:#fff;border:1px solid var(--ui-border);border-radius:18px;padding:clamp(18px,2.5vw,28px);margin-bottom:18px;box-shadow:0 5px 24px #1d36560a}
+ .panel h2,.preview-title{font-size:19px;font-weight:800;letter-spacing:-.35px;color:#14243a;margin:0 0 21px}
+ .preview-title{margin:30px 0 14px!important;display:flex;align-items:center;gap:10px}
+ .preview-title:before{content:"";width:5px;height:22px;background:#3b82f6;border-radius:5px}
+ .fields{gap:17px}
+ .fields label,.product-manager-fields label{font-size:12px;font-weight:750;letter-spacing:.025em;color:#506179;gap:7px}
+ input:not([type="checkbox"]),textarea,select{font-family:inherit!important;border:1px solid #d5dfeb!important;background:#fbfcfe!important;border-radius:10px!important;padding:12px 13px!important;color:#17243b!important;min-height:47px;box-shadow:0 1px 2px #182b3e08;transition:border-color .15s,box-shadow .15s}
+ input:not([type="checkbox"]):focus,textarea:focus,select:focus{outline:none!important;border-color:#3b82f6!important;box-shadow:0 0 0 3px #3b82f622!important;background:white!important}
+ input::placeholder,textarea::placeholder{color:#9ba9ba}
+ input[type="checkbox"]{accent-color:#2563eb;width:18px;height:18px}
+ .action,.scan-barcode-btn{font-family:inherit!important;font-size:14px;font-weight:750!important;border-radius:10px!important;min-height:45px;border:1px solid #d4deea!important;background:white;color:#29415e!important;padding:11px 17px!important;box-shadow:0 1px 2px #172d4408;transition:transform .15s,background .15s,box-shadow .15s}
+ .action:hover:not(:disabled),.scan-barcode-btn:hover{background:#f1f6ff;box-shadow:0 3px 10px #163d6c13;transform:translateY(-1px)}
+ .action.primary{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;border-color:#1d4ed8!important;color:#fff!important;box-shadow:0 4px 12px #2563eb2c}
+ .action.primary:hover:not(:disabled){background:linear-gradient(135deg,#3477ff,#245ce5)!important}
+ .action:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+ .actions{gap:10px;margin:16px 0 24px}
+ .main-form-actions{padding:2px 0 8px}
+ #singleForm .single-barcode-entry,.multi-barcode-entry,.mixed-line,.single-optional-field{border:1px solid #e1e9f3!important;border-radius:13px!important;background:#f8fafd!important;padding:16px!important}
+ #singleForm .single-barcode-entry>strong{font-size:13px;color:#344a66}
+ #previewWrap{background:linear-gradient(135deg,#e4ebf5,#dce6f1)!important;border:1px solid #d5e0ed;border-radius:17px!important;padding:22px!important;box-shadow:inset 0 1px 5px #1c37500a}
+ #basketPanel{margin-top:27px!important}
+ #basketCount{font-size:13px;font-weight:700;color:#64748b;background:#edf3fa;padding:5px 10px;border-radius:30px;vertical-align:middle;margin-left:7px;white-space:nowrap}
+ .hint{color:#728197;line-height:1.6}
+ .basket-entry{padding:20px 0;border-color:#e4eaf1}
+ .basket-entry-title{font-size:17px;color:#20354e}
+ .basket-thumbnail{border:1px solid #dce5ee;border-radius:12px;background:#edf2f8}
+ .product-db-item{border-color:#e6edf5}
+ :where(button,input,textarea,select):focus-visible{outline:3px solid #93c5fd!important;outline-offset:2px}
+ @media(max-width:650px){main{padding:0 13px 45px;margin-top:17px}.tabs{gap:3px;padding:5px;border-radius:12px}.tabs button{font-size:11px!important;letter-spacing:.035em;padding:12px 2px!important}.panel{padding:17px;border-radius:14px}.actions.main-form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.main-form-actions .action:first-child{grid-column:1/-1}.main-form-actions .action{padding:12px 8px!important;font-size:13px}#previewWrap{padding:11px!important;border-radius:12px!important}body>header{padding:19px 17px}body>header h1:before{width:36px;height:36px;font-size:21px;margin-right:9px}}
+ @media(max-width:390px){.actions.main-form-actions{grid-template-columns:1fr}.main-form-actions .action:first-child{grid-column:auto}}
+}
+</style>
+
+<style id="dark-mode-contrast-fix-v2">
+/* Screen-only theme overrides: do not modify paper labels or printing. */
+@media screen and (prefers-color-scheme: dark) {
+ :root{color-scheme:dark;--ui-ink:#f1f5fb;--ui-muted:#aab9cb;--ui-border:#354556}
+ body{background:linear-gradient(180deg,#0d1521 0%,#101925 440px,#101925 100%)!important;color:#eef3fa!important}
+ body>header{background:linear-gradient(115deg,#101b2c,#172c47 75%,#1d3959)!important;border-bottom-color:#304760!important}
+ .tabs{background:#1b2939!important;border-color:#34475c!important;box-shadow:none!important}
+ .tabs button{background:transparent!important;color:#b8c7d9!important;border:0!important}
+ .tabs button:not(.active):hover{background:#2b3c50!important;color:#fff!important}
+ .tabs button.active{background:#fff!important;color:#1d4ed8!important;box-shadow:0 2px 9px #0003,0 0 0 1px #dce5f0!important}
+ .panel,main>.panel,main>section.panel{background:#1a2635!important;border-color:#35465a!important;color:#eef3fa!important;box-shadow:0 7px 26px #0002!important}
+ .panel h2,.preview-title,.basket-entry-title,#formTitle{color:#f3f7fd!important}
+ .fields label,.product-manager-fields label,label,.panel p,.panel small,.panel summary{color:#c4d1e0!important}
+ .hint{color:#a9b9cc!important}
+ #singleForm .single-barcode-entry,.multi-barcode-entry,.mixed-line,.single-optional-field{background:#233246!important;border-color:#40536b!important}
+ #singleForm .single-barcode-entry>strong{color:#e4edf8!important}
+ input:not([type="checkbox"]),textarea,select{background:#152232!important;color:#f3f7fc!important;border-color:#52667e!important;box-shadow:none!important;color-scheme:dark}
+ input:not([type="checkbox"]):focus,textarea:focus,select:focus{background:#1c2c40!important;border-color:#70a5ff!important;box-shadow:0 0 0 3px #4386fa38!important}
+ input::placeholder,textarea::placeholder{color:#93a8bd!important;opacity:1}
+ input[type="checkbox"]{accent-color:#5591ff!important}
+ .action:not(.primary),.scan-barcode-btn,button:not(.primary):not(.active):not(.tabs button){background:#2a3b4f!important;color:#edf4fc!important;border-color:#52677f!important}
+ .action:not(.primary):hover,.scan-barcode-btn:hover{background:#344b65!important}
+ .action.primary{background:linear-gradient(135deg,#3678fa,#245be1)!important;color:white!important;border-color:#4b83f3!important}
+ #previewWrap{background:#263548!important;border-color:#46586e!important}
+ #basketCount{background:#2d4055!important;color:#dce9f9!important}
+ .basket-entry{border-color:#394a5e!important}
+ .basket-thumbnail{background:#2a394a!important;border-color:#45566b!important}
+ .product-db-item{border-color:#3b4b5e!important}
+ /* Printed docket surfaces must remain white with black ink. */
+ .sheet,.sheet *{color-scheme:light!important}
+ .sheet{background:#fff!important;color:#111!important}
+ .sheet input,.sheet textarea,.sheet select{background:#fff!important;color:#111!important}
+}
+</style>
+
+<style id="unified-navigation-tabs-fix">
+/* One continuous segmented navigation bar in both colour schemes. */
+@media screen {
+  main .tabs { display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;padding:6px!important;overflow:hidden!important; }
+  main .tabs > button, main .tabs > button:not(.primary):not(.active) {
+    appearance:none!important;-webkit-appearance:none!important;
+    background:transparent!important;border:0!important;outline:0!important;
+    box-shadow:none!important;border-radius:10px!important;min-width:0!important;
+  }
+  main .tabs > button.active { background:#fff!important;color:#1d4ed8!important;box-shadow:0 2px 9px #1a36541b,0 0 0 1px #dce5f0!important; }
+}
+@media screen and (prefers-color-scheme:dark) {
+  main .tabs { background:#1b2939!important;border:1px solid #34475c!important; }
+  main .tabs > button, main .tabs > button:not(.primary):not(.active) {background:transparent!important;border:0!important;color:#b8c7d9!important;box-shadow:none!important;}
+  main .tabs > button.active {background:#fff!important;color:#1d4ed8!important;box-shadow:0 2px 9px #0003,0 0 0 1px #dce5f0!important;}
+}
+</style>
+<style id="dark-mode-checkbox-visibility-fix">
+/* Match unchecked checkboxes to dark-mode entry fields; screen only. */
+@media screen and (prefers-color-scheme: dark) {
+  input[type="checkbox"] {
+    -webkit-appearance:none!important;
+    appearance:none!important;
+    display:inline-grid!important;
+    place-content:center!important;
+    flex-shrink:0!important;
+    width:22px!important;
+    height:22px!important;
+    margin:0!important;
+    border:2px solid #52667e!important;
+    border-radius:6px!important;
+    background:#152232!important;
+    box-shadow:0 1px 3px #0003!important;
+    cursor:pointer;
+    vertical-align:middle;
+  }
+  input[type="checkbox"]:checked {
+    background:#3478f6!important;
+    border-color:#76a7ff!important;
+  }
+  /* Use a centred background icon instead of a pseudo-element: the latter
+     inherits form-label layout rules on iOS and appears as a long white line. */
+  input[type="checkbox"]:checked {
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+    background-repeat:no-repeat!important;
+    background-position:center!important;
+    background-size:17px 17px!important;
+  }
+  input[type="checkbox"]::before,
+  input[type="checkbox"]::after {content:none!important;display:none!important;}
+  input[type="checkbox"]:focus-visible {
+    outline:3px solid #93c5fd!important;
+    outline-offset:3px!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -3263,7 +3693,7 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-
     </div>
     <div id="mixedForm" class="fields" hidden>
       <div id="mixedLines" style="grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr);gap:12px"></div>
-      <div class="multi-row-controls"><button type="button" id="addMultiBarcode" onclick="changeMultiBarcodeCount(1)">+ Add barcode</button><button type="button" id="removeMultiBarcode" onclick="changeMultiBarcodeCount(-1)">− Remove barcode</button><span id="multiBarcodeCountLabel" aria-live="polite"></span></div>
+      
       <div class="multi-details-row">
         <label>Located date<input id="completedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
         <label>Completed by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
@@ -3340,7 +3770,7 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-row > .multi-
           <div class="location-docket-label">LOCATION</div>
           <div class="location-docket-digits" id="pLocationShort"></div>
         </div>
-        <div class="location-docket-qr"><img id="locationQr" class="mixed-qr" alt="QR code for location"></div>
+        <div class="location-docket-qr"><div class="location-scan-heading">LOCATION</div><div class="location-scan-content"><img id="locationQr" class="location-barcode-image" alt="Scannable location barcode"></div></div>
       </div>
     </section>
     <section class="sheet other-sheet" id="otherSheet" hidden>
@@ -3497,7 +3927,7 @@ function cells(container, count, values='') {
   }
 }
 function val(id){ return (document.getElementById(id)?.value || '').trim(); }
-// EAN-13 linear barcode for Single and Multi notes; Location retains its QR code.
+// EAN-13 linear barcode for Single and Multi notes; Location uses Code 39 for its five-digit location.
 function setLinearBarcode(img, value){
   const parent=img.parentNode;
   parent.querySelectorAll('svg.linear-barcode,svg.qr-vector,.qr-error,.ean13-warning').forEach(el=>el.remove());
@@ -3539,6 +3969,38 @@ function setLinearBarcode(img, value){
   img.style.setProperty('width','100%');
   img.style.setProperty('height','100%');
   img.style.setProperty('object-fit','fill');
+}
+
+// Code 39 supports the five-digit warehouse location and its separator.
+// Unlike EAN-13, it does not require 13 digits or a check digit.
+function setLocationBarcode(img, text){
+  const patterns={
+    '0':'nnnwwnwnn','1':'wnnwnnnnw','2':'nnwwnnnnw','3':'wnwwnnnnn',
+    '4':'nnnwwnnnw','5':'wnnwwnnnn','6':'nnwwwnnnn','7':'nnnwnnwnw',
+    '8':'wnnwnnwnn','9':'nnwwnnwnn','-':'nwnnnnwnw','*':'nwnnwnwnn'
+  };
+  img.removeAttribute('src');
+  img.style.display='none';
+  if(!text)return;
+  const payload='*'+String(text).toUpperCase()+'*';
+  if([...payload].some(c=>!patterns[c]))return;
+  const modules=[];
+  for(const [idx,ch] of [...payload].entries()){
+    const pattern=patterns[ch];
+    for(let j=0;j<9;j++)modules.push({bar:j%2===0,width:pattern[j]==='w'?3:1});
+    if(idx<payload.length-1)modules.push({bar:false,width:1});
+  }
+  const quiet=12, total=modules.reduce((n,m)=>n+m.width,0)+quiet*2;
+  const parts=[];let x=quiet;
+  for(const m of modules){if(m.bar)parts.push('<rect x="'+x+'" y="0" width="'+m.width+'" height="64" fill="black"/>');x+=m.width;}
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+total+' 64" preserveAspectRatio="none"><rect width="'+total+'" height="64" fill="white"/>'+parts.join('')+'</svg>';
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  img.alt='Scannable Code 39 location barcode '+text;
+  img.classList.add('location-linear-image');
+  img.style.setProperty('display','block','important');
+  img.style.setProperty('visibility','visible','important');
+  img.style.setProperty('width','100%','important');
+  img.style.setProperty('height','100%','important');
 }
 
 function setQrImage(img, text){
@@ -3655,9 +4117,9 @@ function setType(next){
   document.getElementById('formTitle').textContent=type==='single'?'SINGLE PALLET NOTE':type==='mixed'?'MULTI PALLET NOTE':type==='location'?'LOCATION PALLET NOTE':'OTHER PALLET NOTES';
   if(type==='other') updateOtherPreview(); else updatePreview();
 }
-let multiBarcodeCount=2;
+let multiBarcodeCount=4;
 function changeMultiBarcodeCount(delta){
-  multiBarcodeCount=Math.max(2,Math.min(4,multiBarcodeCount+delta));
+  multiBarcodeCount=4;
   syncMultiBarcodeInputs();
   updatePreview();
 }
@@ -3666,9 +4128,9 @@ function syncMultiBarcodeInputs(){
     const input=document.getElementById("mcode"+i);
     if(input) input.parentElement.parentElement.hidden=i>multiBarcodeCount;
   }
-  document.getElementById("addMultiBarcode").disabled=multiBarcodeCount>=4;
-  document.getElementById("removeMultiBarcode").disabled=multiBarcodeCount<=2;
-  document.getElementById("multiBarcodeCountLabel").textContent=multiBarcodeCount+" of 4 barcodes";
+  
+  
+  
 }
 function buildMixedInputs(){
   const host=document.getElementById('mixedLines');
@@ -3814,7 +4276,7 @@ function updatePreview(){
     }
     document.getElementById('pLocationDescription').textContent=val('locationDescription').toUpperCase();
     document.getElementById('pLocationDescription').dataset.fitOriginal=val('locationDescription').toUpperCase();
-    setQrImage(document.getElementById('locationQr'),digits.length===5 ? digits.slice(0,3)+'-'+digits.slice(3) : '');
+    setLocationBarcode(document.getElementById('locationQr'),digits.length===5 ? digits.slice(0,3)+'-'+digits.slice(3) : '');
   }
   requestAnimationFrame(()=>{ fitTextToBoxes(); fitPreview(); });
 }
@@ -3962,15 +4424,29 @@ function fitTextToBoxes(root=document){
     const commonSize=Math.min(...sizes).toFixed(2)+'px';
     digits.forEach(el=>el.style.setProperty('font-size',commonSize,'important'));
   });
+  // Multi docket: all QTY cells across every row use one shared font size.
+  // Measure each digit first, then apply the smallest fitted size to every row,
+  // so 1, 10 and 100 have identical numeral height in preview and print.
+  const multiQtyDigits=[...root.querySelectorAll('.multi-stable-qty > span')]
+    .filter(el=>(el.textContent||'').trim());
+  if(multiQtyDigits.length){
+    const measured=multiQtyDigits.map(el=>parseFloat(el.style.getPropertyValue('font-size')))
+      .filter(n=>Number.isFinite(n)&&n>0);
+    if(measured.length===multiQtyDigits.length){
+      const sharedSize=Math.min(...measured).toFixed(2)+'px';
+      multiQtyDigits.forEach(el=>el.style.setProperty('font-size',sharedSize,'important'));
+    }
+  }
   fitDocketValues(root);
 }
 function clearForm(){
   document.getElementById('otherSign').value='';
   document.getElementById('customSignText').value='';
   document.querySelectorAll('#singleForm input, #mixedForm input, #locationForm input').forEach(el=>{
+    if(el.id === 'locatedDate' || el.id === 'completedDate') return;
     if(el.type==='checkbox')el.checked=false; else el.value='';
   });
-  multiBarcodeCount=2;
+  multiBarcodeCount=4;
   syncMultiBarcodeInputs();
   if(type==='other')updateOtherPreview();else updatePreview();
   fitPreview();
@@ -3998,7 +4474,7 @@ function editBasketDocket(index){
     const field=document.getElementById(id);
     if(field) { const saved=(item.values && item.values[id]) || ''; if(field.type==='checkbox')field.checked=saved===true||saved==='true'; else field.value=field.type==='date' ? normalizeDateForInput(saved) : saved; }
   });
-  multiBarcodeCount=Math.max(2,Math.min(4,Number(item.values?.multiBarcodeCount)||2));
+  multiBarcodeCount=4;
   syncMultiBarcodeInputs();
   setEditingState(index);
   if(type==='other')updateOtherPreview();else updatePreview();
@@ -4047,7 +4523,7 @@ function addToBasket(){
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  multiBarcodeCount=2;
+  multiBarcodeCount=4;
   syncMultiBarcodeInputs();
   document.getElementById('includeExpiry').checked=false;
   document.getElementById('includeSingleLocation').checked=false;
@@ -4275,6 +4751,52 @@ function matchPrintValueTypography(sheet){
     el.style.setProperty('justify-content','center','important');
   });
 }
+// Apply print heading typography directly to the generated print DOM.
+// iOS Edge can ignore stylesheet-only print overrides when the page is cloned.
+function enforcePrintedHeadingSizes(){
+  document.querySelectorAll('#basketPrint .basket-single-sheet').forEach(sheet=>{
+    const selectors=[
+      '.single-barcode-area > .single-barcode-heading',
+      '.single-right-stack .single-qr-box > .scan-barcode-heading',
+      '.single-right-stack .single-quantity > .date-label',
+      '.single-description-qty .single-description > .date-label',
+      '.single-bottom-row .date-label'
+    ];
+    selectors.forEach(sel=>sheet.querySelectorAll(sel).forEach(el=>{
+      el.style.setProperty('font-family','Arial, Calibri, sans-serif','important');
+      el.style.setProperty('font-size','18pt','important');
+      el.style.setProperty('font-weight','900','important');
+      el.style.setProperty('line-height','1','important');
+      el.style.setProperty('letter-spacing','0','important');
+      el.style.setProperty('text-align','center','important');
+      el.style.setProperty('display','flex','important');
+      el.style.setProperty('align-items','center','important');
+      el.style.setProperty('justify-content','center','important');
+      el.style.setProperty('padding','0','important');
+    }));
+  });
+  // Match the same print-heading treatment on every MULTI row and footer.
+  document.querySelectorAll('#basketPrint .basket-mixed-sheet').forEach(sheet=>{
+    const selectors=[
+      '.multi-stable-code > .multi-row-heading',
+      '.multi-stable-qty > .multi-row-heading',
+      '.multi-stable-qr > .scan-barcode-heading',
+      '.completed .date-label'
+    ];
+    selectors.forEach(sel=>sheet.querySelectorAll(sel).forEach(el=>{
+      el.style.setProperty('font-family','Arial, Calibri, sans-serif','important');
+      el.style.setProperty('font-size','18pt','important');
+      el.style.setProperty('font-weight','900','important');
+      el.style.setProperty('line-height','1','important');
+      el.style.setProperty('letter-spacing','0','important');
+      el.style.setProperty('text-align','center','important');
+      el.style.setProperty('display','flex','important');
+      el.style.setProperty('align-items','center','important');
+      el.style.setProperty('justify-content','center','important');
+      el.style.setProperty('padding','0','important');
+    }));
+  });
+}
 async function fitPreparedPrintFooters(){
   if(document.fonts?.ready){await Promise.all([document.fonts.load('700 100px "PalletComicActualBold"'),document.fonts.load('700 100px "PalletCalibriBold"')]);await document.fonts.ready;}
   document.querySelectorAll('#basketPrint .sheet').forEach(matchPrintValueTypography);
@@ -4314,6 +4836,7 @@ async function printCurrentDocket(){
   printArea.innerHTML = '<div class=\"print-page\">' + clone.outerHTML + '</div>';
   document.body.classList.add('printing-basket');
   await fitPreparedPrintFooters();
+  enforcePrintedHeadingSizes();
   await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
 }
@@ -4340,6 +4863,7 @@ async function printBasket(){
   document.body.classList.add('printing-basket');
   // Allow the browser to lay out all new pages before opening print preview.
   await fitPreparedPrintFooters();
+  enforcePrintedHeadingSizes();
   await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
 }
@@ -4475,5 +4999,25 @@ window.addEventListener('afterprint', () => {
 
 
 
+
+<script id="barcode-auto-qty-v69">
+/* Automatically advance from a complete EAN-13 entry to its paired quantity. */
+document.addEventListener('input', function(event) {
+  const field = event.target;
+  if (!(field instanceof HTMLInputElement)) return;
+  const match = /^mcode([1-4])$/.exec(field.id);
+  if (field.id !== 'singleCode' && !match) return;
+  const cleaned = field.value.replace(/\D/g, '').slice(0, 13);
+  if (field.value !== cleaned) {
+    field.value = cleaned;
+    field.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+  if (cleaned.length !== 13) return;
+  const target = document.getElementById(match ? 'mqty' + match[1] : 'qty');
+  if (target && document.activeElement === field) {
+    target.focus();
+  }
+});
+</script>
 </body>
 </html>
