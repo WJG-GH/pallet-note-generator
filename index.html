@@ -2447,6 +2447,16 @@ html body .sheet .location-docket-description-value {
  font-weight:700 !important;
 }
 .other-sign-content.custom-sign-text{white-space:pre-line!important;overflow-wrap:anywhere!important;letter-spacing:0!important;line-height:1.08!important;box-sizing:border-box!important;min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden!important;}
+
+/* Staff product requests: match existing theme without touching printed labels. */
+.product-request-section{padding:12px;border:1px solid #cbd5e1;border-radius:12px;margin-bottom:18px}
+.product-request-section form{padding-top:12px}
+.product-request-section .product-manager-fields{margin-top:12px}
+.product-request-item{border:1px solid #cbd5e1;border-radius:10px;padding:12px;margin:10px 0}
+.product-request-item strong{display:block;overflow-wrap:anywhere}
+.product-request-item .actions{margin:10px 0 0}
+@media(prefers-color-scheme:dark){.product-request-section,.product-request-item{border-color:#465a71}.product-request-section input{background:#142233;color:#f1f5f9;border-color:#52667e}}
+@media print{.product-request-section,#productRequestAdmin{display:none!important}}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -3654,6 +3664,74 @@ html body .sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .
   }
 }
 </style>
+
+<style id="barcode-date-matched-ink-v70">
+/* Use identical font rendering and stroke for barcode digits and date values.
+   Scoped to printable sheets, including basket copies; interface remains untouched. */
+html body .sheet .single-barcode-grid > span,
+html body .sheet #singleCodeCells > span,
+html body .sheet .multi-stable-code > span,
+html body .sheet .single-bottom-row .date-value,
+html body .sheet .completed .completed-item:first-child .date-value,
+html body .sheet #pLocatedDate,
+html body .sheet #pExpiry,
+html body .sheet #pCompletedDate {
+  font-family:"PalletComicActualBold","Comic Sans MS",cursive!important;
+  font-weight:700!important;
+  font-synthesis:none!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  -webkit-text-stroke:1.8px #000!important;
+  paint-order:stroke fill!important;
+  text-shadow:none!important;
+}
+</style>
+<style id="barcode-ink-weight-correction-v71">
+/* The date is rasterized for iOS printing with a heavier outline.
+   Match its apparent weight on the individual barcode digits, without
+   changing their font size, cell geometry, or the date itself. */
+html body .sheet .single-barcode-grid > span,
+html body .sheet #singleCodeCells > span,
+html body .sheet .multi-stable-code > span,
+html body.printing-basket #basketPrint .sheet .single-barcode-grid > span,
+html body.printing-basket #basketPrint .sheet .multi-stable-code > span {
+  -webkit-text-stroke:3.4px #000!important;
+  paint-order:stroke fill!important;
+  -webkit-text-fill-color:#000!important;
+  font-weight:700!important;
+}
+</style>
+<style id="barcode-match-qty-weight-v72">
+/* Match barcode digits to the quantity digits: 900 weight, 2.0px stroke. */
+html body .sheet .single-barcode-grid > span,
+html body .sheet #singleCodeCells > span,
+html body .sheet .multi-stable-code > span,
+html body .sheet .mixed-code > span,
+html body.printing-basket #basketPrint .sheet .single-barcode-grid > span,
+html body.printing-basket #basketPrint .sheet .multi-stable-code > span,
+html body.printing-basket #basketPrint .sheet .mixed-code > span {
+  font-weight:900!important;
+  -webkit-text-stroke:2.0px #000!important;
+  paint-order:stroke fill!important;
+  -webkit-text-fill-color:#000!important;
+}
+</style>
+<style id="barcode-print-ink-final-v73">
+/* Explicit heavier outline on actual barcode digit spans, including cloned print pages.
+   The embedded font only has a 700 face, so 900 alone cannot thicken its glyphs. */
+html body .sheet .single-barcode-grid > span,
+html body .sheet #singleCodeCells > span,
+html body .sheet .multi-stable-code > span,
+html body .sheet .mixed-code > span,
+html body.printing-basket #basketPrint .sheet .single-barcode-grid > span,
+html body.printing-basket #basketPrint .sheet #singleCodeCells > span,
+html body.printing-basket #basketPrint .sheet .multi-stable-code > span,
+html body.printing-basket #basketPrint .sheet .mixed-code > span {
+  -webkit-text-stroke:3.6px #000!important;
+  -webkit-text-fill-color:#000!important;
+  paint-order:stroke fill!important;
+}
+</style>
 </head>
 <body>
 <header><h1>PALLET NOTE GENERATOR</h1></header>
@@ -3799,6 +3877,23 @@ html body .sheet:is(#singleSheet,.basket-single-sheet) .single-description-qty .
   <section class="panel" id="productDatabasePanel">
     <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">PRODUCT DATABASE ▾</button>
     <div id="productDatabaseBody" hidden style="padding-top:16px">
+      <section class="product-request-section" aria-label="Request a product">
+        <button type="button" id="toggleProductRequest" class="action" aria-expanded="false" style="width:100%;font-weight:700">+ REQUEST A PRODUCT</button>
+        <form id="productRequestForm" hidden>
+          <p class="hint">Suggest a product for administrator approval. It will not appear in the database until approved.</p>
+          <div class="product-manager-fields">
+            <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
+            <label>Product barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE" required pattern="[0-9]{1,13}"></label>
+            <label>Pallet quantity<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
+          </div>
+          <button class="action primary" id="submitProductRequest" type="submit" style="width:100%;margin-top:12px">Submit for approval</button>
+        </form>
+        <p id="productRequestMessage" class="hint" role="status" aria-live="polite"></p>
+      </section>
+      <div id="productRequestAdmin" hidden>
+        <h3 style="margin:16px 0 8px">Pending product requests <span id="pendingRequestCount"></span></h3>
+        <div id="pendingProductRequests"></div>
+      </div>
       <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div><div id="productDbAdmin" hidden><button class="action" id="productDbLogoutButton" type="button" style="display:block;width:100%;margin-bottom:10px">LOG OUT</button><div class="product-manager-fields">
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
@@ -4956,6 +5051,7 @@ window.addEventListener('afterprint', () => {
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
  }
  async function load(){try{const data=await request();products=data.products||[];refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
+ window.reloadProductDatabase=load;
  window.productDescriptionChanged=function(){
    const description=normalize(byId('description').value);
    const product=products.find(p=>normalize(p.description)===description);
@@ -4978,7 +5074,7 @@ window.addEventListener('afterprint', () => {
      const result=await request('POST',{action:'verify-password'});
      if(!result.authenticated)throw Error('Password verification failed');
      byId('productDbPassword').value='';
-     setAdmin(true);status('Management unlocked.');
+     setAdmin(true);document.dispatchEvent(new Event('product-db-admin-login'));status('Management unlocked.');
    } catch(e) {
      password='';setAdmin(false);status(e.message||'Incorrect administrator password');
    } finally {button.disabled=false;}
@@ -5018,6 +5114,75 @@ document.addEventListener('input', function(event) {
     target.focus();
   }
 });
+</script>
+
+<script>
+// Product requests require the companion Supabase Edge Function and SQL migration.
+(function(){
+  'use strict';
+  const el=id=>document.getElementById(id);
+  const endpoint=PALLET_SUPABASE_URL+'/functions/v1/product-requests';
+  const api=async(method,body,password)=>{
+    const headers={'apikey':PALLET_SUPABASE_KEY};
+    if(body)headers['Content-Type']='application/json';
+    if(password)headers['x-admin-password']=password;
+    const response=await fetch(endpoint,{method,headers,cache:'no-store',...(body?{body:JSON.stringify(body)}:{})});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||'Request failed ('+response.status+')');
+    return data;
+  };
+  el('toggleProductRequest').addEventListener('click',()=>{
+    const form=el('productRequestForm');form.hidden=!form.hidden;
+    el('toggleProductRequest').setAttribute('aria-expanded',String(!form.hidden));
+  });
+  el('productRequestForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const description=el('requestProductDescription').value.trim().replace(/\s+/g,' ').toUpperCase();
+    const barcode=el('requestProductBarcode').value.trim();
+    const quantity=el('requestProductQty').value.trim();
+    const message=el('productRequestMessage');
+    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and pallet quantity (1–999).';return;}
+    const button=el('submitProductRequest');button.disabled=true;message.textContent='Submitting request…';
+    try{await api('POST',{description,barcode,quantity:Number(quantity)});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
+    catch(err){message.textContent='Could not submit: '+err.message;}
+    finally{button.disabled=false;}
+  });
+  let adminPassword='';
+  async function refreshPending(){
+    if(!adminPassword)return;
+    const list=el('pendingProductRequests');
+    try{
+      const data=await api('GET',null,adminPassword);
+      const requests=data.requests||[];list.replaceChildren();
+      el('pendingRequestCount').textContent='('+requests.length+')';
+      if(!requests.length){const p=document.createElement('p');p.className='hint';p.textContent='No pending requests.';list.append(p);}
+      for(const request of requests){
+        const card=document.createElement('div');card.className='product-request-item';
+        const title=document.createElement('strong');title.textContent=request.description;
+        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · Pallet QTY: '+request.quantity;
+        const actions=document.createElement('div');actions.className='actions';
+        for(const [action,label] of [['approve','Approve'],['decline','Decline']]){
+          const btn=document.createElement('button');btn.type='button';btn.className='action'+(action==='approve'?' primary':'');btn.textContent=label;
+          btn.addEventListener('click',async()=>{
+            if(!confirm(label+' '+request.description+'?'))return;
+            btn.disabled=true;
+            try{await api('PATCH',{id:request.id,action},adminPassword);await refreshPending();if(typeof window.reloadProductDatabase==='function')await window.reloadProductDatabase();}
+            catch(err){alert('Unable to '+action+': '+err.message);btn.disabled=false;}
+          });actions.append(btn);
+        }
+        card.append(title,detail,actions);list.append(card);
+      }
+    }catch(err){list.textContent='Unable to load requests: '+err.message;}
+  }
+  el('productDbLoginButton').addEventListener('click',()=>{
+    const entered=el('productDbPassword').value;
+    if(!entered)return;
+    // Existing login verifies password asynchronously. Only reveal requests after success.
+    const listener=()=>{adminPassword=entered;el('productRequestAdmin').hidden=false;refreshPending();};
+    document.addEventListener('product-db-admin-login',listener,{once:true});
+  });
+  el('productDbLogoutButton').addEventListener('click',()=>{adminPassword='';el('productRequestAdmin').hidden=true;});
+})();
 </script>
 </body>
 </html>
