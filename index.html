@@ -3884,8 +3884,10 @@ html body.printing-basket #basketPrint .sheet .mixed-code > span {
           <div class="product-manager-fields">
             <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
             <label>Product barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE" required pattern="[0-9]{1,13}"></label>
-            <label>Pallet quantity<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
+            <label>QTY<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
+            <label class="expiry-toggle" style="grid-column:1/-1"><input id="requestProductExpiryRequired" type="checkbox"><span>EXPIRY REQUIRED</span></label>
           </div>
+          <p id="requestBarcodeDuplicate" class="hint" role="status" aria-live="polite" style="font-weight:700" hidden></p>
           <button class="action primary" id="submitProductRequest" type="submit" style="width:100%;margin-top:12px">Submit for approval</button>
         </form>
         <p id="productRequestMessage" class="hint" role="status" aria-live="polite"></p>
@@ -5135,15 +5137,51 @@ document.addEventListener('input', function(event) {
     const form=el('productRequestForm');form.hidden=!form.hidden;
     el('toggleProductRequest').setAttribute('aria-expanded',String(!form.hidden));
   });
+  const barcodeInput=el('requestProductBarcode');
+  const duplicateNotice=el('requestBarcodeDuplicate');
+  const submitButton=el('submitProductRequest');
+  let checkVersion=0;
+  async function checkBarcode(){
+    const version=++checkVersion;
+    const barcode=barcodeInput.value.trim();
+    duplicateNotice.hidden=true;
+    submitButton.disabled=false;
+    if(!/^\d{1,13}$/.test(barcode))return false;
+    duplicateNotice.hidden=false;
+    duplicateNotice.textContent='Checking barcode…';
+    submitButton.disabled=true;
+    try{
+      const result=await api('POST',{action:'check-barcode',barcode});
+      if(version!==checkVersion)return true;
+      if(result.duplicate){
+        duplicateNotice.textContent=result.reason==='existing'?'DUPLICATE: This barcode already exists in the Product Database.':'DUPLICATE: A request for this barcode is already pending approval.';
+        duplicateNotice.style.color='#e77b7b';
+        submitButton.disabled=true;
+        return true;
+      }
+      duplicateNotice.textContent='Barcode available for request.';
+      duplicateNotice.style.color='';
+      submitButton.disabled=false;
+      return false;
+    }catch(err){
+      if(version!==checkVersion)return true;
+      duplicateNotice.textContent='Could not verify barcode. Please try again.';
+      duplicateNotice.style.color='#e77b7b';
+      submitButton.disabled=true;
+      return true;
+    }
+  }
+  barcodeInput.addEventListener('input',()=>{checkBarcode();});
   el('productRequestForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const description=el('requestProductDescription').value.trim().replace(/\s+/g,' ').toUpperCase();
     const barcode=el('requestProductBarcode').value.trim();
     const quantity=el('requestProductQty').value.trim();
     const message=el('productRequestMessage');
-    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and pallet quantity (1–999).';return;}
+    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and QTY (1–999).';return;}
+    if(await checkBarcode()){message.textContent='Resolve the duplicate barcode warning before submitting.';return;}
     const button=el('submitProductRequest');button.disabled=true;message.textContent='Submitting request…';
-    try{await api('POST',{description,barcode,quantity:Number(quantity)});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
+    try{await api('POST',{description,barcode,quantity:Number(quantity),expiry_required:el('requestProductExpiryRequired').checked});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();duplicateNotice.hidden=true;++checkVersion;}
     catch(err){message.textContent='Could not submit: '+err.message;}
     finally{button.disabled=false;}
   });
@@ -5159,7 +5197,7 @@ document.addEventListener('input', function(event) {
       for(const request of requests){
         const card=document.createElement('div');card.className='product-request-item';
         const title=document.createElement('strong');title.textContent=request.description;
-        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · Pallet QTY: '+request.quantity;
+        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · QTY: '+request.quantity+(request.expiry_required?' · EXPIRY REQUIRED':' · NO EXPIRY');
         const actions=document.createElement('div');actions.className='actions';
         for(const [action,label] of [['approve','Approve'],['decline','Decline']]){
           const btn=document.createElement('button');btn.type='button';btn.className='action'+(action==='approve'?' primary':'');btn.textContent=label;
