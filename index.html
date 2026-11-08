@@ -3881,6 +3881,16 @@ body.theme-dark .tabs button.active {
   #recentBasketsRefresh { display: block; width: 100%; box-sizing: border-box; }
 }
 </style>
+<style id="recent-baskets-desktop-width-fix">
+@media screen {
+  #recentBasketsCard, #recentBasketsList { width:100%; min-width:0; box-sizing:border-box; }
+  #recentBasketsList .recent-basket-row { display:block !important; width:100% !important; max-width:none !important; box-sizing:border-box; padding:12px 0 !important; }
+  #recentBasketsList .recent-basket-row > strong { display:block !important; margin-bottom:10px; }
+  #recentBasketsList .recent-basket-actions { display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; gap:12px !important; width:100% !important; max-width:none !important; margin:0 !important; }
+  #recentBasketsList .recent-basket-actions > button { display:block !important; width:100% !important; min-width:0 !important; max-width:none !important; margin:0 !important; box-sizing:border-box !important; justify-self:stretch !important; }
+  #recentBasketsRefresh { display:block !important; width:100% !important; max-width:none !important; box-sizing:border-box !important; }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -3897,12 +3907,15 @@ body.theme-dark .tabs button.active {
   <div id="settingsAdminLogout" hidden><button class="action" id="productDbLogoutButton" type="button" style="display:block;width:100%;margin-bottom:10px">LOG OUT</button></div>
   </div>
   <div class="settings-card" id="basketStorageCard">
-    <h3>Basket Storage</h3>
+    <h3>Storage</h3>
     <div class="basket-storage-stats">
       <div><span>Saved baskets</span><strong id="basketStorageCount">—</strong></div>
-      <div><span>Basket data used / reference limit</span><strong id="basketStorageBytes">—</strong></div>
+      <div><span>Basket data used</span><strong id="basketStorageBytes">—</strong></div>
+      <div><span>Products saved</span><strong id="productStorageCount">—</strong></div>
+      <div><span>Product database used</span><strong id="productStorageBytes">—</strong></div>
+      <div><span>Combined data used / reference limit</span><strong id="combinedStorageBytes">—</strong></div>
     </div>
-    <div class="basket-storage-meter" role="progressbar" aria-label="Estimated basket data as a proportion of reference database limit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="basketStorageMeter"><div id="basketStorageMeterFill"></div></div>
+    <div class="basket-storage-meter" role="progressbar" aria-label="Estimated combined basket and product data as a proportion of reference database limit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="basketStorageMeter"><div id="basketStorageMeterFill"></div></div>
     <p id="basketStorageStatus" role="status" aria-live="polite">Loading storage information…</p>
     <button class="action" id="basketStorageRefresh" type="button">Refresh</button>
     <div id="basketStorageAdminControls" hidden><button class="action" id="basketStorageClear" type="button" style="width:100%;margin-top:12px;background:#b42332;color:white">Clear all saved baskets</button><p id="basketStorageClearStatus" role="status" aria-live="polite"></p></div>
@@ -5672,20 +5685,38 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
  async function updateBasketStorage(){
    if(!window.PALLET_SUPABASE_URL && typeof PALLET_SUPABASE_URL==='undefined')return;
    refresh.disabled=true;status.textContent='Loading storage information…';
+   const productCount=document.getElementById('productStorageCount');
+   const productBytes=document.getElementById('productStorageBytes');
+   const combinedBytes=document.getElementById('combinedStorageBytes');
+   let basketTotal=null, productTotal=null;
    try{
      const result=await palletRpc('pallet_basket_storage_stats',{});
      const row=Array.isArray(result)?result[0]:result;
      const total=Number(row && row.total_bytes), n=Number(row && row.basket_count);
-     if(!Number.isFinite(total)||!Number.isFinite(n)||total<0||n<0)throw Error('Invalid storage response');
-     count.textContent=n.toLocaleString();bytes.textContent=readable(total)+' / '+readable(REFERENCE_DATABASE_BYTES);
+     if(!Number.isFinite(total)||!Number.isFinite(n)||total<0||n<0)throw Error('Invalid basket storage response');
+     basketTotal=total;
+     count.textContent=n.toLocaleString();bytes.textContent=readable(total);
+   }catch(err){count.textContent='—';bytes.textContent='—';}
+   try{
+     const result=await palletRpc('pallet_product_storage_stats',{});
+     const row=Array.isArray(result)?result[0]:result;
+     const total=Number(row && row.total_bytes), n=Number(row && row.product_count);
+     if(!Number.isFinite(total)||!Number.isFinite(n)||total<0||n<0)throw Error('Invalid product storage response');
+     productTotal=total;
+     productCount.textContent=n.toLocaleString();productBytes.textContent=readable(total);
+   }catch(err){productCount.textContent='—';productBytes.textContent='—';}
+   if(basketTotal!==null && productTotal!==null){
+     const total=basketTotal+productTotal;
+     combinedBytes.textContent=readable(total)+' / '+readable(REFERENCE_DATABASE_BYTES);
      const percent=total/REFERENCE_DATABASE_BYTES*100;
      fill.style.width=Math.min(100,percent)+'%';
      meter.setAttribute('aria-valuenow',String(Math.min(100,Number(percent.toFixed(3)))));
-     status.textContent=percent.toFixed(2)+'% of 500 MB reference. Basket data only; other database usage is not included. Actual plan limit may differ.';
-   }catch(err){
-     count.textContent='—';bytes.textContent='—';fill.style.width='0%';meter.setAttribute('aria-valuenow','0');
-     status.textContent='Storage totals unavailable. The Supabase storage statistics function must be configured.';
-   }finally{refresh.disabled=false;}
+     status.textContent=percent.toFixed(2)+'% of 500 MB reference. Estimated basket and product data only; indexes and other database usage are excluded. Actual plan limit may differ.';
+   }else{
+     combinedBytes.textContent='—';fill.style.width='0%';meter.setAttribute('aria-valuenow','0');
+     status.textContent='Some storage totals are unavailable. Check that both Supabase storage statistics functions are installed.';
+   }
+   refresh.disabled=false;
  }
  refresh.addEventListener('click',updateBasketStorage);
  document.getElementById('menuSettings').addEventListener('click',updateBasketStorage);
