@@ -3891,6 +3891,7 @@ body.theme-dark .tabs button.active {
   #recentBasketsRefresh { display:block !important; width:100% !important; max-width:none !important; box-sizing:border-box !important; }
 }
 </style>
+<style>.recent-basket-timestamp{font-size:.85rem;color:var(--muted,#afbed0);margin:5px 0 10px}</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -5641,7 +5642,7 @@ body.tasks-page > main,body.tasks-page > #handoverPage,body.tasks-page > #settin
 </script>
 <style id="settings-appearance-style">
 #settingsPage .settings-field-label{display:block;font-weight:700;margin:4px 0 8px;color:inherit}
-#settingsTheme{width:100%;max-width:440px;min-height:46px;padding:10px 12px;border:1px solid #74869b;border-radius:9px;background:#29394b;color:#fff;font:inherit}
+#settingsTheme{display:block;box-sizing:border-box;width:100%;max-width:none;min-height:46px;padding:10px 12px;border:1px solid #74869b;border-radius:9px;background:#29394b;color:#fff;font:inherit}
 body.settings-page #settingsPage{color:var(--settings-ink,#f1f5f9)}
 body.settings-page .settings-card{background:var(--settings-card,#1c2838);border-color:var(--settings-border,#3d5069)}
 body.settings-page .settings-card p{color:var(--settings-muted,#b8c6d8)}
@@ -5809,6 +5810,16 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
        if(!/^(BQ-[0-9]{5}|PLT-[A-F0-9]{12})$/.test(code))continue;
        const row=document.createElement('div');row.className='recent-basket-row';
        const name=document.createElement('strong');name.textContent=code;
+       const savedAt=item.updated_at||item.saved_at;
+       if(savedAt){
+         const date=new Date(savedAt);
+         if(!Number.isNaN(date.getTime())){
+           const timestamp=document.createElement('div');
+           timestamp.className='recent-basket-timestamp';
+           timestamp.textContent='Last saved: '+new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+           row.append(name,timestamp);
+         }
+       }
        const actions=document.createElement('div');actions.className='recent-basket-actions';
        const copy=document.createElement('button');copy.type='button';copy.className='action';copy.textContent='Copy';
        copy.addEventListener('click',async()=>{
@@ -5821,7 +5832,7 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
          await resumeCloudBasket(code);
          document.getElementById('basketPanel').scrollIntoView({behavior:'smooth',block:'start'});
        });
-       actions.append(copy,load);row.append(name,actions);recentList.append(row);
+       actions.append(copy,load);if(!name.isConnected)row.append(name);row.append(actions);recentList.append(row);
      }
    }catch(e){recentList.textContent='Recent baskets unavailable.';recentStatus.textContent='Configure the Supabase recent baskets function.';}
    finally{recentRefresh.disabled=false;}
