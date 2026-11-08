@@ -3870,6 +3870,17 @@ body.theme-dark .tabs button.active {
   box-shadow:inset 0 0 0 1px #435d7b,0 2px 8px #0002!important;
 }
 </style>
+
+<style id="recent-baskets-responsive-layout">
+@media screen {
+  #recentBasketsList { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  #recentBasketsList .recent-basket-row { display: flex; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; min-width: 0; padding: 12px 0; border-bottom: 1px solid rgba(150,170,200,.18); box-sizing: border-box; }
+  #recentBasketsList .recent-basket-row > strong { display: block; overflow-wrap: anywhere; }
+  #recentBasketsList .recent-basket-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; width: 100%; min-width: 0; }
+  #recentBasketsList .recent-basket-actions > button { width: 100%; min-width: 0; margin: 0; display: block; box-sizing: border-box; text-align: center; }
+  #recentBasketsRefresh { display: block; width: 100%; box-sizing: border-box; }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -3894,6 +3905,7 @@ body.theme-dark .tabs button.active {
     <div class="basket-storage-meter" role="progressbar" aria-label="Estimated basket data as a proportion of reference database limit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="basketStorageMeter"><div id="basketStorageMeterFill"></div></div>
     <p id="basketStorageStatus" role="status" aria-live="polite">Loading storage information…</p>
     <button class="action" id="basketStorageRefresh" type="button">Refresh</button>
+    <div id="basketStorageAdminControls" hidden><button class="action" id="basketStorageClear" type="button" style="width:100%;margin-top:12px;background:#b42332;color:white">Clear all saved baskets</button><p id="basketStorageClearStatus" role="status" aria-live="polite"></p></div>
   </div>
   <div class="settings-card" id="recentBasketsCard">
     <h3>Recent Saved Baskets</h3>
@@ -5616,6 +5628,34 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
 </style>
 <script>
 (function(){
+ let verifiedAdminPassword='';
+ const adminControls=document.getElementById('basketStorageAdminControls');
+ const clearButton=document.getElementById('basketStorageClear');
+ const clearStatus=document.getElementById('basketStorageClearStatus');
+ document.addEventListener('product-db-admin-login',()=>{
+   verifiedAdminPassword=document.getElementById('productDbPassword').value;
+   adminControls.hidden=false;
+ });
+ document.getElementById('productDbLogoutButton').addEventListener('click',()=>{
+   verifiedAdminPassword='';adminControls.hidden=true;clearStatus.textContent='';
+ });
+ clearButton.addEventListener('click',async()=>{
+   if(!verifiedAdminPassword)return;
+   if(!confirm('Permanently delete ALL saved baskets across ALL devices? This cannot be undone.'))return;
+   if(!confirm('Final confirmation: all saved basket codes will stop working. Delete everything?'))return;
+   clearButton.disabled=true;clearStatus.textContent='Deleting saved baskets…';
+   try{
+     const response=await fetch(PALLET_SUPABASE_URL+'/functions/v1/product-database',{
+       method:'POST',headers:{'apikey':PALLET_SUPABASE_KEY,'Content-Type':'application/json','x-admin-password':verifiedAdminPassword},
+       body:JSON.stringify({action:'clear-saved-baskets',confirm:'DELETE ALL SAVED BASKETS'})
+     });
+     const result=await response.json().catch(()=>({}));
+     if(!response.ok)throw Error(result.error||'Delete failed');
+     clearStatus.textContent='All saved baskets deleted ('+Number(result.deleted||0)+').';
+     await updateBasketStorage();await updateRecentBaskets();
+   }catch(e){clearStatus.textContent='Unable to clear baskets: '+e.message;}
+   finally{clearButton.disabled=false;}
+ });
  const status=document.getElementById('basketStorageStatus');
  const count=document.getElementById('basketStorageCount');
  const bytes=document.getElementById('basketStorageBytes');
