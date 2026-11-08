@@ -3913,7 +3913,7 @@ body.theme-dark .tabs button.active {
       <div><span>Basket data used</span><strong id="basketStorageBytes">—</strong></div>
       <div><span>Products saved</span><strong id="productStorageCount">—</strong></div>
       <div><span>Product database used</span><strong id="productStorageBytes">—</strong></div>
-      <div><span>Combined data used / reference limit</span><strong id="combinedStorageBytes">—</strong></div>
+      <div class="combined-storage-total"><span>Combined data used / reference limit</span><strong id="combinedStorageBytes">—</strong></div>
     </div>
     <div class="basket-storage-meter" role="progressbar" aria-label="Estimated combined basket and product data as a proportion of reference database limit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="basketStorageMeter"><div id="basketStorageMeterFill"></div></div>
     <p id="basketStorageStatus" role="status" aria-live="polite">Loading storage information…</p>
@@ -5464,6 +5464,30 @@ body.settings-page .database-page-heading{display:none!important}
   font-size:16px;
 }
 #nativeHeaderMenu:focus-visible { outline:2px solid #79b7ff; outline-offset:3px; opacity:.01; }
+/* Desktop navigation uses a properly sized custom dropdown; mobile keeps the native picker. */
+@media (min-width: 768px) {
+  #nativeHeaderMenu { display:none!important; }
+  .header-menu-button { pointer-events:auto!important; cursor:pointer; }
+  .desktop-page-menu {
+    position:absolute; top:calc(100% + 10px); right:0;
+    width:290px; max-width:calc(100vw - 24px);
+    padding:8px; z-index:1200; border:1px solid #526982;
+    border-radius:12px; background:#1d2d42; color:#f1f5f9;
+    box-shadow:0 14px 35px #0008;
+  }
+  .desktop-page-menu[hidden] {display:none!important;}
+  .desktop-page-menu button {
+    display:flex; align-items:center; gap:12px;
+    width:100%; padding:12px 14px; border:0; border-radius:8px;
+    background:transparent; color:inherit; font:inherit;
+    font-size:15px; text-align:left; white-space:nowrap; cursor:pointer;
+  }
+  .desktop-page-menu button:hover, .desktop-page-menu button:focus-visible {
+    background:#344b67; outline:none;
+  }
+  .desktop-page-menu .menu-check { width:18px; flex:none; text-align:center; }
+  .desktop-page-menu .menu-separator {height:1px;background:#526982;margin:6px 8px;}
+}
 /* Keep legacy menu present for existing navigation scripts, but never display it. */
 .header-menu-popover { display:none!important; }
 </style>
@@ -5518,6 +5542,53 @@ body.settings-page .database-page-heading{display:none!important}
     });
     select.value = current;
   }
+  // Desktop-specific dropdown avoids native select clipping and narrow option widths.
+  const menuButton = wrapper.querySelector('.header-menu-button');
+  const desktopMenu = document.createElement('div');
+  desktopMenu.className = 'desktop-page-menu';
+  desktopMenu.hidden = true;
+  desktopMenu.setAttribute('role', 'menu');
+  wrapper.appendChild(desktopMenu);
+  function renderDesktopMenu() {
+    desktopMenu.replaceChildren();
+    const active = currentPage();
+    pages.forEach(([id, label], index) => {
+      if (index > 0) {
+        const separator = document.createElement('div');
+        separator.className = 'menu-separator';
+        desktopMenu.appendChild(separator);
+      }
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.setAttribute('role', 'menuitem');
+      const check = document.createElement('span');
+      check.className = 'menu-check';
+      check.textContent = active === id ? '✓' : '';
+      item.append(check, document.createTextNode(label));
+      item.addEventListener('click', () => {
+        desktopMenu.hidden = true;
+        select.value = id;
+        select.dispatchEvent(new Event('change', {bubbles:true}));
+      });
+      desktopMenu.appendChild(item);
+    });
+  }
+  if (menuButton) {
+    menuButton.setAttribute('aria-haspopup', 'menu');
+    menuButton.addEventListener('click', () => {
+      if (window.innerWidth < 768) return;
+      if (desktopMenu.hidden) renderDesktopMenu();
+      desktopMenu.hidden = !desktopMenu.hidden;
+      menuButton.setAttribute('aria-expanded', String(!desktopMenu.hidden));
+    });
+  }
+  document.addEventListener('click', event => {
+    if (!wrapper.contains(event.target)) desktopMenu.hidden = true;
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') desktopMenu.hidden = true;
+  });
+  window.addEventListener('resize', () => { desktopMenu.hidden = true; });
   updateOptions();
   new MutationObserver(updateOptions).observe(document.body, {attributes:true, attributeFilter:['class']});
   select.addEventListener('pointerdown', updateOptions);
@@ -5632,6 +5703,7 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
 
 <style id="basket-storage-style">
 .basket-storage-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+.basket-storage-stats>.combined-storage-total{grid-column:1 / -1}
 .basket-storage-stats>div{padding:14px;border:1px solid var(--settings-border,#3d5069);border-radius:10px;min-width:0}
 .basket-storage-stats span{display:block;color:var(--settings-muted,#b8c6d8);font-size:13px;margin-bottom:8px}
 .basket-storage-stats strong{display:block;font-size:24px;overflow-wrap:anywhere}
