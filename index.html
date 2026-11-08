@@ -3889,10 +3889,17 @@ body.theme-dark .tabs button.active {
     <h3>Basket Storage</h3>
     <div class="basket-storage-stats">
       <div><span>Saved baskets</span><strong id="basketStorageCount">—</strong></div>
-      <div><span>Total storage used</span><strong id="basketStorageBytes">—</strong></div>
+      <div><span>Basket data used / reference limit</span><strong id="basketStorageBytes">—</strong></div>
     </div>
+    <div class="basket-storage-meter" role="progressbar" aria-label="Estimated basket data as a proportion of reference database limit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="basketStorageMeter"><div id="basketStorageMeterFill"></div></div>
     <p id="basketStorageStatus" role="status" aria-live="polite">Loading storage information…</p>
     <button class="action" id="basketStorageRefresh" type="button">Refresh</button>
+  </div>
+  <div class="settings-card" id="recentBasketsCard">
+    <h3>Recent Saved Baskets</h3>
+    <div id="recentBasketsList" aria-live="polite">Loading recent baskets…</div>
+    <p id="recentBasketsStatus" role="status"></p>
+    <button class="action" id="recentBasketsRefresh" type="button">Refresh</button>
   </div>
   <div class="settings-card"><h3>Version</h3><p><strong>1.0.0</strong></p></div>
 </section>
@@ -4922,8 +4929,8 @@ async function saveCloudBasket(){
   }catch(e){cloudStatus('Could not save: '+e.message+'. Check that the Supabase SQL setup has been run.');}
   finally{btn.disabled=false;}
 }
-async function resumeCloudBasket(){
-  const entered=prompt('Enter your basket code (BQ-12345):',cloudBasketCode||'');
+async function resumeCloudBasket(selectedCode){
+  const entered=typeof selectedCode==='string'?selectedCode:prompt('Enter your basket code (BQ-12345):',cloudBasketCode||'');
   if(entered===null)return;
   const code=entered.trim().toUpperCase();
   if(!/^(?:BQ-[0-9]{5}|PLT-[A-F0-9]{12})$/.test(code)){cloudStatus('Invalid basket code.');return;}
@@ -5604,6 +5611,8 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
 .basket-storage-stats span{display:block;color:var(--settings-muted,#b8c6d8);font-size:13px;margin-bottom:8px}
 .basket-storage-stats strong{display:block;font-size:24px;overflow-wrap:anywhere}
 #basketStorageRefresh{width:100%;margin-top:6px}
+.basket-storage-meter{height:10px;border-radius:999px;overflow:hidden;background:var(--settings-border,#3d5069);margin:10px 0}
+#basketStorageMeterFill{height:100%;width:0%;background:#4385f5;border-radius:999px;transition:width .2s ease}
 </style>
 <script>
 (function(){
@@ -5611,6 +5620,10 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
  const count=document.getElementById('basketStorageCount');
  const bytes=document.getElementById('basketStorageBytes');
  const refresh=document.getElementById('basketStorageRefresh');
+ const meter=document.getElementById('basketStorageMeter');
+ const fill=document.getElementById('basketStorageMeterFill');
+ // Reference only: Supabase Free database size allowance, not a dedicated basket quota.
+ const REFERENCE_DATABASE_BYTES=500*1024*1024;
  function readable(n){
    if(n<1024)return n+' B';
    if(n<1048576)return (n/1024).toFixed(1)+' KB';
@@ -5624,15 +5637,55 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
      const row=Array.isArray(result)?result[0]:result;
      const total=Number(row && row.total_bytes), n=Number(row && row.basket_count);
      if(!Number.isFinite(total)||!Number.isFinite(n)||total<0||n<0)throw Error('Invalid storage response');
-     count.textContent=n.toLocaleString();bytes.textContent=readable(total);
-     status.textContent='Saved online across all devices. Estimated basket data size.';
+     count.textContent=n.toLocaleString();bytes.textContent=readable(total)+' / '+readable(REFERENCE_DATABASE_BYTES);
+     const percent=total/REFERENCE_DATABASE_BYTES*100;
+     fill.style.width=Math.min(100,percent)+'%';
+     meter.setAttribute('aria-valuenow',String(Math.min(100,Number(percent.toFixed(3)))));
+     status.textContent=percent.toFixed(2)+'% of 500 MB reference. Basket data only; other database usage is not included. Actual plan limit may differ.';
    }catch(err){
-     count.textContent='—';bytes.textContent='—';
+     count.textContent='—';bytes.textContent='—';fill.style.width='0%';meter.setAttribute('aria-valuenow','0');
      status.textContent='Storage totals unavailable. The Supabase storage statistics function must be configured.';
    }finally{refresh.disabled=false;}
  }
  refresh.addEventListener('click',updateBasketStorage);
  document.getElementById('menuSettings').addEventListener('click',updateBasketStorage);
+ const recentList=document.getElementById('recentBasketsList');
+ const recentStatus=document.getElementById('recentBasketsStatus');
+ const recentRefresh=document.getElementById('recentBasketsRefresh');
+ async function updateRecentBaskets(){
+   recentRefresh.disabled=true;
+   recentList.textContent='Loading recent baskets…';
+   recentStatus.textContent='';
+   try{
+     const result=await palletRpc('pallet_recent_baskets',{});
+     if(!Array.isArray(result))throw Error('Invalid response');
+     recentList.replaceChildren();
+     if(!result.length){recentList.textContent='No saved baskets found.';return;}
+     for(const item of result.slice(0,5)){
+       const code=String(item.code||'').trim().toUpperCase();
+       if(!/^(BQ-[0-9]{5}|PLT-[A-F0-9]{12})$/.test(code))continue;
+       const row=document.createElement('div');row.className='recent-basket-row';
+       const name=document.createElement('strong');name.textContent=code;
+       const actions=document.createElement('div');actions.className='recent-basket-actions';
+       const copy=document.createElement('button');copy.type='button';copy.className='action';copy.textContent='Copy';
+       copy.addEventListener('click',async()=>{
+         try{await navigator.clipboard.writeText(code);recentStatus.textContent='Copied '+code;}
+         catch(e){recentStatus.textContent='Could not copy automatically. Code: '+code;}
+       });
+       const load=document.createElement('button');load.type='button';load.className='action primary';load.textContent='Load';
+       load.addEventListener('click',async()=>{
+         document.getElementById('settingsBack').click();
+         await resumeCloudBasket(code);
+         document.getElementById('basketPanel').scrollIntoView({behavior:'smooth',block:'start'});
+       });
+       actions.append(copy,load);row.append(name,actions);recentList.append(row);
+     }
+   }catch(e){recentList.textContent='Recent baskets unavailable.';recentStatus.textContent='Configure the Supabase recent baskets function.';}
+   finally{recentRefresh.disabled=false;}
+ }
+ recentRefresh.addEventListener('click',updateRecentBaskets);
+ document.getElementById('menuSettings').addEventListener('click',updateRecentBaskets);
+
 })();
 </script>
 </body>
