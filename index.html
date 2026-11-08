@@ -2557,6 +2557,16 @@ body.handover-page #handoverPage { width:100%; max-width:1100px; }
 }
 @media(max-width:400px){.header-menu-item{font-size:18px;}}
 
+
+/* One product picker with category headings; responsive and print-safe. */
+.description-product-row{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:10px;width:100%;min-width:0}
+.description-product-row input,.description-product-row select{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box!important;margin:0!important}
+.description-product-row select{font:inherit;cursor:pointer;text-transform:none;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:520px){.description-product-row{grid-template-columns:minmax(0,1fr) 44px;gap:5px}.description-product-row select{font-size:13px!important;padding-left:8px!important;padding-right:22px!important}}
+#singleProductPicker,#singleCategoryPicker{width:100%!important;max-width:none!important;min-width:0!important;padding:0 5px!important;font-size:13px!important;cursor:pointer!important}
+#singleProductPicker{appearance:none!important;-webkit-appearance:none!important;text-align:center!important;text-align-last:center!important;padding:0!important;font-size:22px!important;font-weight:700!important;line-height:1!important}
+#singleProductPicker option{font-size:16px;text-align:left}
+@media print{#singleProductPicker,#singleCategoryPicker{display:none!important}}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -3892,6 +3902,17 @@ body.theme-dark .tabs button.active {
 }
 </style>
 <style>.recent-basket-timestamp{font-size:.85rem;color:var(--muted,#afbed0);margin:5px 0 10px}</style>
+<style id="pallet-paper-title-contrast-fix">
+/* Pallet note titles must stay ink-black on white paper in every UI theme. */
+html body .sheet h2, html body .sheet .mixed-title, html body .sheet .single-title,
+html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed-title {
+  color:#111 !important;
+  -webkit-text-fill-color:#111 !important;
+  opacity:1 !important;
+  filter:none !important;
+  text-shadow:none !important;
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -3940,7 +3961,7 @@ body.theme-dark .tabs button.active {
   <section class="panel">
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
-      <label>Product / description<input id="description" list="savedProductDescriptions" autocomplete="off" placeholder="Product description" oninput="productDescriptionChanged()"></label>
+      <label>Product / description<div class="description-product-row"><input id="description" list="savedProductDescriptions" autocomplete="off" placeholder="Product description" oninput="productDescriptionChanged()"><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
       <datalist id="savedProductDescriptions"></datalist>
       <div class="single-barcode-entry">
         
@@ -4093,7 +4114,7 @@ body.theme-dark .tabs button.active {
       <div id="productDbAdmin" hidden><div class="product-manager-fields">
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
-        <label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
+        <label>Category<select id="productDbCategory"><option value="Sheet Timber">Sheet Timber</option><option value="Storage">Storage</option><option value="Decorative Aggregates">Decorative Aggregates</option><option value="Aggregates">Aggregates</option><option value="Plasterboard">Plasterboard</option><option value="Bagged Plaster">Bagged Plaster</option><option value="Compost">Compost</option><option value="Other">Other</option></select></label><label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
         <label class="expiry-toggle" style="grid-column:1/-1"><input id="productDbExpiryRequired" type="checkbox"><span>EXPIRY DATE REQUIRED</span></label>
       </div>
       <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
@@ -5225,29 +5246,44 @@ window.addEventListener('afterprint', () => {
    return data;
  }
  function setAdmin(value){byId('productDbLogin').hidden=value;byId('settingsAdminLogout').hidden=!value;byId('productDbAdmin').hidden=!value;refresh();}
- function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');byId('productDbExpiryRequired').checked=false;}
+ function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');byId('productDbExpiryRequired').checked=false;byId('productDbCategory').value='Other';}
  function refresh(){
    const list=byId('savedProductDescriptions');list.replaceChildren();
+   const picker=byId('singleProductPicker');
+   const previous=picker.value;
+   picker.replaceChildren();
+   const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='▾';picker.appendChild(placeholder);
    const output=byId('productDbList');output.replaceChildren();
    products.sort((a,b)=>normalize(a.description).localeCompare(normalize(b.description), undefined, {numeric:true, sensitivity:"base"}));
+   const categoryNames=['Sheet Timber','Storage','Decorative Aggregates','Aggregates','Plasterboard','Bagged Plaster','Compost','Other'];
+   const groups=new Map();
+   for(const category of categoryNames){const group=document.createElement('optgroup');group.label=category;groups.set(category,group);}
    products.forEach(p=>{
      const option=document.createElement('option');option.value=p.description;list.appendChild(option);
+     const category=groups.has(p.category)?p.category:'Other';const pickOption=document.createElement('option');pickOption.value=p.description;pickOption.textContent=p.description;groups.get(category).appendChild(pickOption);
      const item=document.createElement('div');item.className='product-db-item';
      const name=document.createElement('div');name.className='product-db-name';
      const strong=document.createElement('strong');strong.textContent=p.description;
      const details=document.createElement('div');details.textContent=p.barcode+' · QTY '+p.quantity+(p.expiry_required?' · EXPIRY REQUIRED':' · NO EXPIRY');
-     name.append(strong,details);item.append(name);
+     name.append(strong,details);const categoryLabel=document.createElement('div');categoryLabel.className='hint';categoryLabel.textContent='Category: '+(p.category||'Other');name.append(categoryLabel);item.append(name);
      if(password){
-       const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>{editingId=p.id;byId('productDbDescription').value=p.description;byId('productDbBarcode').value=p.barcode;byId('productDbQty').value=p.quantity;byId('productDbExpiryRequired').checked=p.expiry_required===true;byId('productDbDescription').focus();};
+       const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>{editingId=p.id;byId('productDbDescription').value=p.description;byId('productDbBarcode').value=p.barcode;byId('productDbQty').value=p.quantity;byId('productDbExpiryRequired').checked=p.expiry_required===true;byId('productDbCategory').value=p.category||'Other';byId('productDbDescription').focus();};
        const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.onclick=async()=>{if(!confirm('Remove '+p.description+'?'))return;try{await request('DELETE',{id:p.id});await load();status('Product removed.');}catch(e){status(e.message);}};
        item.append(edit,remove);
      }
      output.appendChild(item);
    });
+   for(const group of groups.values())if(group.children.length)picker.appendChild(group);
+   picker.value=previous && products.some(p=>p.description===previous)?previous:'';
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
  }
  async function load(){try{const data=await request();products=data.products||[];refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
  window.reloadProductDatabase=load;
+ byId('singleProductPicker').addEventListener('change',function(){
+   if(!this.value)return;
+   byId('description').value=this.value;
+   window.productDescriptionChanged();
+ });
  window.productDescriptionChanged=function(){
    const description=normalize(byId('description').value);
    const product=products.find(p=>normalize(p.description)===description);
@@ -5281,7 +5317,7 @@ window.addEventListener('afterprint', () => {
    const description=normalize(byId('productDbDescription').value);
    const barcode=byId('productDbBarcode').value.trim();const quantity=Number(byId('productDbQty').value.trim());
    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^\d{1,3}$/.test(byId('productDbQty').value.trim())){status('Enter description, numeric barcode (up to 13 digits), and quantity (up to 3 digits).');return;}
-   try{await request(editingId===null?'POST':'PUT',{...(editingId===null?{}:{id:editingId}),description,barcode,quantity,expiry_required:byId('productDbExpiryRequired').checked});await load();status('Product saved for all devices.');clearFields();}
+   try{await request(editingId===null?'POST':'PUT',{...(editingId===null?{}:{id:editingId}),description,barcode,quantity,expiry_required:byId('productDbExpiryRequired').checked,category:byId('productDbCategory').value});await load();status('Product saved for all devices.');clearFields();}
    catch(e){status(e.message);}
  };
  byId('clearProductDb').onclick=()=>{clearFields();status('');};
