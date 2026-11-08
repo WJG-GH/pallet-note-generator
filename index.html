@@ -2457,6 +2457,106 @@ html body .sheet .location-docket-description-value {
 .product-request-item .actions{margin:10px 0 0}
 @media(prefers-color-scheme:dark){.product-request-section,.product-request-item{border-color:#465a71}.product-request-section input{background:#142233;color:#f1f5f9;border-color:#52667e}}
 @media print{.product-request-section,#productRequestAdmin{display:none!important}}
+
+/* Dedicated Product Database view (single HTML app, no separate hosting route). */
+@media screen {
+  body.database-page main > :not(#productDatabasePanel) { display:none!important; }
+  body.database-page #productDatabasePanel { display:block!important; margin-top:0; }
+}
+.database-page-heading { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.database-page-heading h2 { margin:0; font-size:22px; }
+.database-page-heading .action { white-space:nowrap; }
+@media(max-width:560px) { .database-page-heading { align-items:stretch; flex-direction:column; gap:12px; } }
+@media print { .database-page-heading { display:none!important; } }
+/* Header navigation: product database accessed through hamburger menu. */
+.site-header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:1100px;margin:auto}
+.site-header-row h1{margin:0}
+.header-menu{position:relative;flex:none}
+.header-menu-button{display:flex;align-items:center;justify-content:center;width:46px;height:44px;border:1px solid #738397;border-radius:9px;background:#29394b;color:#fff;cursor:pointer;font-size:27px;line-height:1}
+.header-menu-button:focus-visible,.header-menu-item:focus-visible{outline:3px solid #79b7ff;outline-offset:2px}
+.header-menu-popover{position:absolute;right:0;top:calc(100% + 9px);z-index:1000;min-width:230px;background:#fff;border:1px solid #bdc8d5;border-radius:10px;box-shadow:0 12px 30px #0004;padding:6px}
+.header-menu-item{display:block;width:100%;padding:13px 14px;border:0;border-radius:7px;background:transparent;color:#17212b;text-align:left;font:700 15px Arial,Helvetica,sans-serif;cursor:pointer}
+.header-menu-item:hover{background:#e9f0f8}
+#toggleProductDatabase{display:none!important}
+@media print{.header-menu{display:none!important}}
+
+
+/* Refined compact, dark hamburger popover; visually integrated with the site header. */
+.header-menu-popover {
+  box-sizing:border-box; width:min(310px, calc(100vw - 32px)); min-width:0;
+  top:calc(100% + 12px); right:0; padding:10px;
+  background:#1c2a3c; border:1px solid #465a74; border-radius:15px;
+  box-shadow:0 18px 42px rgba(0,0,0,.38);
+}
+.header-menu-caption { padding:6px 11px 9px; color:#a8b9d0; font:700 11px Arial,sans-serif; letter-spacing:1.5px; }
+.header-menu-item {
+  display:flex; align-items:center; gap:11px; width:100%; min-height:52px;
+  padding:9px 11px; margin:0; border:0; border-radius:10px;
+  background:transparent; color:#f4f7ff; text-align:left;
+  font:700 14px Arial,Helvetica,sans-serif; text-transform:none;
+}
+.header-menu-item + .header-menu-item { margin-top:4px; }
+.header-menu-item:hover, .header-menu-item:focus-visible { background:#314660; }
+.header-menu-item-icon {
+  display:grid; place-items:center; flex:0 0 34px; width:34px; height:34px;
+  background:#30445e; border:1px solid #4c6482; border-radius:9px;
+  color:#a8cbff; font-size:21px; font-weight:600;
+}
+.header-menu-chevron { margin-left:auto; color:#a7b8cf; font-size:25px; font-weight:400; }
+.header-menu-button[aria-expanded="true"] { background:#3b516c; border-color:#8aa4c4; }
+.handover-wip-banner[hidden]{display:none!important}
+.handover-wip-banner {
+  display:flex; align-items:flex-start; gap:12px; margin:3px 0 18px;
+  padding:13px 15px; border:1px solid #a78138; border-radius:12px;
+  background:#352c1e; color:#ffe8b1; box-sizing:border-box;
+}
+.handover-wip-dot { flex:0 0 10px; width:10px; height:10px; margin-top:5px; border-radius:50%; background:#f5bd52; box-shadow:0 0 0 4px rgba(245,189,82,.13); }
+.handover-wip-banner div { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.handover-wip-banner strong { font:800 13px Arial,sans-serif; letter-spacing:.9px; }
+.handover-wip-banner div span { color:#e8d4ad; font:14px/1.4 Arial,sans-serif; }
+@media(max-width:560px) { .header-menu-popover { right:0; } }
+@media print { .handover-wip-banner { display:none!important; } }
+
+/* Handover is isolated in an embedded document so its styles, scripts and print rules cannot alter pallet notes. */
+body.handover-page > main, body.handover-page > #productDatabasePanel { display:none!important; }
+#handoverPage[hidden] { display:none!important; }
+#handoverPage { max-width:1100px; margin:0 auto; padding:14px 12px 24px; }
+#handoverBack { padding:11px 15px; margin:0 0 12px; border:1px solid #71839b; border-radius:9px; background:#29394b; color:white; font:700 15px Arial,sans-serif; cursor:pointer; }
+#handoverFrame { display:block; width:100%; height:900px; min-height:0; border:0; border-radius:12px; background:transparent; overflow:hidden; }
+/* Dedicated full-page handover: scroll the website, not a nested iframe. */
+body.handover-page { overflow-y:auto; }
+body.handover-page #handoverPage { width:100%; max-width:1100px; }
+@media print { body.handover-page > header, body.handover-page > #handoverPage { display:none!important; } }
+
+/* iOS-style translucent hamburger dropdown, matching vendor picker. */
+.header-menu-popover {
+  right:0; top:calc(100% + 10px);
+  width:min(300px, calc(100vw - 30px)); min-width:0;
+  padding:7px 0; overflow:hidden;
+  background:rgba(49,63,82,.96);
+  -webkit-backdrop-filter:blur(24px) saturate(135%);
+  backdrop-filter:blur(24px) saturate(135%);
+  border:1px solid rgba(180,195,214,.23);
+  border-radius:25px;
+  box-shadow:0 18px 45px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.12);
+}
+.header-menu-caption,.header-menu-item-icon,.header-menu-chevron { display:none!important; }
+.header-menu-item {
+  display:flex; align-items:center; width:100%; min-height:62px;
+  margin:0!important; padding:15px 24px;
+  border:0; border-radius:0; background:transparent;
+  color:#f6f7fb; text-align:left;
+  font:400 20px/1.25 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  text-transform:none;
+}
+.header-menu-item + .header-menu-item {
+  border-top:1px solid rgba(225,233,243,.15);
+}
+.header-menu-item:hover,.header-menu-item:focus-visible,.header-menu-item:active {
+  background:rgba(255,255,255,.12);
+}
+@media(max-width:400px){.header-menu-item{font-size:18px;}}
+
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -3732,9 +3832,71 @@ html body.printing-basket #basketPrint .sheet .mixed-code > span {
   paint-order:stroke fill!important;
 }
 </style>
+<style id="saved-basket-code-contrast-fix">
+/* Keep the saved basket reference legible in both light and dark themes. */
+@media screen {
+  #cloudBasketCodeBox { background:#f8fafc!important; color:#172334!important; border-color:#cbd5e1!important; color-scheme:light!important; }
+  #cloudBasketCodeBox > div, #cloudBasketCodeBox strong, #cloudBasketCodeBox #cloudBasketCode { color:#172334!important; }
+  #cloudBasketCodeBox p.hint { color:#475569!important; }
+  #cloudBasketCodeBox #copyCloudBasketCodeButton { background:#293c51!important; color:#fff!important; border-color:#52677f!important; }
+}
+</style>
+<style id="header-icon-alignment-fix">
+/* Remove the decorative symbol before the page title. */
+body > header h1::before { content:none!important; display:none!important; }
+/* Centre the menu artwork without relying on font glyph baseline. */
+body > header .header-menu-button { display:grid!important; place-items:center!important; padding:0!important; line-height:0!important; flex-shrink:0; }
+body > header .header-menu-icon { display:block; width:24px; height:24px; margin:0; padding:0; }
+</style>
+<style>
+/* Full-width navigation buttons on every secondary page. */
+#settingsBack, #handoverBack, #backToGenerator {
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:none;
+  text-align:center;
+}
+.database-page-heading { align-items:stretch; }
+.database-page-heading #backToGenerator { flex:0 0 100%; }
+@media print { #settingsBack, #handoverBack, #backToGenerator { display:none!important; } }
+</style>
+<style id="dark-tab-active-consistency">
+/* Match the selected tab to the dark interface rather than using a white tile. */
+body.theme-dark .tabs button.active {
+  background:#304761!important;
+  color:#f2f6ff!important;
+  border:1px solid #6483a8!important;
+  box-shadow:inset 0 0 0 1px #435d7b,0 2px 8px #0002!important;
+}
+</style>
 </head>
 <body>
-<header><h1>PALLET NOTE GENERATOR</h1></header>
+<header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
+<section id="taskDatabasePage" hidden style="display:none!important"><button id="taskDatabaseBack" hidden></button></section>
+<section id="settingsPage" hidden aria-label="Settings">
+  <button type="button" id="settingsBack">← Back to generator</button>
+  <h2>SETTINGS</h2>
+  <div class="settings-card"><h3>Appearance</h3>
+  <label for="settingsTheme" class="settings-field-label">Colour theme</label>
+  <select id="settingsTheme" aria-label="Colour theme"><option value="system">Follow device setting</option><option value="light">Light mode</option><option value="dark">Dark mode</option></select>
+</div>
+  <div class="settings-card"><h3>Admin</h3>
+  <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div>
+  <div id="settingsAdminLogout" hidden><button class="action" id="productDbLogoutButton" type="button" style="display:block;width:100%;margin-bottom:10px">LOG OUT</button></div>
+  </div>
+  <div class="settings-card" id="basketStorageCard">
+    <h3>Basket Storage</h3>
+    <div class="basket-storage-stats">
+      <div><span>Saved baskets</span><strong id="basketStorageCount">—</strong></div>
+      <div><span>Total storage used</span><strong id="basketStorageBytes">—</strong></div>
+    </div>
+    <p id="basketStorageStatus" role="status" aria-live="polite">Loading storage information…</p>
+    <button class="action" id="basketStorageRefresh" type="button">Refresh</button>
+  </div>
+  <div class="settings-card"><h3>Version</h3><p><strong>1.0.0</strong></p></div>
+</section>
+<section id="handoverPage" hidden style="display:none!important"><button id="handoverBack" hidden></button><iframe id="handoverFrame" hidden></iframe></section>
 <main>
   <div class="tabs" role="tablist">
     <button id="singleTab" class="active" type="button">SINGLE</button>
@@ -3874,7 +4036,8 @@ html body.printing-basket #basketPrint .sheet .mixed-code > span {
       <button class="action" type="button" id="clearBasketButton">Empty basket</button>
     </div>
   </section>
-  <section class="panel" id="productDatabasePanel">
+  <section class="panel" id="productDatabasePanel" hidden>
+    <div class="database-page-heading"><button type="button" id="backToGenerator" class="action">← Back to generator</button><h2>PRODUCT DATABASE</h2></div>
     <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">PRODUCT DATABASE ▾</button>
     <div id="productDatabaseBody" hidden style="padding-top:16px">
       <section class="product-request-section" aria-label="Request a product">
@@ -3884,10 +4047,8 @@ html body.printing-basket #basketPrint .sheet .mixed-code > span {
           <div class="product-manager-fields">
             <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
             <label>Product barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE" required pattern="[0-9]{1,13}"></label>
-            <label>QTY<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
-            <label class="expiry-toggle" style="grid-column:1/-1"><input id="requestProductExpiryRequired" type="checkbox"><span>EXPIRY REQUIRED</span></label>
+            <label>Qty<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
           </div>
-          <p id="requestBarcodeDuplicate" class="hint" role="status" aria-live="polite" style="font-weight:700" hidden></p>
           <button class="action primary" id="submitProductRequest" type="submit" style="width:100%;margin-top:12px">Submit for approval</button>
         </form>
         <p id="productRequestMessage" class="hint" role="status" aria-live="polite"></p>
@@ -3896,7 +4057,7 @@ html body.printing-basket #basketPrint .sheet .mixed-code > span {
         <h3 style="margin:16px 0 8px">Pending product requests <span id="pendingRequestCount"></span></h3>
         <div id="pendingProductRequests"></div>
       </div>
-      <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div><div id="productDbAdmin" hidden><button class="action" id="productDbLogoutButton" type="button" style="display:block;width:100%;margin-bottom:10px">LOG OUT</button><div class="product-manager-fields">
+      <div id="productDbAdmin" hidden><div class="product-manager-fields">
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
         <label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
@@ -5030,7 +5191,7 @@ window.addEventListener('afterprint', () => {
    if(!response.ok)throw Error(data.error||'Server error ('+response.status+')');
    return data;
  }
- function setAdmin(value){byId('productDbLogin').hidden=value;byId('productDbAdmin').hidden=!value;refresh();}
+ function setAdmin(value){byId('productDbLogin').hidden=value;byId('settingsAdminLogout').hidden=!value;byId('productDbAdmin').hidden=!value;refresh();}
  function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');byId('productDbExpiryRequired').checked=false;}
  function refresh(){
    const list=byId('savedProductDescriptions');list.replaceChildren();
@@ -5137,51 +5298,15 @@ document.addEventListener('input', function(event) {
     const form=el('productRequestForm');form.hidden=!form.hidden;
     el('toggleProductRequest').setAttribute('aria-expanded',String(!form.hidden));
   });
-  const barcodeInput=el('requestProductBarcode');
-  const duplicateNotice=el('requestBarcodeDuplicate');
-  const submitButton=el('submitProductRequest');
-  let checkVersion=0;
-  async function checkBarcode(){
-    const version=++checkVersion;
-    const barcode=barcodeInput.value.trim();
-    duplicateNotice.hidden=true;
-    submitButton.disabled=false;
-    if(!/^\d{1,13}$/.test(barcode))return false;
-    duplicateNotice.hidden=false;
-    duplicateNotice.textContent='Checking barcode…';
-    submitButton.disabled=true;
-    try{
-      const result=await api('POST',{action:'check-barcode',barcode});
-      if(version!==checkVersion)return true;
-      if(result.duplicate){
-        duplicateNotice.textContent=result.reason==='existing'?'DUPLICATE: This barcode already exists in the Product Database.':'DUPLICATE: A request for this barcode is already pending approval.';
-        duplicateNotice.style.color='#e77b7b';
-        submitButton.disabled=true;
-        return true;
-      }
-      duplicateNotice.textContent='Barcode available for request.';
-      duplicateNotice.style.color='';
-      submitButton.disabled=false;
-      return false;
-    }catch(err){
-      if(version!==checkVersion)return true;
-      duplicateNotice.textContent='Could not verify barcode. Please try again.';
-      duplicateNotice.style.color='#e77b7b';
-      submitButton.disabled=true;
-      return true;
-    }
-  }
-  barcodeInput.addEventListener('input',()=>{checkBarcode();});
   el('productRequestForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const description=el('requestProductDescription').value.trim().replace(/\s+/g,' ').toUpperCase();
     const barcode=el('requestProductBarcode').value.trim();
     const quantity=el('requestProductQty').value.trim();
     const message=el('productRequestMessage');
-    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and QTY (1–999).';return;}
-    if(await checkBarcode()){message.textContent='Resolve the duplicate barcode warning before submitting.';return;}
+    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and pallet quantity (1–999).';return;}
     const button=el('submitProductRequest');button.disabled=true;message.textContent='Submitting request…';
-    try{await api('POST',{description,barcode,quantity:Number(quantity),expiry_required:el('requestProductExpiryRequired').checked});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();duplicateNotice.hidden=true;++checkVersion;}
+    try{await api('POST',{description,barcode,quantity:Number(quantity)});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
     catch(err){message.textContent='Could not submit: '+err.message;}
     finally{button.disabled=false;}
   });
@@ -5197,7 +5322,7 @@ document.addEventListener('input', function(event) {
       for(const request of requests){
         const card=document.createElement('div');card.className='product-request-item';
         const title=document.createElement('strong');title.textContent=request.description;
-        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · QTY: '+request.quantity+(request.expiry_required?' · EXPIRY REQUIRED':' · NO EXPIRY');
+        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · Pallet QTY: '+request.quantity;
         const actions=document.createElement('div');actions.className='actions';
         for(const [action,label] of [['approve','Approve'],['decline','Decline']]){
           const btn=document.createElement('button');btn.type='button';btn.className='action'+(action==='approve'?' primary':'');btn.textContent=label;
@@ -5220,6 +5345,294 @@ document.addEventListener('input', function(event) {
     document.addEventListener('product-db-admin-login',listener,{once:true});
   });
   el('productDbLogoutButton').addEventListener('click',()=>{adminPassword='';el('productRequestAdmin').hidden=true;});
+})();
+</script>
+
+<script>
+/* Header menu and dedicated product database view; preserve existing manager handlers. */
+(function(){
+  const menuButton=document.getElementById('headerMenuButton');
+  const popover=document.getElementById('headerMenuPopover');
+  const databaseLink=document.getElementById('menuProductDatabase');
+  const panel=document.getElementById('productDatabasePanel');
+  const body=document.getElementById('productDatabaseBody');
+  const existingToggle=document.getElementById('toggleProductDatabase');
+  function closeMenu(){popover.hidden=true;menuButton.setAttribute('aria-expanded','false');}
+  menuButton.addEventListener('click',function(e){e.stopPropagation();popover.hidden=!popover.hidden;menuButton.setAttribute('aria-expanded',String(!popover.hidden));});
+  databaseLink.addEventListener('click',function(){
+    closeMenu();document.getElementById('handoverPage').hidden=true;document.body.classList.remove('handover-page');panel.hidden=false;
+    document.body.classList.add('database-page');
+    if(body.hidden){existingToggle.click();}
+    window.scrollTo({top:0,behavior:'instant'});
+  });
+  /* Resize the isolated handover document to its complete content height.
+     This makes Handover a normal, independently scrolling page like Product Database. */
+  const handoverFrame=document.getElementById('handoverFrame');
+  let handoverObserver;
+  function resizeHandover(){
+    try {
+      const doc=handoverFrame.contentDocument;
+      if(!doc || !doc.body) return;
+      const height=Math.max(doc.body.scrollHeight,doc.documentElement.scrollHeight);
+      if(height>0) handoverFrame.style.height=(height+8)+'px';
+    } catch(e) { /* Retain fallback iframe height if browser blocks access. */ }
+  }
+  handoverFrame.addEventListener('load',function(){
+    try {
+      const doc=handoverFrame.contentDocument;
+      doc.documentElement.style.overflow='hidden';
+      doc.body.style.overflow='hidden';
+      if(handoverObserver) handoverObserver.disconnect();
+      handoverObserver=new ResizeObserver(resizeHandover);
+      handoverObserver.observe(doc.body);
+      handoverObserver.observe(doc.documentElement);
+      doc.addEventListener('input',resizeHandover);
+      doc.addEventListener('click',function(){requestAnimationFrame(resizeHandover)});
+      resizeHandover();
+    } catch(e) { /* Fall back to embedded view. */ }
+  });
+  document.getElementById('menuGenerateHandover').addEventListener('click',function(){
+    closeMenu();panel.hidden=true;document.body.classList.remove('database-page');
+    document.body.classList.add('handover-page');document.getElementById('handoverPage').hidden=false;
+    resizeHandover();window.scrollTo(0,0);
+  });
+  document.getElementById('handoverBack').addEventListener('click',function(){
+    document.getElementById('handoverPage').hidden=true;document.body.classList.remove('handover-page');window.scrollTo(0,0);
+  });
+  document.getElementById('backToGenerator').addEventListener('click',function(){
+    document.body.classList.remove('database-page');
+    panel.hidden=true;
+    window.scrollTo({top:0,behavior:'instant'});
+  });
+  document.addEventListener('click',function(e){if(!e.target.closest('.header-menu'))closeMenu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});
+})();
+</script>
+
+<style>
+#settingsPage[hidden]{display:none!important}
+body.settings-page > main,body.settings-page > #handoverPage{display:none!important}
+#settingsPage{max-width:1100px;margin:0 auto;padding:18px 20px 40px;color:#f1f5f9}
+#settingsPage h2{font-size:26px;margin:22px 0}
+#settingsBack{padding:11px 15px;border:1px solid #71839b;border-radius:9px;background:#29394b;color:white;font:700 15px Arial,sans-serif}
+.settings-card{background:#1c2838;border:1px solid #3d5069;border-radius:15px;padding:20px;margin:18px 0}
+.settings-card h3{margin:0 0 16px;font-size:19px}.settings-card p{color:#b8c6d8;line-height:1.5}
+.settings-check{display:flex;align-items:center;gap:12px;line-height:1.5}.settings-check input{width:21px;height:21px;flex:none}
+body.settings-page .database-page-heading{display:none!important}
+@media print{#settingsPage{display:none!important}}
+</style>
+<style>
+/* Native iOS/Android picker: the select itself receives the tap. */
+.header-menu { position:relative; }
+.header-menu-button { pointer-events:none; }
+#nativeHeaderMenu {
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; z-index:1100; cursor:pointer;
+  appearance:auto; -webkit-appearance:menulist;
+  font-size:16px;
+}
+#nativeHeaderMenu:focus-visible { outline:2px solid #79b7ff; outline-offset:3px; opacity:.01; }
+/* Keep legacy menu present for existing navigation scripts, but never display it. */
+.header-menu-popover { display:none!important; }
+</style>
+<script>
+(function(){
+ const page=document.getElementById('settingsPage');
+ document.getElementById('menuSettings').addEventListener('click',()=>{
+   document.getElementById('handoverPage').hidden=true;
+   document.getElementById('productDatabasePanel').hidden=true;
+   document.body.classList.remove('handover-page','database-page');
+   page.hidden=false;document.body.classList.add('settings-page');window.scrollTo(0,0);
+ });
+ document.getElementById('settingsBack').addEventListener('click',()=>{
+   page.hidden=true;document.body.classList.remove('settings-page');window.scrollTo(0,0);
+ });
+ for(const id of ['menuProductDatabase','menuGenerateHandover'])document.getElementById(id).addEventListener('click',()=>{
+   page.hidden=true;document.body.classList.remove('settings-page');
+ },{capture:true});
+})();
+</script>
+<script>
+(function(){
+  const wrapper = document.querySelector('.header-menu');
+  if (!wrapper) return;
+  const select = document.createElement('select');
+  select.id = 'nativeHeaderMenu';
+  select.setAttribute('aria-label', 'Open navigation menu');
+  wrapper.appendChild(select);
+
+  const pages = [
+    ['generator', 'Pallet Note Generator'],
+    ['database', 'Product Database'],
+    ['settings', 'Settings']
+  ];
+  function currentPage() {
+    if (document.body.classList.contains('tasks-page')) return 'tasks';
+    if (document.body.classList.contains('settings-page')) return 'settings';
+    if (document.body.classList.contains('handover-page')) return 'handover';
+    if (document.body.classList.contains('database-page')) return 'database';
+    return 'generator';
+  }
+  function updateOptions() {
+    const current = currentPage();
+    select.replaceChildren();
+    pages.forEach(([id, label], index) => {
+      if (index === 1 || index === 2) {
+        const divider = new Option('—', 'divider-' + index);
+        divider.disabled = true;
+        select.add(divider);
+      }
+      select.add(new Option(label, id));
+    });
+    select.value = current;
+  }
+  updateOptions();
+  new MutationObserver(updateOptions).observe(document.body, {attributes:true, attributeFilter:['class']});
+  select.addEventListener('pointerdown', updateOptions);
+  select.addEventListener('focus', updateOptions);
+  select.addEventListener('change', function() {
+    const choice = select.value;
+    if (choice === currentPage()) return;
+    if (choice === 'database') document.getElementById('menuProductDatabase')?.click();
+    else if (choice === 'handover') document.getElementById('menuGenerateHandover')?.click();
+    else if (choice === 'settings') document.getElementById('menuSettings')?.click();
+    else if (choice === 'tasks') document.getElementById('menuTaskDatabase')?.click();
+    else if (choice === 'generator') {
+      if (currentPage() === 'tasks') document.getElementById('taskDatabaseBack')?.click();
+      else if (currentPage() === 'settings') document.getElementById('settingsBack')?.click();
+      else
+      if (currentPage() === 'handover') document.getElementById('handoverBack')?.click();
+      else document.getElementById('backToGenerator')?.click();
+    }
+    updateOptions();
+  });
+})();
+</script>
+
+<style>
+#taskDatabasePage[hidden]{display:none!important}
+body.tasks-page > main,body.tasks-page > #handoverPage,body.tasks-page > #settingsPage{display:none!important}
+#taskDatabasePage{max-width:1100px;margin:0 auto;padding:18px 20px 48px;color:var(--settings-ink,#f1f5f9)}
+#taskDatabasePage h2{font-size:26px;margin:24px 0 28px}
+#taskDatabaseBack{display:block;width:100%;box-sizing:border-box;text-align:center;background:var(--settings-button,#29394b);color:var(--settings-ink,#fff);border:1px solid #526982;border-radius:10px;padding:13px 18px;font:inherit;font-weight:700;cursor:pointer}
+.task-database-wip{display:flex;align-items:flex-start;gap:14px;background:#352c1c;color:#f8dfa5;border:1px solid #b6852b;border-radius:13px;padding:20px;font-size:16px}
+.task-database-wip strong{font-weight:800;letter-spacing:.06em}
+.task-database-wip p{margin:8px 0 0;line-height:1.5}
+.task-database-dot{width:12px;height:12px;flex:none;border-radius:50%;background:#f8bf4e;margin-top:6px}
+@media print{#taskDatabasePage{display:none!important}}
+</style>
+<script>
+(function(){
+  const page=document.getElementById('taskDatabasePage');
+  const close=()=>{page.hidden=true;document.body.classList.remove('tasks-page')};
+  document.getElementById('menuTaskDatabase').addEventListener('click',()=>{
+    document.getElementById('handoverPage').hidden=true;
+    document.getElementById('settingsPage').hidden=true;
+    document.getElementById('productDatabasePanel').hidden=true;
+    document.body.classList.remove('handover-page','settings-page','database-page');
+    page.hidden=false;document.body.classList.add('tasks-page');window.scrollTo(0,0);
+  });
+  document.getElementById('taskDatabaseBack').addEventListener('click',()=>{close();window.scrollTo(0,0)});
+  ['menuProductDatabase','menuGenerateHandover','menuSettings'].forEach(id=>document.getElementById(id).addEventListener('click',close,{capture:true}));
+})();
+</script>
+<style id="settings-appearance-style">
+#settingsPage .settings-field-label{display:block;font-weight:700;margin:4px 0 8px;color:inherit}
+#settingsTheme{width:100%;max-width:440px;min-height:46px;padding:10px 12px;border:1px solid #74869b;border-radius:9px;background:#29394b;color:#fff;font:inherit}
+body.settings-page #settingsPage{color:var(--settings-ink,#f1f5f9)}
+body.settings-page .settings-card{background:var(--settings-card,#1c2838);border-color:var(--settings-border,#3d5069)}
+body.settings-page .settings-card p{color:var(--settings-muted,#b8c6d8)}
+body.settings-page #settingsBack{background:var(--settings-button,#29394b);color:var(--settings-ink,#fff)}
+body.settings-page #settingsTheme{background:var(--settings-button,#29394b);color:var(--settings-ink,#fff)}
+body.theme-light{--settings-ink:#17212b;--settings-card:#fff;--settings-border:#d9dee4;--settings-muted:#586473;--settings-button:#f0f3f7}
+body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border:#3d5069;--settings-muted:#b8c6d8;--settings-button:#29394b}
+@media print{#settingsPage{display:none!important}}
+</style>
+<script id="settings-appearance-script">
+(function(){
+  const picker=document.getElementById('settingsTheme');
+  const storageKey='png-appearance-mode';
+  const darkQuery=window.matchMedia('(prefers-color-scheme: dark)');
+  let preference='system';
+  try{const stored=localStorage.getItem(storageKey);if(['system','light','dark'].includes(stored))preference=stored;}catch(e){}
+  picker.value=preference;
+  // Only alter existing dark-theme media rules. No print or docket rules are changed.
+  const darkRules=[];
+  function gather(rules){
+    for(const rule of Array.from(rules||[])){
+      if(rule.type===CSSRule.MEDIA_RULE && /prefers-color-scheme\s*:\s*dark/.test(rule.conditionText||rule.media.mediaText)){
+        darkRules.push(rule);
+      } else if(rule.cssRules) gather(rule.cssRules);
+    }
+  }
+  for(const sheet of Array.from(document.styleSheets)){
+    try{gather(sheet.cssRules);}catch(e){}
+  }
+  function apply(){
+    const dark=preference==='dark'||(preference==='system'&&darkQuery.matches);
+    document.body.classList.toggle('theme-dark',dark);
+    document.body.classList.toggle('theme-light',!dark);
+    document.documentElement.style.colorScheme=dark?'dark':'light';
+    for(const rule of darkRules){try{rule.media.mediaText=dark?'screen':'not all';}catch(e){}}
+    // Keep the isolated handover iframe in the selected appearance as well.
+    const frame=document.getElementById('handoverFrame');
+    try{
+      const doc=frame?.contentDocument;
+      if(doc?.body){
+        doc.body.classList.toggle('dark',dark);
+        doc.documentElement.style.colorScheme=dark?'dark':'light';
+        const themeButton=doc.getElementById('theme');
+        if(themeButton)themeButton.textContent=dark?'Light mode':'Dark mode';
+      }
+    }catch(e){}
+  }
+  picker.addEventListener('change',()=>{
+    preference=picker.value;
+    try{localStorage.setItem(storageKey,preference);}catch(e){}
+    apply();
+  });
+  if(darkQuery.addEventListener)darkQuery.addEventListener('change',()=>{if(preference==='system')apply();});
+  const frame=document.getElementById('handoverFrame');
+  if(frame)frame.addEventListener('load',apply);
+  apply();
+})();
+</script>
+
+<style id="basket-storage-style">
+.basket-storage-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+.basket-storage-stats>div{padding:14px;border:1px solid var(--settings-border,#3d5069);border-radius:10px;min-width:0}
+.basket-storage-stats span{display:block;color:var(--settings-muted,#b8c6d8);font-size:13px;margin-bottom:8px}
+.basket-storage-stats strong{display:block;font-size:24px;overflow-wrap:anywhere}
+#basketStorageRefresh{width:100%;margin-top:6px}
+</style>
+<script>
+(function(){
+ const status=document.getElementById('basketStorageStatus');
+ const count=document.getElementById('basketStorageCount');
+ const bytes=document.getElementById('basketStorageBytes');
+ const refresh=document.getElementById('basketStorageRefresh');
+ function readable(n){
+   if(n<1024)return n+' B';
+   if(n<1048576)return (n/1024).toFixed(1)+' KB';
+   return (n/1048576).toFixed(2)+' MB';
+ }
+ async function updateBasketStorage(){
+   if(!window.PALLET_SUPABASE_URL && typeof PALLET_SUPABASE_URL==='undefined')return;
+   refresh.disabled=true;status.textContent='Loading storage information…';
+   try{
+     const result=await palletRpc('pallet_basket_storage_stats',{});
+     const row=Array.isArray(result)?result[0]:result;
+     const total=Number(row && row.total_bytes), n=Number(row && row.basket_count);
+     if(!Number.isFinite(total)||!Number.isFinite(n)||total<0||n<0)throw Error('Invalid storage response');
+     count.textContent=n.toLocaleString();bytes.textContent=readable(total);
+     status.textContent='Saved online across all devices. Estimated basket data size.';
+   }catch(err){
+     count.textContent='—';bytes.textContent='—';
+     status.textContent='Storage totals unavailable. The Supabase storage statistics function must be configured.';
+   }finally{refresh.disabled=false;}
+ }
+ refresh.addEventListener('click',updateBasketStorage);
+ document.getElementById('menuSettings').addEventListener('click',updateBasketStorage);
 })();
 </script>
 </body>
