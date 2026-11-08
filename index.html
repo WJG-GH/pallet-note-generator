@@ -2567,8 +2567,6 @@ body.handover-page #handoverPage { width:100%; max-width:1100px; }
 #singleProductPicker{appearance:none!important;-webkit-appearance:none!important;text-align:center!important;text-align-last:center!important;padding:0!important;font-size:22px!important;font-weight:700!important;line-height:1!important}
 #singleProductPicker option{font-size:16px;text-align:left}
 @media print{#singleProductPicker,#singleCategoryPicker{display:none!important}}
-.description-autocomplete{position:relative;min-width:0;width:100%}
-.description-autocomplete>input{width:100%!important}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -3963,7 +3961,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   <section class="panel">
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
-      <label>Product / description<div class="description-product-row"><div class="description-autocomplete"><input id="description" name="product-description" type="text" autocomplete="on" autocorrect="on" spellcheck="true" autocapitalize="characters" placeholder="Product description" oninput="productDescriptionChanged()"></div><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
+      <label>Product / description<div class="description-product-row"><input id="description" list="savedProductDescriptions" autocomplete="off" placeholder="Product description" oninput="productDescriptionChanged()"><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
       <datalist id="savedProductDescriptions"></datalist>
       <div class="single-barcode-entry">
         
