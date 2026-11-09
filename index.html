@@ -2567,6 +2567,11 @@ body.handover-page #handoverPage { width:100%; max-width:1100px; }
 #singleProductPicker{appearance:none!important;-webkit-appearance:none!important;text-align:center!important;text-align-last:center!important;padding:0!important;font-size:22px!important;font-weight:700!important;line-height:1!important}
 #singleProductPicker option{font-size:16px;text-align:left}
 @media print{#singleProductPicker,#singleCategoryPicker{display:none!important}}
+
+/* Mobile-friendly product database category picker */
+#productDbAdmin .product-manager-fields > .product-category-field {grid-column:1/-1!important;min-width:0!important;}
+#productDbCategory {display:block;width:100%!important;max-width:100%!important;min-width:0!important;min-height:52px!important;padding:12px 42px 12px 14px!important;font-size:16px!important;font-weight:600!important;box-sizing:border-box!important;text-overflow:ellipsis;}
+#productDbAdmin .product-manager-fields > label:has(#productDbQty) {grid-column:1/-1!important;}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -4133,7 +4138,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
       <div id="productDbAdmin" hidden><div class="product-manager-fields">
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
-        <label>Category<select id="productDbCategory"><option value="Sheet Timber">Sheet Timber</option><option value="Storage">Storage</option><option value="Decorative Aggregates">Decorative Aggregates</option><option value="Aggregates">Aggregates</option><option value="Plasterboard">Plasterboard</option><option value="Bagged Plaster">Bagged Plaster</option><option value="Compost">Compost</option><option value="Other">Other</option></select></label><label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
+        <label class="product-category-field">Category<select id="productDbCategory"><option value="Sheet Timber">Sheet Timber</option><option value="Storage">Storage</option><option value="Decorative Aggregates">Decorative Aggregates</option><option value="Aggregates">Aggregates</option><option value="Plasterboard">Plasterboard</option><option value="Bagged Plaster">Bagged Plaster</option><option value="Compost">Compost</option><option value="Winter Fuel">Winter Fuel</option><option value="Other">Other</option></select></label><label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
         <label class="expiry-toggle" style="grid-column:1/-1"><input id="productDbExpiryRequired" type="checkbox"><span>EXPIRY DATE REQUIRED</span></label>
       </div>
       <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
@@ -5273,7 +5278,7 @@ window.addEventListener('afterprint', () => {
    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='▾';picker.appendChild(placeholder);
    const output=byId('productDbList');output.replaceChildren();
    products.sort((a,b)=>normalize(a.description).localeCompare(normalize(b.description), undefined, {numeric:true, sensitivity:"base"}));
-   const categoryNames=['Sheet Timber','Storage','Decorative Aggregates','Aggregates','Plasterboard','Bagged Plaster','Compost','Other'];
+   const categoryNames=['Sheet Timber','Storage','Decorative Aggregates','Aggregates','Plasterboard','Bagged Plaster','Compost','Winter Fuel','Other'];
    const groups=new Map();
    for(const category of categoryNames){const group=document.createElement('optgroup');group.label=category;groups.set(category,group);}
    products.forEach(p=>{
