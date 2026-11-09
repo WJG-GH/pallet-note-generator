@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PALLET NOTE GENERATOR</title>
+<meta name="theme-color" content="#101f35" id="siteThemeColor">
 <style>
 :root { --ink:#111; --line:2px solid #111; --muted:#666; }
 * { box-sizing:border-box; }
@@ -2572,6 +2573,33 @@ body.handover-page #handoverPage { width:100%; max-width:1100px; }
 #productDbAdmin .product-manager-fields > .product-category-field {grid-column:1/-1!important;min-width:0!important;}
 #productDbCategory {display:block;width:100%!important;max-width:100%!important;min-width:0!important;min-height:52px!important;padding:12px 42px 12px 14px!important;font-size:16px!important;font-weight:600!important;box-sizing:border-box!important;text-overflow:ellipsis;}
 #productDbAdmin .product-manager-fields > label:has(#productDbQty) {grid-column:1/-1!important;}
+/* Request a Product stays open and uses the same panel heading styling. */
+#productDatabasePanel .product-request-heading {margin:0 0 14px;font-size:19px;font-weight:750;line-height:1.35;}
+#productDatabasePanel #productRequestForm {display:block!important;}
+
+/* Optional scan sheets: portrait A4, up to ten barcode entries per page. */
+@media print {
+  body.printing-basket #basketPrint .print-page.scan-print-page {
+    width:188mm!important;height:264mm!important;overflow:hidden!important;
+    padding:0!important;box-sizing:border-box!important;
+  }
+  body.printing-basket #basketPrint .scan-print-page .scan-sheet {
+    display:flex!important;position:static!important;transform:none!important;
+    width:188mm!important;height:264mm!important;box-sizing:border-box!important;
+    flex-direction:column!important;background:#fff!important;color:#111!important;
+    padding:4mm!important;font-family:Arial,Helvetica,sans-serif!important;
+  }
+}
+.scan-sheet {background:white;color:#111;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+.scan-sheet-title {font-size:18pt;font-weight:800;text-align:center;border-bottom:2px solid #111;padding:0 0 3mm;margin:0 0 2mm;}
+.scan-sheet-items {display:grid;grid-template-rows:repeat(10,minmax(0,1fr));flex:1;min-height:0;}
+.scan-sheet-entry {display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0;overflow:hidden;border-bottom:1px solid #999;padding:1mm 2mm;box-sizing:border-box;}
+.scan-sheet-description {font-size:11pt;font-weight:800;text-align:center;line-height:1.12;max-height:9mm;overflow:hidden;overflow-wrap:anywhere;}
+.scan-sheet-barcode {height:11mm;width:76mm;max-width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.scan-sheet-barcode img {display:block;width:100%;height:100%;object-fit:fill;}
+.scan-sheet-number {font-size:9pt;font-weight:700;letter-spacing:1px;line-height:1.1;}
+.scan-sheet-warning {font-size:8pt;font-weight:700;color:#333;}
+
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -3953,12 +3981,77 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 #productDbList .product-db-category-items{padding:0 14px}
 #productDbList .product-db-category-items .product-db-item:first-child{border-top:0}
 </style>
+<style>
+
+/* Product Database: separate, consistent cards like the generator panels. */
+@media screen {
+  #productDatabasePanel.panel {
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    padding:0!important;
+    margin-top:0!important;
+    overflow:visible!important;
+  }
+  #productDatabasePanel .database-page-heading,
+  #productDatabasePanel .product-request-section,
+  #productDatabasePanel .database-subpanel {
+    display:block;
+    border:1px solid var(--border, #465a71)!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    color:inherit!important;
+    padding:22px!important;
+    margin:0 0 20px!important;
+    box-sizing:border-box!important;
+    min-width:0;
+  }
+  #productDatabasePanel .database-page-heading {display:flex;flex-direction:column;gap:18px;align-items:stretch}
+  #productDatabasePanel .database-page-heading h2 {order:0;margin:0!important}
+  #productDatabasePanel .database-page-heading #backToGenerator {order:1;width:100%;white-space:normal}
+  #productDatabasePanel #toggleProductDatabase {display:none!important}
+  #productDatabasePanel #productDatabaseBody {padding-top:0!important}
+  #productDatabasePanel .product-request-section {padding:22px!important}
+  #productDatabasePanel .product-request-section #toggleProductRequest {width:100%}
+  #productDatabasePanel .database-list-panel > h3,
+  #productDatabasePanel .database-admin-title {margin:0 0 18px;font-size:20px}
+  #productDatabasePanel #productDbList .product-db-category:first-child {margin-top:0}
+  #productDatabasePanel #categoryManager {background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin-bottom:22px!important}
+  #productDatabasePanel #productRequestAdmin[hidden],
+  #productDatabasePanel #productDbAdmin[hidden],
+  #productDatabasePanel #productDatabaseBody[hidden] {display:none!important}
+}
+@media screen {
+  body.theme-dark #productDatabasePanel .database-page-heading,
+  body.theme-dark #productDatabasePanel .product-request-section,
+  body.theme-dark #productDatabasePanel .database-subpanel {background:#1c2838!important;border-color:#3d5069!important}
+  body.theme-light #productDatabasePanel .database-page-heading,
+  body.theme-light #productDatabasePanel .product-request-section,
+  body.theme-light #productDatabasePanel .database-subpanel {background:#fff!important;border-color:#d9dee4!important}
+}
+@media screen and (max-width:560px) {
+  #productDatabasePanel .database-page-heading,
+  #productDatabasePanel .product-request-section,
+  #productDatabasePanel .database-subpanel {padding:18px!important;margin-bottom:18px!important}
+}
+
+/* Hide Back to generator buttons on every page while preserving menu navigation. */
+#settingsBack, #handoverBack, #backToGenerator, #taskDatabaseBack { display:none!important; }
+</style>
+
+<style id="iphone-top-safe-area-fix">
+/* Extend the website header into the iPhone status-bar safe area. */
+@media screen {
+  html { background:#101f35; }
+  body > header { padding-top:calc(29px + env(safe-area-inset-top, 0px))!important; }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
 <section id="taskDatabasePage" hidden style="display:none!important"><button id="taskDatabaseBack" hidden></button></section>
 <section id="settingsPage" hidden aria-label="Settings">
-  <button type="button" id="settingsBack">← Back to generator</button>
+  <button type="button" id="settingsBack" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button>
   <h2>SETTINGS</h2>
   <div class="settings-card"><h3>Appearance</h3>
   <label for="settingsTheme" class="settings-field-label">Colour theme</label>
@@ -4150,12 +4243,12 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
     </div>
   </section>
   <section class="panel" id="productDatabasePanel" hidden>
-    <div class="database-page-heading"><button type="button" id="backToGenerator" class="action">← Back to generator</button><h2>PRODUCT DATABASE</h2></div>
+    <div class="database-page-heading"><button type="button" id="backToGenerator" class="action" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button><h2>PRODUCT DATABASE</h2></div>
     <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">PRODUCT DATABASE ▾</button>
     <div id="productDatabaseBody" hidden style="padding-top:16px">
       <section class="product-request-section" aria-label="Request a product">
-        <button type="button" id="toggleProductRequest" class="action" aria-expanded="false" style="width:100%;font-weight:700">+ REQUEST A PRODUCT</button>
-        <form id="productRequestForm" hidden>
+        <h3 id="toggleProductRequest" class="product-request-heading">REQUEST A PRODUCT</h3>
+        <form id="productRequestForm">
           <p class="hint">Suggest a product for administrator approval. It will not appear in the database until approved.</p>
           <div class="product-manager-fields">
             <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
@@ -4167,11 +4260,12 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
         </form>
         <p id="productRequestMessage" class="hint" role="status" aria-live="polite"></p>
       </section>
-      <div id="productRequestAdmin" hidden>
+      <div id="productRequestAdmin" class="database-subpanel" hidden>
         <h3 style="margin:16px 0 8px">Pending product requests <span id="pendingRequestCount"></span></h3>
         <div id="pendingProductRequests"></div>
       </div>
-      <div id="productDbAdmin" hidden>
+      <div id="productDbAdmin" class="database-subpanel" hidden>
+        <h3 class="database-admin-title">ADD / EDIT PRODUCT</h3>
         <section id="categoryManager" class="category-manager">
           <h3>Manage Categories</h3>
           <p class="hint">Only management can add, rename or delete categories. Categories are shared across devices.</p>
@@ -4186,7 +4280,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
       </div>
       <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
       </div><p id="productDbMessage" role="status" aria-live="polite" class="hint"></p>
-      <div id="productDbList"></div>
+      <section class="database-subpanel database-list-panel" aria-label="Product categories"><h3>PRODUCT CATEGORIES</h3><div id="productDbList"></div></section>
     </div>
   </section>
 </main>
@@ -5219,8 +5313,54 @@ async function printCurrentDocket(){
   await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
 }
+// A scan sheet lists each distinct product barcode in the basket once.
+// Product descriptions for Multi dockets come from the shared product database.
+function getBasketScanEntries(){
+  const entries=[];
+  const seen=new Set();
+  const products=Array.isArray(window.sharedProductsForScanSheet)?window.sharedProductsForScanSheet:[];
+  const byBarcode=new Map(products.map(p=>[String(p.barcode??'').trim(),String(p.description??'').trim()]));
+  const add=(barcode,description)=>{
+    const code=String(barcode??'').trim();
+    if(!code || seen.has(code))return;
+    seen.add(code);
+    entries.push({barcode:code,description:String(description||byBarcode.get(code)||'PRODUCT DESCRIPTION UNAVAILABLE').trim()});
+  };
+  docketBasket.forEach(item=>{
+    const v=item.values||{};
+    if(item.type==='single')add(v.singleCode,v.description||byBarcode.get(String(v.singleCode||'')));
+    if(item.type==='mixed')for(let i=1;i<=4;i++)add(v['mcode'+i],byBarcode.get(String(v['mcode'+i]||'').trim()));
+  });
+  return entries;
+}
+function createScanSheetPages(entries){
+  const pages=[];
+  for(let start=0;start<entries.length;start+=10){
+    const page=document.createElement('div');page.className='print-page scan-print-page';
+    const sheet=document.createElement('section');sheet.className='scan-sheet';
+    const title=document.createElement('h2');title.className='scan-sheet-title';title.textContent='PRODUCT SCAN SHEET';sheet.appendChild(title);
+    const list=document.createElement('div');list.className='scan-sheet-items';
+    entries.slice(start,start+10).forEach(entry=>{
+      const row=document.createElement('div');row.className='scan-sheet-entry';
+      const desc=document.createElement('div');desc.className='scan-sheet-description';desc.textContent=entry.description;row.appendChild(desc);
+      const barcode=document.createElement('div');barcode.className='scan-sheet-barcode';
+      const img=document.createElement('img');img.alt='';barcode.appendChild(img);
+      setLinearBarcode(img,entry.barcode);
+      if(!img.getAttribute('src')){
+        const warning=document.createElement('span');warning.className='scan-sheet-warning';
+        warning.textContent='BARCODE NOT AVAILABLE FOR SCANNING';barcode.replaceChildren(warning);
+      }
+      row.appendChild(barcode);
+      const number=document.createElement('div');number.className='scan-sheet-number';number.textContent=entry.barcode;row.appendChild(number);
+      list.appendChild(row);
+    });
+    sheet.appendChild(list);page.appendChild(sheet);pages.push(page.outerHTML);
+  }
+  return pages;
+}
 async function printBasket(){
   if(!docketBasket.length) return;
+  const includeScanSheet=docketBasket.length>5 && window.confirm('Would you like to print a product scan sheet after all dockets?\n\nUp to 10 products per A4 page.');
   const printArea = prepareIsolatedPrintArea();
   // Create one physical print page per requested copy, rather than relying on
   // the printer's own Copies setting (which is unreliable in iOS Edge).
@@ -5238,6 +5378,7 @@ async function printBasket(){
       pages.push('<div class="print-page">' + printClone.innerHTML + '</div>');
     }
   });
+  if(includeScanSheet)pages.push(...createScanSheetPages(getBasketScanEntries()));
   printArea.innerHTML = pages.join('');
   document.body.classList.add('printing-basket');
   // Allow the browser to lay out all new pages before opening print preview.
@@ -5368,7 +5509,7 @@ window.addEventListener('afterprint', () => {
    picker.value=''; // Always display only the arrow, never the selected product name.
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
  }
- async function load(){try{const data=await request();products=data.products||[];refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
+ async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
  window.reloadProductDatabase=load;
  document.addEventListener('shared-product-categories-updated',refresh);
  byId('singleProductPicker').addEventListener('change',function(){
@@ -5456,10 +5597,6 @@ document.addEventListener('input', function(event) {
     if(!response.ok)throw new Error(data.error||'Request failed ('+response.status+')');
     return data;
   };
-  el('toggleProductRequest').addEventListener('click',()=>{
-    const form=el('productRequestForm');form.hidden=!form.hidden;
-    el('toggleProductRequest').setAttribute('aria-expanded',String(!form.hidden));
-  });
   el('productRequestForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const description=el('requestProductDescription').value.trim().replace(/\s+/g,' ').toUpperCase();
@@ -5806,6 +5943,9 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
     document.body.classList.toggle('theme-dark',dark);
     document.body.classList.toggle('theme-light',!dark);
     document.documentElement.style.colorScheme=dark?'dark':'light';
+    const themeMeta=document.getElementById('siteThemeColor');
+    if(themeMeta)themeMeta.setAttribute('content',dark?'#101b2c':'#101f35');
+    document.documentElement.style.backgroundColor=dark?'#101b2c':'#101f35';
     for(const rule of darkRules){try{rule.media.mediaText=dark?'screen':'not all';}catch(e){}}
     // Keep the isolated handover iframe in the selected appearance as well.
     const frame=document.getElementById('handoverFrame');
