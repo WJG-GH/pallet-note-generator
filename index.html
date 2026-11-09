@@ -5269,7 +5269,6 @@ window.addEventListener('afterprint', () => {
  function refresh(){
    const list=byId('savedProductDescriptions');list.replaceChildren();
    const picker=byId('singleProductPicker');
-   const previous=picker.value;
    picker.replaceChildren();
    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='▾';picker.appendChild(placeholder);
    const output=byId('productDbList');output.replaceChildren();
@@ -5293,7 +5292,7 @@ window.addEventListener('afterprint', () => {
      output.appendChild(item);
    });
    for(const group of groups.values())if(group.children.length)picker.appendChild(group);
-   picker.value=previous && products.some(p=>p.description===previous)?previous:'';
+   picker.value=''; // Always display only the arrow, never the selected product name.
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
  }
  async function load(){try{const data=await request();products=data.products||[];refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
@@ -5302,6 +5301,7 @@ window.addEventListener('afterprint', () => {
    if(!this.value)return;
    byId('description').value=this.value;
    window.productDescriptionChanged();
+   this.value=''; // Restore the arrow after choosing a product.
  });
  window.productDescriptionChanged=function(){
    const description=normalize(byId('description').value);
