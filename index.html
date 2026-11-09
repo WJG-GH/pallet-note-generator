@@ -4017,6 +4017,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   #productDatabasePanel .database-admin-title {margin:0 0 18px;font-size:20px}
   #productDatabasePanel #productDbList .product-db-category:first-child {margin-top:0}
   #productDatabasePanel #categoryManager {background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin-bottom:22px!important}
+  #productDatabasePanel .product-request-section[hidden],
   #productDatabasePanel #productRequestAdmin[hidden],
   #productDatabasePanel #productDbAdmin[hidden],
   #productDatabasePanel #productDatabaseBody[hidden] {display:none!important}
@@ -4045,6 +4046,13 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   html { background:#101f35; }
   body > header { padding-top:calc(29px + env(safe-area-inset-top, 0px))!important; }
 }
+</style>
+<style>
+/* Admin category management and product editing are independent panels. */
+#productDatabasePanel #productDbAdmin {border:0!important;background:transparent!important;padding:0!important;margin:0!important;}
+#productDatabasePanel #productDbAdmin > .database-subpanel {margin-bottom:20px!important;}
+#productDatabasePanel #productDbAdmin .admin-category-panel #categoryManager {margin-bottom:0!important;}
+#productDatabasePanel #productDbAdmin .admin-category-panel h3 {margin-top:0;}
 </style>
 </head>
 <body>
@@ -4264,21 +4272,26 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
         <h3 style="margin:16px 0 8px">Pending product requests <span id="pendingRequestCount"></span></h3>
         <div id="pendingProductRequests"></div>
       </div>
-      <div id="productDbAdmin" class="database-subpanel" hidden>
-        <h3 class="database-admin-title">ADD / EDIT PRODUCT</h3>
-        <section id="categoryManager" class="category-manager">
-          <h3>Manage Categories</h3>
-          <p class="hint">Only management can add, rename or delete categories. Categories are shared across devices.</p>
-          <div class="category-add-row"><input id="newCategoryName" maxlength="60" placeholder="NEW CATEGORY NAME" aria-label="New category name"><button class="action primary" id="addCategoryButton" type="button">Add category</button></div>
-          <div id="categoryManagerList"></div><p id="categoryManagerStatus" class="hint" role="status"></p>
+      <div id="productDbAdmin" hidden>
+        <section class="database-subpanel admin-category-panel" aria-label="Manage categories">
+          <section id="categoryManager" class="category-manager">
+            <h3>MANAGE CATEGORIES</h3>
+            <p class="hint">Only management can add, rename or delete categories. Categories are shared across devices.</p>
+            <div class="category-add-row"><input id="newCategoryName" maxlength="60" placeholder="NEW CATEGORY NAME" aria-label="New category name"><button class="action primary" id="addCategoryButton" type="button">Add category</button></div>
+            <div id="categoryManagerList"></div><p id="categoryManagerStatus" class="hint" role="status"></p>
+          </section>
         </section>
-        <div class="product-manager-fields">
-        <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
-        <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
-        <label class="product-category-field">Category<select id="productDbCategory"><option value="Other">Other</option></select></label><label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
-        <label class="expiry-toggle" style="grid-column:1/-1"><input id="productDbExpiryRequired" type="checkbox"><span>EXPIRY DATE REQUIRED</span></label>
-      </div>
-      <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
+        <section class="database-subpanel admin-product-panel" aria-label="Add or edit product">
+          <h3 class="database-admin-title">ADD / EDIT PRODUCT</h3>
+          <div class="product-manager-fields">
+            <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
+            <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
+            <label class="product-category-field">Category<select id="productDbCategory"><option value="Other">Other</option></select></label>
+            <label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
+            <label class="expiry-toggle" style="grid-column:1/-1"><input id="productDbExpiryRequired" type="checkbox"><span>EXPIRY DATE REQUIRED</span></label>
+          </div>
+          <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
+        </section>
       </div><p id="productDbMessage" role="status" aria-live="polite" class="hint"></p>
       <section class="database-subpanel database-list-panel" aria-label="Product categories"><h3>PRODUCT CATEGORIES</h3><div id="productDbList"></div></section>
     </div>
@@ -5338,7 +5351,7 @@ function createScanSheetPages(entries){
   for(let start=0;start<entries.length;start+=12){
     const page=document.createElement('div');page.className='print-page scan-print-page';
     const sheet=document.createElement('section');sheet.className='scan-sheet';
-    const title=document.createElement('h2');title.className='scan-sheet-title';title.textContent='PRODUCT SCAN SHEET';sheet.appendChild(title);
+    const title=document.createElement('h2');title.className='scan-sheet-title';title.textContent='BARCODE SHEET';sheet.appendChild(title);
     const list=document.createElement('div');list.className='scan-sheet-items';
     entries.slice(start,start+12).forEach(entry=>{
       const row=document.createElement('div');row.className='scan-sheet-entry';
@@ -5364,8 +5377,8 @@ function askScanSheetChoice(){
     overlay.className='scan-choice-overlay';
     overlay.setAttribute('role','presentation');
     overlay.innerHTML=`<div class="scan-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="scan-choice-title" aria-describedby="scan-choice-description">
-      <h2 id="scan-choice-title">Print a product scan sheet?</h2>
-      <p id="scan-choice-description">Include a product scan sheet after printing the dockets?</p>
+      <h2 id="scan-choice-title">Print a Barcode Sheet?</h2>
+      <p id="scan-choice-description">Include a Barcode Sheet after printing the dockets?</p>
       <div class="scan-choice-buttons"><button type="button" class="scan-choice-no">No</button><button type="button" class="scan-choice-yes">Yes</button></div>
     </div>`;
     const finish=value=>{document.removeEventListener('keydown',onKey);overlay.remove();resolve(value);};
@@ -5379,7 +5392,7 @@ function askScanSheetChoice(){
 }
 async function printBasket(){
   if(!docketBasket.length) return;
-  const includeScanSheet=docketBasket.length>5 ? await askScanSheetChoice() : false;
+  const includeScanSheet=await askScanSheetChoice();
   const printArea = prepareIsolatedPrintArea();
   // Create one physical print page per requested copy, rather than relying on
   // the printer's own Copies setting (which is unreliable in iOS Edge).
@@ -5477,7 +5490,7 @@ window.addEventListener('afterprint', () => {
    if(!response.ok)throw Error(data.error||'Server error ('+response.status+')');
    return data;
  }
- function setAdmin(value){byId('productDbLogin').hidden=value;byId('settingsAdminLogout').hidden=!value;byId('productDbAdmin').hidden=!value;refresh();}
+ function setAdmin(value){byId('productDbLogin').hidden=value;byId('settingsAdminLogout').hidden=!value;byId('productDbAdmin').hidden=!value;const requestSection=document.querySelector('#productDatabasePanel .product-request-section');if(requestSection)requestSection.hidden=value;refresh();}
  function clearFields(){editingId=null;['productDbDescription','productDbBarcode','productDbQty'].forEach(id=>byId(id).value='');byId('productDbExpiryRequired').checked=false;byId('productDbCategory').value='Other';}
  function refresh(){
    const list=byId('savedProductDescriptions');list.replaceChildren();
