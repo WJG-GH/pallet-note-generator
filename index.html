@@ -5335,12 +5335,12 @@ function getBasketScanEntries(){
 }
 function createScanSheetPages(entries){
   const pages=[];
-  for(let start=0;start<entries.length;start+=10){
+  for(let start=0;start<entries.length;start+=12){
     const page=document.createElement('div');page.className='print-page scan-print-page';
     const sheet=document.createElement('section');sheet.className='scan-sheet';
     const title=document.createElement('h2');title.className='scan-sheet-title';title.textContent='PRODUCT SCAN SHEET';sheet.appendChild(title);
     const list=document.createElement('div');list.className='scan-sheet-items';
-    entries.slice(start,start+10).forEach(entry=>{
+    entries.slice(start,start+12).forEach(entry=>{
       const row=document.createElement('div');row.className='scan-sheet-entry';
       const desc=document.createElement('div');desc.className='scan-sheet-description';desc.textContent=entry.description;row.appendChild(desc);
       const barcode=document.createElement('div');barcode.className='scan-sheet-barcode';
@@ -5358,9 +5358,28 @@ function createScanSheetPages(entries){
   }
   return pages;
 }
+function askScanSheetChoice(){
+  return new Promise(resolve=>{
+    const overlay=document.createElement('div');
+    overlay.className='scan-choice-overlay';
+    overlay.setAttribute('role','presentation');
+    overlay.innerHTML=`<div class="scan-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="scan-choice-title" aria-describedby="scan-choice-description">
+      <h2 id="scan-choice-title">Print a product scan sheet?</h2>
+      <p id="scan-choice-description">Include a product scan sheet after printing the dockets?</p>
+      <div class="scan-choice-buttons"><button type="button" class="scan-choice-no">No</button><button type="button" class="scan-choice-yes">Yes</button></div>
+    </div>`;
+    const finish=value=>{document.removeEventListener('keydown',onKey);overlay.remove();resolve(value);};
+    const onKey=e=>{if(e.key==='Escape'){e.preventDefault();finish(false);}};
+    overlay.querySelector('.scan-choice-no').addEventListener('click',()=>finish(false));
+    overlay.querySelector('.scan-choice-yes').addEventListener('click',()=>finish(true));
+    document.addEventListener('keydown',onKey);
+    document.body.appendChild(overlay);
+    overlay.querySelector('.scan-choice-no').focus();
+  });
+}
 async function printBasket(){
   if(!docketBasket.length) return;
-  const includeScanSheet=docketBasket.length>5 && window.confirm('Would you like to print a product scan sheet after all dockets?\n\nUp to 10 products per A4 page.');
+  const includeScanSheet=docketBasket.length>5 ? await askScanSheetChoice() : false;
   const printArea = prepareIsolatedPrintArea();
   // Create one physical print page per requested copy, rather than relying on
   // the printer's own Copies setting (which is unreliable in iOS Edge).
@@ -5378,8 +5397,9 @@ async function printBasket(){
       pages.push('<div class="print-page">' + printClone.innerHTML + '</div>');
     }
   });
-  if(includeScanSheet)pages.push(...createScanSheetPages(getBasketScanEntries()));
+  if(includeScanSheet) pages.push(...createScanSheetPages(getBasketScanEntries()));
   printArea.innerHTML = pages.join('');
+  document.body.classList.remove('printing-scan-sheet');
   document.body.classList.add('printing-basket');
   // Allow the browser to lay out all new pages before opening print preview.
   await fitPreparedPrintFooters();
@@ -5387,6 +5407,7 @@ async function printBasket(){
   await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
 }
+
 function currentDateString(){
   const now = new Date();
   const dd = String(now.getDate()).padStart(2, '0');
@@ -5430,7 +5451,7 @@ window.addEventListener('beforeprint', () => {
   // Preserve preview-fitted font sizes; iOS print layout measurements are unreliable.
 });
 window.addEventListener('afterprint', () => {
-  document.body.classList.remove('printing-basket');
+  document.body.classList.remove('printing-basket', 'printing-scan-sheet');
   requestAnimationFrame(() => { fitPreview(); sizeBasketPreviews(); });
 });
 // Intentionally keep the prepared print pages in #basketPrint until the next
@@ -6209,6 +6230,98 @@ body.theme-dark .category-manager .category-row button:not(.primary) {
 }
 body.theme-light .category-manager {background:#f8fafc;color:#172334;border-color:#d5dce5}
 @media print { .category-manager {display:none !important} }
+</style>
+<style>
+/* Explicit Yes/No scan-sheet choice, consistent with both website themes. */
+.scan-choice-overlay{position:fixed;inset:0;z-index:2147483640;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+.scan-choice-dialog{width:min(100%,440px);border-radius:18px;background:#fff;color:#17212b;border:1px solid #cbd5e1;box-shadow:0 20px 65px rgba(0,0,0,.35);padding:24px;font-family:inherit}
+.scan-choice-dialog h2{margin:0 0 12px;font-size:21px;color:inherit}
+.scan-choice-dialog p{margin:0 0 22px;line-height:1.5;color:inherit}
+.scan-choice-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scan-choice-buttons button{min-height:48px;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+.scan-choice-no{background:transparent;color:inherit;border:1px solid #94a3b8}
+.scan-choice-yes{background:#2563eb;color:#fff;border:1px solid #2563eb}
+@media(prefers-color-scheme:dark){.scan-choice-dialog{background:#1b293a;color:#f1f5f9;border-color:#51677f}}
+@media print{.scan-choice-overlay{display:none!important}}
+</style>
+<style>
+/* Portrait scan sheets are printed in their own job, never mixed with landscape dockets. */
+@page portraitScan { size: A4 portrait; margin: 0; }
+@media print {
+  body.printing-scan-sheet { page:portraitScan!important; }
+  body.printing-scan-sheet > #basketPrint > .scan-print-page { page:portraitScan!important; }
+  html:has(body.printing-scan-sheet),
+  body.printing-scan-sheet { width:210mm!important;min-width:210mm!important;max-width:210mm!important; }
+  body.printing-scan-sheet > #basketPrint {width:210mm!important;min-width:210mm!important;max-width:210mm!important;}
+  body.printing-scan-sheet > #basketPrint > .print-page.scan-print-page {
+    width:210mm!important;min-width:210mm!important;max-width:210mm!important;
+    height:297mm!important;min-height:297mm!important;max-height:297mm!important;
+    padding:0!important;overflow:hidden!important;
+  }
+  body.printing-scan-sheet > #basketPrint > .scan-print-page > .scan-sheet {
+    display:flex!important;position:static!important;transform:none!important;
+    width:210mm!important;height:297mm!important;min-height:297mm!important;
+    padding:12mm 10mm!important;box-sizing:border-box!important;
+    flex-direction:column!important;background:#fff!important;color:#111!important;
+  }
+}
+.scan-sheet-items {grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));column-gap:8mm;}
+.scan-sheet-entry {justify-content:space-evenly;padding:3mm 2mm;}
+.scan-sheet-description {font-size:12pt;max-height:14mm;}
+.scan-sheet-barcode {height:28mm;width:82mm;max-width:100%;}
+.scan-sheet-number {font-size:11pt;}
+/* Single print job: pallet notes first, followed by portrait-layout scan pages.
+   Edge may display one global orientation; scan pages remain portrait-proportioned. */
+@media print {
+ body.printing-basket #basketPrint > .print-page.scan-print-page {
+   width:188mm!important;height:264mm!important;min-width:188mm!important;min-height:264mm!important;
+   max-width:188mm!important;max-height:264mm!important;overflow:hidden!important;
+   break-inside:avoid!important;page-break-inside:avoid!important;
+ }
+ body.printing-basket #basketPrint > .scan-print-page > .scan-sheet {
+   width:188mm!important;height:264mm!important;min-width:188mm!important;min-height:264mm!important;
+   display:flex!important;flex-direction:column!important;position:static!important;transform:none!important;
+   padding:6mm 5mm!important;box-sizing:border-box!important;background:#fff!important;color:#111!important;
+ }
+}
+</style>
+
+<style>
+/* Landscape scan sheets: 4 rows x 3 columns, sharing the docket print job.
+   The iOS docket printer uses portrait paper coordinates with rotated content;
+   rotate scan content in exactly the same way to preserve a single print job. */
+@media print {
+ body.printing-basket #basketPrint > .print-page.scan-print-page {
+   display:block!important;position:relative!important;
+   width:209mm!important;height:296mm!important;
+   min-width:209mm!important;max-width:209mm!important;
+   min-height:296mm!important;max-height:296mm!important;
+   padding:0!important;margin:0!important;overflow:hidden!important;
+ }
+ body.printing-basket #basketPrint > .scan-print-page > .scan-sheet {
+   display:flex!important;position:absolute!important;
+   width:277mm!important;height:190mm!important;
+   min-width:277mm!important;max-width:277mm!important;
+   min-height:190mm!important;max-height:190mm!important;
+   left:-34mm!important;top:53mm!important;
+   margin:0!important;padding:6mm!important;
+   box-sizing:border-box!important;overflow:hidden!important;
+   transform:rotate(90deg) scale(1.04)!important;
+   transform-origin:center center!important;
+   flex-direction:column!important;background:white!important;color:#111!important;
+ }
+}
+.scan-print-page .scan-sheet-title {font-size:18pt;flex:0 0 auto;padding-bottom:2mm;margin-bottom:2mm;}
+.scan-print-page .scan-sheet-items {
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-rows:repeat(4,minmax(0,1fr))!important;
+ grid-auto-flow:column!important;column-gap:5mm!important;row-gap:1mm!important;
+ flex:1 1 auto!important;min-height:0!important;
+}
+.scan-print-page .scan-sheet-entry {justify-content:space-evenly!important;padding:1.5mm 1mm!important;min-width:0!important;}
+.scan-print-page .scan-sheet-description {font-size:11pt!important;line-height:1.12!important;max-height:11mm!important;}
+.scan-print-page .scan-sheet-barcode {height:21mm!important;width:77mm!important;max-width:100%!important;}
+.scan-print-page .scan-sheet-number {font-size:10pt!important;}
 </style>
 </body>
 </html>
