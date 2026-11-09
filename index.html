@@ -6323,5 +6323,32 @@ body.theme-light .category-manager {background:#f8fafc;color:#172334;border-colo
 .scan-print-page .scan-sheet-barcode {height:21mm!important;width:77mm!important;max-width:100%!important;}
 .scan-print-page .scan-sheet-number {font-size:10pt!important;}
 </style>
+
+<style>
+/* Scan sheets use the same unrotated landscape A4 page as pallet notes.
+   Do not rotate scan-sheet content: desktop Edge already prints landscape. */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  body.printing-basket > #basketPrint > .print-page.scan-print-page,
+  body.printing-basket #basketPrint > .print-page.scan-print-page {
+    display:block!important;position:relative!important;
+    width:297mm!important;min-width:297mm!important;max-width:297mm!important;
+    height:210mm!important;min-height:210mm!important;max-height:210mm!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  body.printing-basket > #basketPrint > .scan-print-page > .scan-sheet,
+  body.printing-basket #basketPrint > .scan-print-page > .scan-sheet {
+    display:flex!important;flex-direction:column!important;position:absolute!important;
+    left:10mm!important;top:10mm!important;right:auto!important;bottom:auto!important;
+    width:277mm!important;min-width:277mm!important;max-width:277mm!important;
+    height:190mm!important;min-height:190mm!important;max-height:190mm!important;
+    margin:0!important;padding:5mm!important;box-sizing:border-box!important;
+    transform:none!important;rotate:none!important;zoom:1!important;
+    transform-origin:center center!important;overflow:hidden!important;
+    background:white!important;color:#111!important;
+  }
+}
+</style>
 </body>
 </html>
