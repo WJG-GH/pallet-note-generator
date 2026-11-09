@@ -3945,6 +3945,14 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   box-sizing:border-box!important;
 }
 </style>
+<style>
+/* Group the shared product database by category in both themes. */
+#productDbList .product-db-category{margin:12px 0;border:1px solid var(--border,#526174);border-radius:12px;overflow:hidden;background:transparent;color:inherit}
+#productDbList .product-db-category>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:15px 16px;font-weight:800;list-style:revert;color:inherit;background:rgba(127,145,165,.10)}
+#productDbList .product-db-count{font-size:.82em;font-weight:500;opacity:.8;white-space:nowrap}
+#productDbList .product-db-category-items{padding:0 14px}
+#productDbList .product-db-category-items .product-db-item:first-child{border-top:0}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -5316,7 +5324,18 @@ window.addEventListener('afterprint', () => {
    const categoryNames=window.sharedProductCategories||['Other'];
    for(const p of products)if(p.category&&!categoryNames.includes(p.category))categoryNames.push(p.category);
    const groups=new Map();
-   for(const category of categoryNames){const group=document.createElement('optgroup');group.label=category;groups.set(category,group);}
+   const sections=new Map();
+   const sortedCategories=[...new Set(categoryNames)].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'}));
+   for(const category of sortedCategories){
+     const group=document.createElement('optgroup');group.label=category;groups.set(category,group);
+     const section=document.createElement('details');section.className='product-db-category';section.open=true;
+     const heading=document.createElement('summary');
+     const title=document.createElement('span');title.textContent=category;
+     const count=document.createElement('span');count.className='product-db-count';count.textContent='0 products';
+     heading.append(title,count);section.appendChild(heading);
+     const items=document.createElement('div');items.className='product-db-category-items';section.appendChild(items);
+     sections.set(category,{section,items,count,total:0});
+   }
    products.forEach(p=>{
      const option=document.createElement('option');option.value=p.description;list.appendChild(option);
      const category=groups.has(p.category)?p.category:'Other';const pickOption=document.createElement('option');pickOption.value=p.description;pickOption.textContent=p.description;groups.get(category).appendChild(pickOption);
@@ -5330,8 +5349,12 @@ window.addEventListener('afterprint', () => {
        const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.onclick=async()=>{if(!confirm('Remove '+p.description+'?'))return;try{await request('DELETE',{id:p.id});await load();status('Product removed.');}catch(e){status(e.message);}};
        item.append(edit,remove);
      }
-     output.appendChild(item);
+     const bucket=sections.get(category);bucket.items.appendChild(item);bucket.total++;
    });
+   for(const bucket of sections.values())if(bucket.total){
+     bucket.count.textContent=bucket.total+' '+(bucket.total===1?'product':'products');
+     output.appendChild(bucket.section);
+   }
    for(const group of groups.values())if(group.children.length)picker.appendChild(group);
    picker.value=''; // Always display only the arrow, never the selected product name.
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
