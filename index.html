@@ -3962,7 +3962,26 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
       <label>Product / description<div class="description-product-row"><input id="description" list="savedProductDescriptions" autocomplete="off" placeholder="Product description" oninput="productDescriptionChanged()"><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
-      <datalist id="savedProductDescriptions"></datalist>
+      <datalist id="savedProductDescriptions"></datalist><script>
+/* Retain saved-product datalist on phones/tablets, but suppress the
+   duplicate native suggestions on desktop. The separate arrow picker
+   remains available on every device. */
+(function () {
+  function syncDescriptionSuggestions() {
+    const field = document.getElementById('description');
+    if (!field) return;
+    const mobile = window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(max-width: 767px)').matches;
+    if (mobile) {
+      field.setAttribute('list', 'savedProductDescriptions');
+    } else {
+      field.removeAttribute('list');
+    }
+  }
+  syncDescriptionSuggestions();
+  window.addEventListener('resize', syncDescriptionSuggestions);
+})();
+</script>
       <div class="single-barcode-entry">
         
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
