@@ -4125,6 +4125,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
           <div class="product-manager-fields">
             <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
             <label>Product barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE" required pattern="[0-9]{1,13}"></label>
+            <label class="product-category-field">Category<select id="requestProductCategory" required><option value="">SELECT CATEGORY</option></select></label>
             <label>Qty<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
           </div>
           <button class="action primary" id="submitProductRequest" type="submit" style="width:100%;margin-top:12px">Submit for approval</button>
@@ -4135,10 +4136,17 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
         <h3 style="margin:16px 0 8px">Pending product requests <span id="pendingRequestCount"></span></h3>
         <div id="pendingProductRequests"></div>
       </div>
-      <div id="productDbAdmin" hidden><div class="product-manager-fields">
+      <div id="productDbAdmin" hidden>
+        <section id="categoryManager" class="category-manager">
+          <h3>Manage Categories</h3>
+          <p class="hint">Only management can add, rename or delete categories. Categories are shared across devices.</p>
+          <div class="category-add-row"><input id="newCategoryName" maxlength="60" placeholder="NEW CATEGORY NAME" aria-label="New category name"><button class="action primary" id="addCategoryButton" type="button">Add category</button></div>
+          <div id="categoryManagerList"></div><p id="categoryManagerStatus" class="hint" role="status"></p>
+        </section>
+        <div class="product-manager-fields">
         <label>Description<input id="productDbDescription" placeholder="PRODUCT DESCRIPTION" autocomplete="off"></label>
         <label>Barcode<input id="productDbBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE"></label>
-        <label class="product-category-field">Category<select id="productDbCategory"><option value="Sheet Timber">Sheet Timber</option><option value="Storage">Storage</option><option value="Decorative Aggregates">Decorative Aggregates</option><option value="Aggregates">Aggregates</option><option value="Plasterboard">Plasterboard</option><option value="Bagged Plaster">Bagged Plaster</option><option value="Compost">Compost</option><option value="Winter Fuel">Winter Fuel</option><option value="Other">Other</option></select></label><label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
+        <label class="product-category-field">Category<select id="productDbCategory"><option value="Other">Other</option></select></label><label>Quantity<input id="productDbQty" inputmode="numeric" maxlength="3" placeholder="QTY"></label>
         <label class="expiry-toggle" style="grid-column:1/-1"><input id="productDbExpiryRequired" type="checkbox"><span>EXPIRY DATE REQUIRED</span></label>
       </div>
       <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
@@ -5278,7 +5286,8 @@ window.addEventListener('afterprint', () => {
    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='▾';picker.appendChild(placeholder);
    const output=byId('productDbList');output.replaceChildren();
    products.sort((a,b)=>normalize(a.description).localeCompare(normalize(b.description), undefined, {numeric:true, sensitivity:"base"}));
-   const categoryNames=['Sheet Timber','Storage','Decorative Aggregates','Aggregates','Plasterboard','Bagged Plaster','Compost','Winter Fuel','Other'];
+   const categoryNames=window.sharedProductCategories||['Other'];
+   for(const p of products)if(p.category&&!categoryNames.includes(p.category))categoryNames.push(p.category);
    const groups=new Map();
    for(const category of categoryNames){const group=document.createElement('optgroup');group.label=category;groups.set(category,group);}
    products.forEach(p=>{
@@ -5302,6 +5311,7 @@ window.addEventListener('afterprint', () => {
  }
  async function load(){try{const data=await request();products=data.products||[];refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
  window.reloadProductDatabase=load;
+ document.addEventListener('shared-product-categories-updated',refresh);
  byId('singleProductPicker').addEventListener('change',function(){
    if(!this.value)return;
    byId('description').value=this.value;
@@ -5399,7 +5409,7 @@ document.addEventListener('input', function(event) {
     const message=el('productRequestMessage');
     if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and pallet quantity (1–999).';return;}
     const button=el('submitProductRequest');button.disabled=true;message.textContent='Submitting request…';
-    try{await api('POST',{description,barcode,quantity:Number(quantity)});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
+    try{await api('POST',{description,barcode,quantity:Number(quantity),category:el('requestProductCategory').value});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
     catch(err){message.textContent='Could not submit: '+err.message;}
     finally{button.disabled=false;}
   });
@@ -5415,7 +5425,7 @@ document.addEventListener('input', function(event) {
       for(const request of requests){
         const card=document.createElement('div');card.className='product-request-item';
         const title=document.createElement('strong');title.textContent=request.description;
-        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · Pallet QTY: '+request.quantity;
+        const detail=document.createElement('div');detail.textContent='Barcode: '+request.barcode+' · Pallet QTY: '+request.quantity+' · Category: '+(request.category||'Other');
         const actions=document.createElement('div');actions.className='actions';
         for(const [action,label] of [['approve','Approve'],['decline','Decline']]){
           const btn=document.createElement('button');btn.type='button';btn.className='action'+(action==='approve'?' primary':'');btn.textContent=label;
@@ -5900,6 +5910,81 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
  recentRefresh.addEventListener('click',updateRecentBaskets);
  document.getElementById('menuSettings').addEventListener('click',updateRecentBaskets);
 
+})();
+</script>
+
+<style>
+.category-manager{border:1px solid #d5dce5;border-radius:12px;padding:16px;margin-bottom:20px;background:#f8fafc}
+.category-manager h3{margin:0 0 8px}.category-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin:12px 0}
+.category-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #dce3eb}
+.category-row strong{min-width:0;overflow-wrap:anywhere}.category-row .category-buttons{display:flex;gap:6px;flex-shrink:0}
+.category-row button{padding:9px 11px;font-size:14px}
+#requestProductCategory,#productDbCategory{width:100%!important;min-width:0!important;min-height:52px!important;font-size:16px!important;padding:12px!important;box-sizing:border-box!important}
+#productRequestForm .product-category-field{grid-column:1/-1!important;min-width:0}
+@media(max-width:560px){.category-add-row{grid-template-columns:1fr}.category-add-row button{width:100%}.category-row{align-items:flex-start;flex-direction:column}.category-row .category-buttons{width:100%}.category-row button{flex:1}}
+@media print{.category-manager{display:none!important}}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const url=PALLET_SUPABASE_URL+'/functions/v1/product-database';
+ let managementPassword='';
+ async function call(method,body){
+   const headers={apikey:PALLET_SUPABASE_KEY};
+   if(body)headers['Content-Type']='application/json';
+   if(method==='POST')headers['x-admin-password']=managementPassword;
+   const response=await fetch(url+'?resource=categories',{method,headers,cache:'no-store',...(body?{body:JSON.stringify(body)}:{})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.error||'Category operation failed');
+   return data;
+ }
+ function status(s){$('categoryManagerStatus').textContent=s;}
+ async function refresh(){
+   try{
+     const data=await call('GET');const categories=data.categories||[];
+     window.sharedProductCategories=categories;
+     for(const id of ['productDbCategory','requestProductCategory']){
+       const select=$(id);const previous=select.value;select.replaceChildren();
+       if(id==='requestProductCategory')select.add(new Option('SELECT CATEGORY',''));
+       categories.forEach(name=>select.add(new Option(name,name)));
+       select.value=categories.includes(previous)?previous:(id==='productDbCategory'?(categories.includes('Other')?'Other':categories[0]||''):'');
+     }
+     const list=$('categoryManagerList');list.replaceChildren();
+     for(const name of categories){
+       const row=document.createElement('div');row.className='category-row';
+       const title=document.createElement('strong');title.textContent=name;
+       const buttons=document.createElement('div');buttons.className='category-buttons';
+       if(name!=='Other')for(const [action,label] of [['rename','Rename'],['delete','Delete']]){
+         const button=document.createElement('button');button.className='action';button.textContent=label;
+         button.onclick=async()=>{
+           let new_name;
+           if(action==='rename'){
+             new_name=prompt('New name for '+name,name);
+             if(new_name===null||!new_name.trim()||new_name.trim()===name)return;
+           }else if(!confirm('Delete category '+name+'? This is only allowed when no products or pending suggestions use it.'))return;
+           button.disabled=true;
+           try{await call('POST',{action,name,...(new_name?{new_name:new_name.trim()}:{})});await refresh();if(window.reloadProductDatabase)await window.reloadProductDatabase();status('Category updated.');}
+           catch(e){status(e.message)}finally{button.disabled=false}
+         };buttons.append(button);
+       }
+       row.append(title,buttons);list.append(row);
+     }
+     document.dispatchEvent(new Event('shared-product-categories-updated'));
+   }catch(e){status('Unable to load categories: '+e.message);}
+ }
+ $('addCategoryButton').onclick=async()=>{
+   const name=$('newCategoryName').value.trim();if(!name)return status('Enter a category name.');
+   const button=$('addCategoryButton');button.disabled=true;
+   try{await call('POST',{action:'add',name});$('newCategoryName').value='';await refresh();status('Category added.');}
+   catch(e){status(e.message)}finally{button.disabled=false}
+ };
+ $('productDbLoginButton').addEventListener('click',()=>{
+   const entered=$('productDbPassword').value;
+   if(!entered)return;
+   document.addEventListener('product-db-admin-login',()=>{managementPassword=entered;refresh()},{once:true});
+ },true);
+ $('productDbLogoutButton').addEventListener('click',()=>{managementPassword='';});
+ refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 })();
 </script>
 </body>
