@@ -5302,6 +5302,9 @@ window.addEventListener('afterprint', () => {
  const normalize=s=>String(s||'').trim().replace(/\s+/g,' ').toUpperCase();
  const API=PALLET_SUPABASE_URL+'/functions/v1/product-database';
  let products=[], password='', editingId=null;
+ const categoryStateKey='pallet-note-product-category-open-v1';
+ let categoryOpenState={};
+ try{const saved=JSON.parse(localStorage.getItem(categoryStateKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))categoryOpenState=saved;}catch(e){}
  const status=s=>{byId('productDbMessage').textContent=s;};
  async function request(method='GET',body){
    const headers={'apikey':PALLET_SUPABASE_KEY};
@@ -5328,7 +5331,13 @@ window.addEventListener('afterprint', () => {
    const sortedCategories=[...new Set(categoryNames)].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'}));
    for(const category of sortedCategories){
      const group=document.createElement('optgroup');group.label=category;groups.set(category,group);
-     const section=document.createElement('details');section.className='product-db-category';section.open=true;
+     const section=document.createElement('details');section.className='product-db-category';
+     section.open=categoryOpenState[category]!==false;
+     section.addEventListener('toggle',()=>{
+       if(!section.isConnected)return;
+       categoryOpenState[category]=section.open;
+       try{localStorage.setItem(categoryStateKey,JSON.stringify(categoryOpenState));}catch(e){}
+     });
      const heading=document.createElement('summary');
      const title=document.createElement('span');title.textContent=category;
      const count=document.createElement('span');count.className='product-db-count';count.textContent='0 products';
