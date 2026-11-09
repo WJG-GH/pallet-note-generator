@@ -3918,6 +3918,33 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   text-shadow:none !important;
 }
 </style>
+
+<style id="full-width-product-fields-fix">
+/* Product request and administrator product editor: one full-width field per row. */
+#productRequestForm .product-manager-fields,
+#productDbAdmin .product-manager-fields {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;
+}
+#productRequestForm .product-manager-fields > label,
+#productDbAdmin .product-manager-fields > label {
+  grid-column:1 / -1!important;
+  min-width:0!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+#productRequestForm .product-manager-fields input,
+#productRequestForm .product-manager-fields select,
+#productDbAdmin .product-manager-fields input:not([type="checkbox"]),
+#productDbAdmin .product-manager-fields select {
+  display:block;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -5987,5 +6014,29 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
  refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 })();
 </script>
+<style id="category-manager-theme-fix">
+/* Category manager follows the selected website theme. */
+body.theme-dark .category-manager {
+  background:#1b2939 !important;
+  color:#f1f5f9 !important;
+  border-color:#465a71 !important;
+}
+body.theme-dark .category-manager h3,
+body.theme-dark .category-manager p,
+body.theme-dark .category-manager .category-row,
+body.theme-dark .category-manager .category-row strong,
+body.theme-dark .category-manager label {
+  color:#f1f5f9 !important;
+}
+body.theme-dark .category-manager .hint { color:#b8c6d8 !important; }
+body.theme-dark .category-manager .category-row { border-bottom-color:#465a71 !important; }
+body.theme-dark .category-manager .category-row button:not(.primary) {
+  background:#29394b !important;
+  color:#f1f5f9 !important;
+  border-color:#52667e !important;
+}
+body.theme-light .category-manager {background:#f8fafc;color:#172334;border-color:#d5dce5}
+@media print { .category-manager {display:none !important} }
+</style>
 </body>
 </html>
