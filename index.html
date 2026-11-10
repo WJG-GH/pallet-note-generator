@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PALLET NOTE GENERATOR</title>
-<meta name="theme-color" content="#101f35" id="siteThemeColor">
+<meta name="theme-color" content="#14253d" id="siteThemeColor">
 <style>
 :root { --ink:#111; --line:2px solid #111; --muted:#666; }
 * { box-sizing:border-box; }
@@ -2600,6 +2600,27 @@ body.handover-page #handoverPage { width:100%; max-width:1100px; }
 .scan-sheet-number {font-size:9pt;font-weight:700;letter-spacing:1px;line-height:1.1;}
 .scan-sheet-warning {font-size:8pt;font-weight:700;color:#333;}
 
+
+  /* Basket controls remain together above the docket previews. */
+  #basketPanel .basket-top-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+    width: 100%;
+  }
+  #basketPanel .basket-top-actions > .action {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    min-height: 52px;
+    margin: 0;
+    text-align: center;
+  }
+
+/* Match navigation position selector to the full-width theme selector. */
+#settingsNavigationPosition{display:block;box-sizing:border-box;width:100%;max-width:none;min-height:46px;padding:10px 12px;border:1px solid #74869b;border-radius:9px;background:#29394b;color:#fff;font:inherit}
+body.settings-page #settingsNavigationPosition{background:var(--settings-button,#29394b);color:var(--settings-ink,#fff)}
 </style>
 <style>
 #productDatabasePanel{margin-top:18px}#productDatabasePanel[hidden]{display:none!important}
@@ -4054,16 +4075,163 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 #productDatabasePanel #productDbAdmin .admin-category-panel #categoryManager {margin-bottom:0!important;}
 #productDatabasePanel #productDbAdmin .admin-category-panel h3 {margin-top:0;}
 </style>
+<style id="consistent-solid-page-colours">
+/* Solid surfaces across the page; preserve gradient styling of action buttons and printed labels. */
+@media screen {
+  html { background:#14253d !important; }
+  body, body.theme-light { background:#f7f9fc !important; }
+  body.theme-dark { background:#101925 !important; }
+  body > header, body.theme-light > header, body.theme-dark > header {
+    background:#14253d !important;
+    background-image:none !important;
+  }
+}
+</style>
+<style id="mobile-floating-docket-nav">
+/* Mobile floating docket navigation — desktop tabs remain unchanged. */
+@media screen and (max-width: 650px) {
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs {
+    position: fixed !important;
+    z-index: 900 !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 28px) !important;
+    max-width: 520px !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    padding: 7px !important;
+    border-radius: 28px !important;
+    background: rgba(35, 52, 72, .88) !important;
+    border: 1px solid rgba(210, 229, 251, .30) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .28), inset 0 1px rgba(255,255,255,.18) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(155%) !important;
+    backdrop-filter: blur(22px) saturate(155%) !important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button {
+    min-width: 0 !important;
+    min-height: 51px !important;
+    padding: 10px 2px !important;
+    border-radius: 21px !important;
+    background: transparent !important;
+    color: #f3f7ff !important;
+    border: 1px solid transparent !important;
+    font-size: clamp(10px, 2.9vw, 13px) !important;
+    font-weight: 800 !important;
+    letter-spacing: .025em !important;
+    box-shadow: none !important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button.active {
+    background: rgba(239, 247, 255, .94) !important;
+    color: #173e75 !important;
+    border-color: rgba(255,255,255,.85) !important;
+    box-shadow: 0 2px 9px rgba(0,0,0,.14) !important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .panel:first-of-type {
+    margin-top: 0 !important;
+  }
+  body.database-page main > .tabs,
+  body.settings-page main > .tabs,
+  body.tasks-page main > .tabs,
+  body.handover-page main > .tabs { display: none !important; }
+}
+@media print {
+  main > .tabs { display: none !important; }
+}
+</style>
+<style id="mobile-bottom-hamburger">
+/* Keep the existing menu and handlers; position its trigger beside the four floating tabs. */
+@media screen and (max-width:650px) {
+  body > header .header-menu {
+    position:fixed!important;
+    z-index:1100!important;
+    right:14px!important;
+    bottom:calc(19px + env(safe-area-inset-bottom, 0px))!important;
+    top:auto!important;
+    width:54px!important;
+    height:51px!important;
+  }
+  body > header .header-menu-button {
+    display:grid!important;
+    width:54px!important;
+    height:51px!important;
+    border-radius:20px!important;
+    background:rgba(35,52,72,.92)!important;
+    border:1px solid rgba(210,229,251,.3)!important;
+    color:#fff!important;
+    -webkit-backdrop-filter:blur(22px) saturate(155%);
+    backdrop-filter:blur(22px) saturate(155%);
+  }
+  body > header .header-menu-popover {
+    position:absolute!important;
+    top:auto!important;
+    bottom:calc(100% + 12px)!important;
+    right:0!important;
+    max-width:calc(100vw - 28px)!important;
+    z-index:1200!important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs {
+    width:calc(100% - 98px)!important;
+    max-width:440px!important;
+    left:14px!important;
+    right:auto!important;
+    transform:none!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button {
+    font-size:clamp(9px,2.4vw,12px)!important;
+    letter-spacing:0!important;
+  }
+  body.database-page main,body.settings-page main,body.tasks-page main,body.handover-page main,
+  body.database-page #productDatabasePanel,body.settings-page #settingsPage {
+    padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+@media print { body > header .header-menu {display:none!important;} }
+</style>
+<style id="mobile-bottom-nav-compact-height">
+/* Match the floating tab bar's total height to the hamburger button (51px). */
+@media screen and (max-width:650px) {
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs {
+    box-sizing:border-box!important;
+    height:51px!important;
+    min-height:51px!important;
+    padding:3px!important;
+    gap:3px!important;
+    border-radius:23px!important;
+    align-items:stretch!important;
+  }
+  body:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button {
+    box-sizing:border-box!important;
+    height:43px!important;
+    min-height:0!important;
+    padding:4px 1px!important;
+    border-radius:19px!important;
+    line-height:1.15!important;
+  }
+  body > header .header-menu {
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px))!important;
+  }
+}
+</style>
 </head>
 <body>
-<header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Product Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
+<header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
 <section id="taskDatabasePage" hidden style="display:none!important"><button id="taskDatabaseBack" hidden></button></section>
 <section id="settingsPage" hidden aria-label="Settings">
   <button type="button" id="settingsBack" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button>
   <h2>SETTINGS</h2>
   <div class="settings-card"><h3>Appearance</h3>
   <label for="settingsTheme" class="settings-field-label">Colour theme</label>
-  <select id="settingsTheme" aria-label="Colour theme"><option value="system">Follow device setting</option><option value="light">Light mode</option><option value="dark">Dark mode</option></select>
+  <select id="settingsTheme" aria-label="Colour theme"><option value="system">Default</option><option value="light">Light</option><option value="dark">Dark</option></select>
+  <label for="settingsNavigationPosition" class="settings-field-label" style="display:block;margin-top:18px">Navigation location (mobile)</label>
+  <select id="settingsNavigationPosition" aria-label="Navigation location on mobile"><option value="top">Top</option><option value="bottom">Bottom</option></select>
 </div>
   <div class="settings-card"><h3>Admin</h3>
   <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div>
@@ -4234,9 +4402,11 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   <section class="panel" id="basketPanel" style="margin-top:24px">
     <h2>BASKET <span id="basketCount">(0 dockets)</span></h2>
     <p class="hint">Add each completed docket to the basket, then print them all together. Each docket prints on its own page.</p>
-    <div class="actions cloud-basket-actions" style="margin:12px 0;flex-wrap:wrap">
+    <div class="basket-top-actions">
       <button class="action primary" id="saveCloudBasketButton" type="button">Save basket</button>
       <button class="action" id="resumeCloudBasketButton" type="button">Resume basket</button>
+      <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
+      <button class="action" type="button" id="clearBasketButton">Empty basket</button>
     </div>
     <div id="cloudBasketCodeBox" style="display:none;margin:10px 0;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc">
       <div style="font-weight:700">Your basket code</div>
@@ -4245,14 +4415,11 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
     </div>
     <p id="cloudBasketStatus" role="status" class="hint" style="margin:8px 0"></p>
     <div id="basketItems"><p class="hint">Your basket is empty.</p></div>
-    <div class="actions basket-print-actions">
-      <button class="action primary" id="printBasketButton" type="button" disabled>Print all dockets</button>
-      <button class="action" type="button" id="clearBasketButton">Empty basket</button>
-    </div>
+
   </section>
   <section class="panel" id="productDatabasePanel" hidden>
-    <div class="database-page-heading"><button type="button" id="backToGenerator" class="action" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button><h2>PRODUCT DATABASE</h2></div>
-    <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">PRODUCT DATABASE ▾</button>
+    <div class="database-page-heading"><button type="button" id="backToGenerator" class="action" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button><h2>DATABASE</h2></div>
+    <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">DATABASE ▾</button>
     <div id="productDatabaseBody" hidden style="padding-top:16px">
       <section class="product-request-section" aria-label="Request a product">
         <h3 id="toggleProductRequest" class="product-request-heading">REQUEST A PRODUCT</h3>
@@ -5503,7 +5670,11 @@ window.addEventListener('afterprint', () => {
    for(const p of products)if(p.category&&!categoryNames.includes(p.category))categoryNames.push(p.category);
    const groups=new Map();
    const sections=new Map();
-   const sortedCategories=[...new Set(categoryNames)].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'}));
+   const sortedCategories=[...new Set(categoryNames)].sort((a,b)=>{
+     if(a.trim().toLowerCase()==='other')return 1;
+     if(b.trim().toLowerCase()==='other')return -1;
+     return a.localeCompare(b,undefined,{sensitivity:'base'});
+   });
    for(const category of sortedCategories){
      const group=document.createElement('optgroup');group.label=category;groups.set(category,group);
      const section=document.createElement('details');section.className='product-db-category';
@@ -5820,7 +5991,7 @@ body.settings-page .database-page-heading{display:none!important}
 
   const pages = [
     ['generator', 'Pallet Note Generator'],
-    ['database', 'Product Database'],
+    ['database', 'Database'],
     ['settings', 'Settings']
   ];
   function currentPage() {
@@ -5958,7 +6129,7 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
   const storageKey='png-appearance-mode';
   const darkQuery=window.matchMedia('(prefers-color-scheme: dark)');
   let preference='system';
-  try{const stored=localStorage.getItem(storageKey);if(['system','light','dark'].includes(stored))preference=stored;}catch(e){}
+  try{const stored=localStorage.getItem(storageKey);if(['system','light','dark'].includes(stored))preference=stored;else if(stored==='aero')localStorage.setItem(storageKey,'system');}catch(e){}
   picker.value=preference;
   // Only alter existing dark-theme media rules. No print or docket rules are changed.
   const darkRules=[];
@@ -5978,8 +6149,8 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
     document.body.classList.toggle('theme-light',!dark);
     document.documentElement.style.colorScheme=dark?'dark':'light';
     const themeMeta=document.getElementById('siteThemeColor');
-    if(themeMeta)themeMeta.setAttribute('content',dark?'#101b2c':'#101f35');
-    document.documentElement.style.backgroundColor=dark?'#101b2c':'#101f35';
+    if(themeMeta)themeMeta.setAttribute('content','#14253d');
+    document.documentElement.style.backgroundColor='#14253d';
     for(const rule of darkRules){try{rule.media.mediaText=dark?'screen':'not all';}catch(e){}}
     // Keep the isolated handover iframe in the selected appearance as well.
     const frame=document.getElementById('handoverFrame');
@@ -6361,6 +6532,297 @@ body.theme-light .category-manager {background:#f8fafc;color:#172334;border-colo
     transform-origin:center center!important;overflow:hidden!important;
     background:white!important;color:#111!important;
   }
+}
+</style>
+
+<style id="mobile-navigation-position-setting">
+/* The existing bottom bar remains the default. The Top option restores inline tabs and the header menu. */
+@media screen and (max-width:650px) {
+  body.nav-position-top:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs {
+    position:static!important;z-index:auto!important;left:auto!important;right:auto!important;
+    top:auto!important;bottom:auto!important;transform:none!important;
+    width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;
+    margin:0 0 22px!important;padding:5px!important;gap:3px!important;
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    border-radius:12px!important;box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    background:var(--nav-top-background,#1b2939)!important;
+    border:1px solid var(--nav-top-border,#34475c)!important;
+  }
+  body.nav-position-top:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button {
+    height:auto!important;min-height:44px!important;padding:12px 2px!important;
+    border-radius:10px!important;font-size:11px!important;letter-spacing:.035em!important;
+    color:var(--nav-top-ink,#c4d0e0)!important;background:transparent!important;
+  }
+  body.nav-position-top:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button.active {
+    color:var(--nav-top-active-ink,#fff)!important;background:var(--nav-top-active,#344f70)!important;
+  }
+  body.nav-position-top > header .header-menu {
+    position:relative!important;z-index:1100!important;right:auto!important;bottom:auto!important;
+    top:auto!important;width:auto!important;height:auto!important;
+  }
+  body.nav-position-top > header .header-menu-button {
+    width:48px!important;height:48px!important;border-radius:12px!important;
+  }
+  body.nav-position-top > header .header-menu-popover {
+    position:absolute!important;top:calc(100% + 9px)!important;bottom:auto!important;right:0!important;
+  }
+  body.nav-position-top:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main {
+    padding-bottom:45px!important;
+  }
+  body.nav-position-top.database-page main,body.nav-position-top.settings-page main,
+  body.nav-position-top.database-page #productDatabasePanel,body.nav-position-top.settings-page #settingsPage {
+    padding-bottom:40px!important;
+  }
+  body.nav-position-top.theme-light {--nav-top-background:#e9eff7;--nav-top-border:#dce5f0;--nav-top-ink:#51627a;--nav-top-active:#fff;--nav-top-active-ink:#2056ad;}
+}
+</style>
+<script id="mobile-navigation-position-script">
+(function(){
+  const picker=document.getElementById('settingsNavigationPosition');
+  if(!picker)return;
+  const key='png-mobile-navigation-position';
+  let value='bottom';
+  try{if(localStorage.getItem(key)==='top')value='top';}catch(e){}
+  function apply(){
+    document.body.classList.toggle('nav-position-top',value==='top');
+    document.body.classList.toggle('nav-position-bottom',value==='bottom');
+    picker.value=value;
+  }
+  picker.addEventListener('change',function(){
+    value=picker.value==='top'?'top':'bottom';
+    try{localStorage.setItem(key,value);}catch(e){}
+    apply();
+  });
+  apply();
+})();
+</script>
+
+<style id="top-navigation-matches-floating-bar">
+@media screen and (max-width:650px) {
+ body.nav-position-top .mobile-top-nav-row {
+   display:flex!important;align-items:center!important;gap:8px!important;
+   width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+   margin:0 0 22px!important;min-width:0!important;
+ }
+ body.nav-position-top .mobile-top-nav-row > .tabs {
+   position:relative!important;inset:auto!important;transform:none!important;
+   flex:1 1 0!important;min-width:0!important;max-width:none!important;
+   width:auto!important;height:51px!important;min-height:51px!important;
+   margin:0!important;padding:3px!important;gap:3px!important;
+   display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+   align-items:stretch!important;box-sizing:border-box!important;
+   border-radius:23px!important;
+   background:rgba(35,52,72,.88)!important;
+   border:1px solid rgba(210,229,251,.30)!important;
+   box-shadow:0 12px 32px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.18)!important;
+   -webkit-backdrop-filter:blur(22px) saturate(155%)!important;
+   backdrop-filter:blur(22px) saturate(155%)!important;
+ }
+ body.nav-position-top .mobile-top-nav-row > .tabs > button {
+   box-sizing:border-box!important;min-width:0!important;width:100%!important;
+   height:43px!important;min-height:0!important;padding:4px 1px!important;
+   border-radius:19px!important;line-height:1.15!important;
+   font-size:clamp(9px,2.4vw,12px)!important;letter-spacing:0!important;
+   font-weight:800!important;color:#f3f7ff!important;background:transparent!important;
+   border:1px solid transparent!important;box-shadow:none!important;
+ }
+ body.nav-position-top .mobile-top-nav-row > .tabs > button.active {
+   background:rgba(239,247,255,.94)!important;color:#173e75!important;
+   border-color:rgba(255,255,255,.85)!important;box-shadow:0 2px 9px rgba(0,0,0,.14)!important;
+ }
+ body.nav-position-top .mobile-top-nav-row > .header-menu {
+   position:relative!important;inset:auto!important;z-index:1100!important;
+   display:block!important;flex:0 0 54px!important;width:54px!important;height:51px!important;
+ }
+ body.nav-position-top .mobile-top-nav-row .header-menu-button {
+   display:grid!important;width:54px!important;height:51px!important;border-radius:20px!important;
+   background:rgba(35,52,72,.92)!important;border:1px solid rgba(210,229,251,.3)!important;
+   color:#fff!important;
+ }
+ body.nav-position-top .mobile-top-nav-row .header-menu-popover {
+   position:absolute!important;top:calc(100% + 9px)!important;bottom:auto!important;
+   right:0!important;max-width:calc(100vw - 28px)!important;
+ }
+ body.nav-position-top.theme-light .mobile-top-nav-row > .tabs,
+ body.nav-position-top.theme-light .mobile-top-nav-row .header-menu-button {
+   background:rgba(255,255,255,.88)!important;border-color:#d5deeb!important;
+ }
+ body.nav-position-top.theme-light .mobile-top-nav-row > .tabs > button:not(.active) {color:#51627a!important;}
+ body.nav-position-top.theme-light .mobile-top-nav-row .header-menu-button {color:#263c59!important;}
+}
+@media print {.mobile-top-nav-row {display:none!important;}}
+</style>
+<script id="top-navigation-shared-layout">
+(function(){
+ const tabs=document.querySelector('main > .tabs');
+ const menu=document.querySelector('body > header .header-menu');
+ const picker=document.getElementById('settingsNavigationPosition');
+ const header=document.querySelector('body > header');
+ if(!tabs||!menu||!picker||!header)return;
+ const main=tabs.parentNode, next=tabs.nextSibling;
+ const menuParent=menu.parentNode, menuNext=menu.nextSibling;
+ const row=document.createElement('div');row.className='mobile-top-nav-row';
+ function update(){
+   const top=picker.value==='top'&&window.matchMedia('(max-width:650px)').matches;
+   if(top){
+     if(!row.isConnected)header.insertAdjacentElement('afterend',row);
+     row.appendChild(tabs);row.appendChild(menu);
+   }else{
+     if(tabs.parentNode!==main)main.insertBefore(tabs,next);
+     if(menu.parentNode!==menuParent)menuParent.insertBefore(menu,menuNext);
+     row.remove();
+   }
+ }
+ picker.addEventListener('change',()=>requestAnimationFrame(update));
+ window.addEventListener('resize',update);
+ update();
+})();
+</script>
+<style id="top-navigation-visibility-and-fit-fix">
+@media screen and (max-width:650px){
+ body.nav-position-top > .mobile-top-nav-row {
+   display:flex!important;align-items:center!important;gap:8px!important;
+   width:calc(100% - 28px)!important;max-width:520px!important;
+   margin:14px auto 20px!important;padding:0!important;
+   min-width:0!important;box-sizing:border-box!important;
+ }
+ body.nav-position-top > .mobile-top-nav-row > .tabs {
+   display:grid!important;position:relative!important;
+   flex:1 1 0!important;width:0!important;min-width:0!important;max-width:100%!important;
+   grid-template-columns:repeat(4,minmax(0,1fr))!important;
+   height:51px!important;min-height:51px!important;
+   margin:0!important;padding:3px!important;gap:2px!important;
+   left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+   transform:none!important;box-sizing:border-box!important;
+ }
+ body.nav-position-top > .mobile-top-nav-row > .tabs > button {
+   min-width:0!important;width:100%!important;max-width:100%!important;
+   height:43px!important;min-height:0!important;
+   padding:4px 0!important;white-space:nowrap!important;
+   font-size:clamp(8px,2.3vw,12px)!important;letter-spacing:0!important;
+   overflow:hidden!important;text-overflow:clip!important;
+ }
+ body.nav-position-top > .mobile-top-nav-row > .header-menu {
+   display:block!important;position:relative!important;
+   flex:0 0 51px!important;width:51px!important;min-width:51px!important;
+   height:51px!important;inset:auto!important;margin:0!important;
+ }
+ body.nav-position-top > .mobile-top-nav-row .header-menu-button {
+   width:51px!important;height:51px!important;
+ }
+ body.nav-position-top > .mobile-top-nav-row .header-menu-popover {
+   top:calc(100% + 8px)!important;bottom:auto!important;right:0!important;
+ }
+}
+@media print{.mobile-top-nav-row{display:none!important}}
+</style>
+
+<style id="database-single-navigation-tab">
+@media screen and (max-width:650px) {
+ /* Database has its own single navigation label instead of docket tabs. */
+ body.database-page.nav-position-top > .mobile-top-nav-row > .tabs {
+   display:flex!important;align-items:center!important;justify-content:center!important;
+ }
+ body.database-page.nav-position-top > .mobile-top-nav-row > .tabs > button {display:none!important;}
+ body.database-page.nav-position-top > .mobile-top-nav-row > .tabs::before {
+   content:"DATABASE";display:flex;align-items:center;justify-content:center;
+   width:100%;height:43px;border-radius:19px;
+   background:rgba(239,247,255,.94);color:#173e75;
+   font-size:clamp(11px,3.1vw,14px);font-weight:800;letter-spacing:.02em;
+ }
+ body.database-page.nav-position-bottom > .database-bottom-nav-label {
+   display:flex!important;position:fixed!important;z-index:900!important;
+   left:14px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+   width:calc(100% - 98px)!important;max-width:440px!important;height:51px!important;
+   box-sizing:border-box!important;padding:3px!important;border-radius:23px!important;
+   background:rgba(35,52,72,.88);border:1px solid rgba(210,229,251,.30);
+   box-shadow:0 12px 32px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.18);
+   -webkit-backdrop-filter:blur(22px) saturate(155%);backdrop-filter:blur(22px) saturate(155%);
+ }
+ body.database-page.nav-position-bottom > .database-bottom-nav-label > span {
+   display:flex;align-items:center;justify-content:center;width:100%;height:43px;
+   border-radius:19px;background:rgba(239,247,255,.94);color:#173e75;
+   font-size:clamp(11px,3.1vw,14px);font-weight:800;letter-spacing:.02em;
+ }
+ body.theme-light.database-page.nav-position-top > .mobile-top-nav-row > .tabs::before,
+ body.theme-light.database-page.nav-position-bottom > .database-bottom-nav-label > span {
+   background:#fff;color:#2056ad;
+ }
+}
+.database-bottom-nav-label {display:none;}
+@media print {.database-bottom-nav-label{display:none!important;}}
+</style>
+<script id="database-single-navigation-tab-script">
+(function(){
+ const el=document.createElement('div');
+ el.className='database-bottom-nav-label';
+ el.setAttribute('aria-label','Current page: Database');
+ el.innerHTML='<span>DATABASE</span>';
+ document.body.appendChild(el);
+})();
+</script>
+<style id="settings-single-navigation-tab">
+@media screen and (max-width:650px) {
+ body.settings-page.nav-position-top > .mobile-top-nav-row > .tabs {
+   display:flex!important;align-items:center!important;justify-content:center!important;
+ }
+ body.settings-page.nav-position-top > .mobile-top-nav-row > .tabs > button {display:none!important;}
+ body.settings-page.nav-position-top > .mobile-top-nav-row > .tabs::before {
+   content:"SETTINGS";display:flex;align-items:center;justify-content:center;
+   width:100%;height:43px;border-radius:19px;
+   background:rgba(239,247,255,.94);color:#173e75;
+   font-size:clamp(11px,3.1vw,14px);font-weight:800;letter-spacing:.02em;
+ }
+ body.settings-page.nav-position-bottom > .settings-bottom-nav-label {
+   display:flex!important;position:fixed!important;z-index:900!important;
+   left:14px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+   width:calc(100% - 98px)!important;max-width:440px!important;height:51px!important;
+   box-sizing:border-box!important;padding:3px!important;border-radius:23px!important;
+   background:rgba(35,52,72,.88);border:1px solid rgba(210,229,251,.30);
+   box-shadow:0 12px 32px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.18);
+   -webkit-backdrop-filter:blur(22px) saturate(155%);backdrop-filter:blur(22px) saturate(155%);
+ }
+ body.settings-page.nav-position-bottom > .settings-bottom-nav-label > span {
+   display:flex;align-items:center;justify-content:center;width:100%;height:43px;
+   border-radius:19px;background:rgba(239,247,255,.94);color:#173e75;
+   font-size:clamp(11px,3.1vw,14px);font-weight:800;letter-spacing:.02em;
+ }
+ body.theme-light.settings-page.nav-position-top > .mobile-top-nav-row > .tabs::before,
+ body.theme-light.settings-page.nav-position-bottom > .settings-bottom-nav-label > span {
+   background:#fff;color:#2056ad;
+ }
+}
+.settings-bottom-nav-label {display:none;}
+@media print {.settings-bottom-nav-label{display:none!important;}}
+</style>
+<script id="settings-single-navigation-tab-script">
+(function(){
+ const el=document.createElement('div');
+ el.className='settings-bottom-nav-label';
+ el.setAttribute('aria-label','Current page: Settings');
+ el.innerHTML='<span>SETTINGS</span>';
+ document.body.appendChild(el);
+})();
+</script>
+
+<style id="full-width-single-page-mobile-navigation">
+/* Match the page-label dock to the width and height of the normal four-tab dock. */
+@media screen and (max-width:650px) {
+ body.nav-position-bottom.database-page > .database-bottom-nav-label,
+ body.nav-position-bottom.settings-page > .settings-bottom-nav-label {
+   left:14px!important;right:84px!important;width:auto!important;max-width:none!important;
+   height:51px!important;padding:3px!important;display:flex!important;align-items:stretch!important;
+ }
+ body.nav-position-bottom.database-page > .database-bottom-nav-label > span,
+ body.nav-position-bottom.settings-page > .settings-bottom-nav-label > span {
+   flex:1 1 auto!important;width:100%!important;min-width:0!important;
+   height:100%!important;box-sizing:border-box!important;
+ }
+ body.nav-position-top.database-page > .mobile-top-nav-row > .tabs::before,
+ body.nav-position-top.settings-page > .mobile-top-nav-row > .tabs::before {
+   flex:1 1 auto!important;width:100%!important;box-sizing:border-box!important;
+ }
 }
 </style>
 </body>
