@@ -4220,18 +4220,28 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   }
 }
 </style>
+<style>
+/* Page names are already displayed in the mobile navigation. */
+#productDatabasePanel .database-page-heading { display:none!important; }
+</style>
+<style>
+@media screen and (min-width: 768px) {
+  #settingsPage .settings-mobile-navigation-preference { display: none !important; }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
 <section id="taskDatabasePage" hidden style="display:none!important"><button id="taskDatabaseBack" hidden></button></section>
 <section id="settingsPage" hidden aria-label="Settings">
   <button type="button" id="settingsBack" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button>
-  <h2>SETTINGS</h2>
   <div class="settings-card"><h3>Appearance</h3>
   <label for="settingsTheme" class="settings-field-label">Colour theme</label>
-  <select id="settingsTheme" aria-label="Colour theme"><option value="system">Default</option><option value="light">Light</option><option value="dark">Dark</option></select>
-  <label for="settingsNavigationPosition" class="settings-field-label" style="display:block;margin-top:18px">Navigation location (mobile)</label>
-  <select id="settingsNavigationPosition" aria-label="Navigation location on mobile"><option value="top">Top</option><option value="bottom">Bottom</option></select>
+  <select id="settingsTheme" aria-label="Colour theme"><option value="system">System (Default)</option><option value="light">Light</option><option value="dark">Dark</option></select>
+  <div class="settings-mobile-navigation-preference">
+  <label for="settingsNavigationPosition" class="settings-field-label" style="display:block;margin-top:18px">Navigation</label>
+  <select id="settingsNavigationPosition" aria-label="Navigation"><option value="top">Top (Default)</option><option value="bottom">Bottom</option></select>
+  </div>
 </div>
   <div class="settings-card"><h3>Admin</h3>
   <div id="productDbLogin" class="actions" style="margin:12px 0;align-items:center"><input id="productDbPassword" type="password" placeholder="PASSWORD" autocomplete="current-password" style="min-width:190px;flex:1"><button class="action primary" id="productDbLoginButton" type="button">LOGIN</button></div>
@@ -4418,7 +4428,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 
   </section>
   <section class="panel" id="productDatabasePanel" hidden>
-    <div class="database-page-heading"><button type="button" id="backToGenerator" class="action" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button><h2>DATABASE</h2></div>
+    <div class="database-page-heading" hidden style="display:none!important"><button type="button" id="backToGenerator" class="action" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button></div>
     <button type="button" id="toggleProductDatabase" class="action" aria-expanded="false" style="width:100%;text-align:left;font-weight:700">DATABASE ▾</button>
     <div id="productDatabaseBody" hidden style="padding-top:16px">
       <section class="product-request-section" aria-label="Request a product">
@@ -5990,7 +6000,7 @@ body.settings-page .database-page-heading{display:none!important}
   wrapper.appendChild(select);
 
   const pages = [
-    ['generator', 'Pallet Note Generator'],
+    ['generator', 'Pallet Notes'],
     ['database', 'Database'],
     ['settings', 'Settings']
   ];
@@ -6582,8 +6592,8 @@ body.theme-light .category-manager {background:#f8fafc;color:#172334;border-colo
   const picker=document.getElementById('settingsNavigationPosition');
   if(!picker)return;
   const key='png-mobile-navigation-position';
-  let value='bottom';
-  try{if(localStorage.getItem(key)==='top')value='top';}catch(e){}
+  let value='top';
+  try{if(localStorage.getItem(key)==='bottom')value='bottom';}catch(e){}
   function apply(){
     document.body.classList.toggle('nav-position-top',value==='top');
     document.body.classList.toggle('nav-position-bottom',value==='bottom');
