@@ -3576,7 +3576,7 @@ html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr >
  html body #locationSheet .location-docket-qr > .location-scan-heading {display:flex!important;position:relative!important;flex:0 0 9mm!important;width:100%!important;height:9mm!important;min-height:9mm!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;text-align:center!important;margin:0!important;padding:0!important;border:0!important;border-bottom:1.5px solid #111!important;background:#fff!important;font:800 17pt/1 Arial,sans-serif!important;}
  html body #locationSheet .location-docket-code > .location-docket-label::after,
  html body #locationSheet .location-docket-qr > .location-scan-heading::after {content:none!important;display:none!important;}
- html body #locationSheet .location-docket-digits {display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:column!important;flex:1 1 0!important;align-self:stretch!important;width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;overflow:hidden!important;}
+ html body #locationSheet .location-docket-digits {display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-flow:column!important;flex:1 1 0!important;align-self:stretch!important;width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;overflow:hidden!important;}
  html body #locationSheet .location-docket-digits > span {display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;height:100%!important;border-right:1.5px solid #111!important;}
  html body #locationSheet .location-docket-digits > span:last-child {border-right:0!important;}
  html body #locationSheet .location-scan-content {display:flex!important;flex:1 1 0!important;width:100%!important;min-width:0!important;min-height:0!important;align-items:center!important;justify-content:center!important;padding:2.5mm 3mm!important;box-sizing:border-box!important;overflow:hidden!important;}
@@ -4272,11 +4272,11 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 </style>
 <script id="accent-colour-script">
 (function(){
- const palette={white:['#eff7ff','#173e75','#e9f1fa','#173e75'],blue:['#3478f6','#2563eb','#e4edff','#ffffff'],green:['#16a085','#11836d','#ddf5ee','#ffffff'],purple:['#8855dd','#6d3fc0','#f0e7ff','#ffffff'],orange:['#d98528','#b56817','#fff0dc','#ffffff'],red:['#d84b5e','#b42d44','#ffe5ea','#ffffff']};
+ const palette={blue:['#3478f6','#2563eb','#e4edff','#ffffff'],green:['#16a085','#11836d','#ddf5ee','#ffffff'],purple:['#8855dd','#6d3fc0','#f0e7ff','#ffffff'],orange:['#d98528','#b56817','#fff0dc','#ffffff'],red:['#d84b5e','#b42d44','#ffe5ea','#ffffff']};
  const key='png-accent-colour';
  function init(){
-  let current='white';
-  try{const saved=localStorage.getItem(key);if(Object.prototype.hasOwnProperty.call(palette,saved))current=saved;}catch(e){}
+  let current='blue';
+  try{const saved=localStorage.getItem(key);if(Object.prototype.hasOwnProperty.call(palette,saved))current=saved;else if(saved==='white')localStorage.setItem(key,'blue');}catch(e){}
   const choices=Array.from(document.querySelectorAll('.accent-colour-choice'));
   function apply(){const values=palette[current];const root=document.documentElement.style;root.setProperty('--user-accent',values[0]);root.setProperty('--user-accent-deep',values[1]);root.setProperty('--user-accent-tint',values[2]);root.setProperty('--user-accent-text',values[3]);document.documentElement.dataset.selectedAccent=current;choices.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===current)));}
   choices.forEach(b=>b.addEventListener('click',()=>{current=b.dataset.accent;try{localStorage.setItem(key,current);}catch(e){}apply();}));
@@ -4309,10 +4309,10 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 }
 </style>
 <style id="accent-six-in-one-row">
-/* Keep all six accent choices in one evenly spaced row on phones. */
+/* Spread all five accent choices evenly across the available width. */
 #settingsPage .accent-colour-options {
   display:grid!important;
-  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
   gap:5px!important;
   flex-wrap:nowrap!important;
   width:100%!important;
@@ -4390,8 +4390,7 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
   <div class="settings-accent-preference">
     <label class="settings-field-label" id="accentColourLabel" style="margin-top:18px">Accent colour</label>
     <div class="accent-colour-options" role="group" aria-labelledby="accentColourLabel">
-      <button type="button" class="accent-colour-choice" data-accent="white" aria-label="White accent (Default)" title="White (Default)"><span class="accent-dot" style="background:#eff7ff"></span><span>White</span></button>
-      <button type="button" class="accent-colour-choice" data-accent="blue" aria-label="Blue accent" title="Blue"><span class="accent-dot" style="background:#3478f6"></span><span>Blue</span></button>
+      <button type="button" class="accent-colour-choice" data-accent="blue" aria-label="Blue accent (Default)" title="Blue (Default)"><span class="accent-dot" style="background:#3478f6"></span><span>Blue</span></button>
       <button type="button" class="accent-colour-choice" data-accent="green" aria-label="Green accent" title="Green"><span class="accent-dot" style="background:#16a085"></span><span>Green</span></button>
       <button type="button" class="accent-colour-choice" data-accent="purple" aria-label="Purple accent" title="Purple"><span class="accent-dot" style="background:#8855dd"></span><span>Purple</span></button>
       <button type="button" class="accent-colour-choice" data-accent="orange" aria-label="Orange accent" title="Orange"><span class="accent-dot" style="background:#d98528"></span><span>Orange</span></button>
@@ -4403,6 +4402,8 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
   <select id="settingsNavigationPosition" aria-label="Navigation"><option value="top">Top (Default)</option><option value="bottom">Bottom</option></select>
   </div>
   <div class="settings-navigation-customisation">
+    <label for="settingsNavigationDisplay" class="settings-field-label" style="display:block;margin:16px 0 7px">Navigation appearance</label>
+    <select id="settingsNavigationDisplay" aria-label="Navigation appearance" style="width:100%;max-width:100%"><option value="text">Text (Default)</option><option value="icons">Icons</option></select>
     <h3 style="margin:22px 0 6px">Navigation tabs</h3>
     <p class="navigation-editor-help">Drag the handle to reorder. Untick to hide a tab.</p>
     <div id="navigationTabEditor" aria-label="Customise navigation tabs"></div>
@@ -6233,6 +6234,27 @@ body.tasks-page > main,body.tasks-page > #handoverPage,body.tasks-page > #settin
   ['menuProductDatabase','menuGenerateHandover','menuSettings'].forEach(id=>document.getElementById(id).addEventListener('click',close,{capture:true}));
 })();
 </script>
+<style id="navigation-appearance-selector-size-fix">
+/* Match Navigation appearance to the Colour theme and Navigation controls. */
+#settingsNavigationDisplay {
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:46px!important;
+  padding:10px 12px!important;
+  border:1px solid #74869b!important;
+  border-radius:9px!important;
+  background:#29394b!important;
+  color:#fff!important;
+  font:inherit!important;
+  line-height:normal!important;
+}
+body.settings-page #settingsNavigationDisplay {
+  background:var(--settings-button,#29394b)!important;
+  color:var(--settings-ink,#fff)!important;
+}
+</style>
 <style id="settings-appearance-style">
 #settingsPage .settings-field-label{display:block;font-weight:700;margin:4px 0 8px;color:inherit}
 #settingsTheme{display:block;box-sizing:border-box;width:100%;max-width:none;min-height:46px;padding:10px 12px;border:1px solid #74869b;border-radius:9px;background:#29394b;color:#fff;font:inherit}
@@ -7206,5 +7228,40 @@ html body .basket-thumbnail .sheet .mixed-title {
   text-shadow:none !important;
 }
 </style>
+<style id="navigation-icon-display-styles">
+/* Only the four main navigation tabs change; all other buttons remain untouched. */
+body.nav-icons-enabled #singleTab,body.nav-icons-enabled #mixedTab,body.nav-icons-enabled #locationTab,body.nav-icons-enabled #otherTab {font-size:0!important;display:flex;align-items:center;justify-content:center;min-height:48px;}
+body.nav-icons-enabled .nav-tab-icon {display:block;width:27px;height:27px;flex:none;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+body:not(.nav-icons-enabled) .nav-tab-icon {display:none!important;}
+@media print {.nav-tab-icon{display:none!important}}
+</style>
+<script id="navigation-icon-display-script">
+(function(){
+ const select=document.getElementById('settingsNavigationDisplay');
+ if(!select)return;
+ const key='png-navigation-display-v1';
+ const drawings={
+  singleTab:'<rect x="3" y="3" width="18" height="18" rx="4"/>',
+  mixedTab:'<rect x="8" y="3" width="13" height="13" rx="3"/><rect x="3" y="8" width="13" height="13" rx="3"/>',
+  locationTab:'<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+  otherTab:'<path d="M4 4h10l7 7v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M14 4v7h7"/>'
+ };
+ const names={singleTab:'Single',mixedTab:'Multi',locationTab:'Location',otherTab:'Label'};
+ Object.entries(drawings).forEach(([id,markup])=>{
+  const button=document.getElementById(id);if(!button)return;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.setAttribute('class','nav-tab-icon');
+  svg.innerHTML=markup;button.appendChild(svg);
+  button.setAttribute('aria-label',names[id]);button.setAttribute('title',names[id]);
+ });
+ function apply(value){
+  const mode=value==='icons'?'icons':'text';
+  select.value=mode;document.body.classList.toggle('nav-icons-enabled',mode==='icons');
+ }
+ let saved='text';try{saved=localStorage.getItem(key)||'text';}catch(e){}
+ apply(saved);
+ select.addEventListener('change',()=>{apply(select.value);try{localStorage.setItem(key,select.value);}catch(e){}});
+})();
+</script>
 </body>
 </html>
