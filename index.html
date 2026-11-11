@@ -7289,5 +7289,29 @@ body:not(.nav-icons-enabled) .nav-tab-icon {display:none!important;}
  select.addEventListener('change',()=>{apply(select.value);try{localStorage.setItem(key,select.value);}catch(e){}});
 })();
 </script>
+
+<style id="hamburger-light-dark-final-fix">
+/* Final theme-aware menu colours, including the menu moved into the mobile navigation row. */
+@media screen {
+ html:has(body.theme-light) #headerMenuPopover,
+ body.theme-light #headerMenuPopover {
+   background:#f8fafd!important; background-color:#f8fafd!important;
+   color:#17212b!important; border-color:#cbd6e4!important;
+   box-shadow:0 14px 36px rgba(30,47,73,.19)!important;
+ }
+ html:has(body.theme-light) #headerMenuPopover .header-menu-item,
+ body.theme-light #headerMenuPopover .header-menu-item {color:#17212b!important;background:transparent!important;}
+ html:has(body.theme-light) #headerMenuPopover .header-menu-item + .header-menu-item,
+ body.theme-light #headerMenuPopover .header-menu-item + .header-menu-item {border-top-color:#dce4ed!important;}
+ html:has(body.theme-light) #headerMenuPopover .header-menu-item:is(:hover,:focus-visible,:active),
+ body.theme-light #headerMenuPopover .header-menu-item:is(:hover,:focus-visible,:active) {background:#e9f0f8!important;}
+ html:has(body.theme-dark) #headerMenuPopover,
+ body.theme-dark #headerMenuPopover {background:#313f52!important;background-color:#313f52!important;color:#f6f7fb!important;border-color:#52647c!important;}
+ html:has(body.theme-dark) #headerMenuPopover .header-menu-item,
+ body.theme-dark #headerMenuPopover .header-menu-item {color:#f6f7fb!important;background:transparent!important;}
+ html:has(body.theme-dark) #headerMenuPopover .header-menu-item:is(:hover,:focus-visible,:active),
+ body.theme-dark #headerMenuPopover .header-menu-item:is(:hover,:focus-visible,:active) {background:#43556d!important;}
+}
+</style>
 </body>
 </html>
