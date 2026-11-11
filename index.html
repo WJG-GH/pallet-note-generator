@@ -3576,7 +3576,7 @@ html body .sheet:is(#locationSheet,.basket-location-sheet) .location-docket-qr >
  html body #locationSheet .location-docket-qr > .location-scan-heading {display:flex!important;position:relative!important;flex:0 0 9mm!important;width:100%!important;height:9mm!important;min-height:9mm!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;text-align:center!important;margin:0!important;padding:0!important;border:0!important;border-bottom:1.5px solid #111!important;background:#fff!important;font:800 17pt/1 Arial,sans-serif!important;}
  html body #locationSheet .location-docket-code > .location-docket-label::after,
  html body #locationSheet .location-docket-qr > .location-scan-heading::after {content:none!important;display:none!important;}
- html body #locationSheet .location-docket-digits {display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-flow:column!important;flex:1 1 0!important;align-self:stretch!important;width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;overflow:hidden!important;}
+ html body #locationSheet .location-docket-digits {display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:column!important;flex:1 1 0!important;align-self:stretch!important;width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;overflow:hidden!important;}
  html body #locationSheet .location-docket-digits > span {display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;height:100%!important;border-right:1.5px solid #111!important;}
  html body #locationSheet .location-docket-digits > span:last-child {border-right:0!important;}
  html body #locationSheet .location-scan-content {display:flex!important;flex:1 1 0!important;width:100%!important;min-width:0!important;min-height:0!important;align-items:center!important;justify-content:center!important;padding:2.5mm 3mm!important;box-sizing:border-box!important;overflow:hidden!important;}
@@ -4275,10 +4275,25 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
  const palette={blue:['#3478f6','#2563eb','#e4edff','#ffffff'],green:['#16a085','#11836d','#ddf5ee','#ffffff'],purple:['#8855dd','#6d3fc0','#f0e7ff','#ffffff'],orange:['#d98528','#b56817','#fff0dc','#ffffff'],red:['#d84b5e','#b42d44','#ffe5ea','#ffffff']};
  const key='png-accent-colour';
  function init(){
-  let current='blue';
-  try{const saved=localStorage.getItem(key);if(Object.prototype.hasOwnProperty.call(palette,saved))current=saved;else if(saved==='white')localStorage.setItem(key,'blue');}catch(e){}
+  let current='blue',timer=null;
+  try{const saved=localStorage.getItem(key);if(saved==='shift'||Object.prototype.hasOwnProperty.call(palette,saved))current=saved;else if(saved==='white')localStorage.setItem(key,'blue');}catch(e){}
   const choices=Array.from(document.querySelectorAll('.accent-colour-choice'));
-  function apply(){const values=palette[current];const root=document.documentElement.style;root.setProperty('--user-accent',values[0]);root.setProperty('--user-accent-deep',values[1]);root.setProperty('--user-accent-tint',values[2]);root.setProperty('--user-accent-text',values[3]);document.documentElement.dataset.selectedAccent=current;choices.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===current)));}
+  const root=document.documentElement.style;
+  function setColours(values){root.setProperty('--user-accent',values[0]);root.setProperty('--user-accent-deep',values[1]);root.setProperty('--user-accent-tint',values[2]);root.setProperty('--user-accent-text',values[3]);}
+  function apply(){
+   if(timer!==null){clearInterval(timer);timer=null;}
+   document.documentElement.dataset.selectedAccent=current;
+   choices.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===current)));
+   if(current==='shift'){
+    const start=performance.now();
+    function update(){
+     // A complete, seamless colour-wheel rotation takes 90 seconds.
+     const hue=((performance.now()-start)/90000*360+215)%360;
+     setColours([`hsl(${hue} 75% 48%)`,`hsl(${hue} 78% 37%)`,`hsl(${hue} 85% 92%)`,'#ffffff']);
+    }
+    update();timer=setInterval(update,100);
+   }else setColours(palette[current]||palette.blue);
+  }
   choices.forEach(b=>b.addEventListener('click',()=>{current=b.dataset.accent;try{localStorage.setItem(key,current);}catch(e){}apply();}));
   apply();
  }
@@ -4312,7 +4327,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 /* Spread all five accent choices evenly across the available width. */
 #settingsPage .accent-colour-options {
   display:grid!important;
-  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
   gap:5px!important;
   flex-wrap:nowrap!important;
   width:100%!important;
@@ -4349,6 +4364,32 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   position:relative!important;
   overflow:hidden!important;
   flex-shrink:0!important;
+}
+</style>
+<style id="shift-swatch-polish">
+/* Shift uses the same solid circular swatch silhouette as the other colours. */
+#settingsPage .accent-colour-choice[data-accent="shift"] .accent-dot {
+  background:transparent!important;
+  border:3px solid transparent!important;
+  box-shadow:none!important;
+}
+#settingsPage .accent-colour-choice[data-accent="shift"] .accent-dot::before {content:none!important;}
+#settingsPage .accent-colour-choice[data-accent="shift"] .shift-wheel {display:block;width:100%;height:100%;border-radius:50%;overflow:hidden;}
+#settingsPage .accent-colour-choice[data-accent="shift"][aria-pressed="true"] .accent-dot::after {position:absolute;inset:0;text-shadow:0 1px 2px #333;z-index:2;}
+#settingsPage .accent-colour-choice[data-accent="shift"][aria-pressed="true"] .accent-dot {
+  border-color:white!important;
+  box-shadow:0 0 0 2px var(--user-accent)!important;
+}
+/* Match the exact 35px diameter of every other unselected colour dot. */
+#settingsPage .accent-colour-choice[data-accent="shift"]:not([aria-pressed="true"]) .accent-dot {
+  border-width:0!important;
+}
+#settingsPage .accent-colour-choice[data-accent="shift"] .shift-wheel {
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
 }
 </style>
 <style id="custom-sign-match-single-description-font">
@@ -4421,6 +4462,7 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
       <button type="button" class="accent-colour-choice" data-accent="purple" aria-label="Purple accent" title="Purple"><span class="accent-dot" style="background:#8855dd"></span><span>Purple</span></button>
       <button type="button" class="accent-colour-choice" data-accent="orange" aria-label="Orange accent" title="Orange"><span class="accent-dot" style="background:#d98528"></span><span>Orange</span></button>
       <button type="button" class="accent-colour-choice" data-accent="red" aria-label="Red accent" title="Red"><span class="accent-dot" style="background:#d84b5e"></span><span>Red</span></button>
+      <button type="button" class="accent-colour-choice" data-accent="shift" aria-label="Slowly shifting rainbow accent" title="Shift colours slowly"><span class="accent-dot"><svg class="shift-wheel" viewBox="0 0 100 100" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M50 50 L50.000 1.000 A49 49 0 0 1 56.396 1.419 Z" fill="#f54564"/><path d="M50 50 L56.396 1.419 A49 49 0 0 1 62.682 2.670 Z" fill="#f5454e"/><path d="M50 50 L62.682 2.670 A49 49 0 0 1 68.751 4.730 Z" fill="#f55145"/><path d="M50 50 L68.751 4.730 A49 49 0 0 1 74.500 7.565 Z" fill="#f56745"/><path d="M50 50 L74.500 7.565 A49 49 0 0 1 79.829 11.126 Z" fill="#f57d45"/><path d="M50 50 L79.829 11.126 A49 49 0 0 1 84.648 15.352 Z" fill="#f59345"/><path d="M50 50 L84.648 15.352 A49 49 0 0 1 88.874 20.171 Z" fill="#f5a945"/><path d="M50 50 L88.874 20.171 A49 49 0 0 1 92.435 25.500 Z" fill="#f5bf45"/><path d="M50 50 L92.435 25.500 A49 49 0 0 1 95.270 31.249 Z" fill="#f5d545"/><path d="M50 50 L95.270 31.249 A49 49 0 0 1 97.330 37.318 Z" fill="#f5eb45"/><path d="M50 50 L97.330 37.318 A49 49 0 0 1 98.581 43.604 Z" fill="#e8f545"/><path d="M50 50 L98.581 43.604 A49 49 0 0 1 99.000 50.000 Z" fill="#d2f545"/><path d="M50 50 L99.000 50.000 A49 49 0 0 1 98.581 56.396 Z" fill="#bcf545"/><path d="M50 50 L98.581 56.396 A49 49 0 0 1 97.330 62.682 Z" fill="#a6f545"/><path d="M50 50 L97.330 62.682 A49 49 0 0 1 95.270 68.751 Z" fill="#90f545"/><path d="M50 50 L95.270 68.751 A49 49 0 0 1 92.435 74.500 Z" fill="#7af545"/><path d="M50 50 L92.435 74.500 A49 49 0 0 1 88.874 79.829 Z" fill="#64f545"/><path d="M50 50 L88.874 79.829 A49 49 0 0 1 84.648 84.648 Z" fill="#4ef545"/><path d="M50 50 L84.648 84.648 A49 49 0 0 1 79.829 88.874 Z" fill="#45f551"/><path d="M50 50 L79.829 88.874 A49 49 0 0 1 74.500 92.435 Z" fill="#45f567"/><path d="M50 50 L74.500 92.435 A49 49 0 0 1 68.751 95.270 Z" fill="#45f57d"/><path d="M50 50 L68.751 95.270 A49 49 0 0 1 62.682 97.330 Z" fill="#45f593"/><path d="M50 50 L62.682 97.330 A49 49 0 0 1 56.396 98.581 Z" fill="#45f5a9"/><path d="M50 50 L56.396 98.581 A49 49 0 0 1 50.000 99.000 Z" fill="#45f5bf"/><path d="M50 50 L50.000 99.000 A49 49 0 0 1 43.604 98.581 Z" fill="#45f5d5"/><path d="M50 50 L43.604 98.581 A49 49 0 0 1 37.318 97.330 Z" fill="#45f5eb"/><path d="M50 50 L37.318 97.330 A49 49 0 0 1 31.249 95.270 Z" fill="#45e8f5"/><path d="M50 50 L31.249 95.270 A49 49 0 0 1 25.500 92.435 Z" fill="#45d2f5"/><path d="M50 50 L25.500 92.435 A49 49 0 0 1 20.171 88.874 Z" fill="#45bcf5"/><path d="M50 50 L20.171 88.874 A49 49 0 0 1 15.352 84.648 Z" fill="#45a6f5"/><path d="M50 50 L15.352 84.648 A49 49 0 0 1 11.126 79.829 Z" fill="#4590f5"/><path d="M50 50 L11.126 79.829 A49 49 0 0 1 7.565 74.500 Z" fill="#457af5"/><path d="M50 50 L7.565 74.500 A49 49 0 0 1 4.730 68.751 Z" fill="#4564f5"/><path d="M50 50 L4.730 68.751 A49 49 0 0 1 2.670 62.682 Z" fill="#454ef5"/><path d="M50 50 L2.670 62.682 A49 49 0 0 1 1.419 56.396 Z" fill="#5145f5"/><path d="M50 50 L1.419 56.396 A49 49 0 0 1 1.000 50.000 Z" fill="#6745f5"/><path d="M50 50 L1.000 50.000 A49 49 0 0 1 1.419 43.604 Z" fill="#7d45f5"/><path d="M50 50 L1.419 43.604 A49 49 0 0 1 2.670 37.318 Z" fill="#9345f5"/><path d="M50 50 L2.670 37.318 A49 49 0 0 1 4.730 31.249 Z" fill="#a945f5"/><path d="M50 50 L4.730 31.249 A49 49 0 0 1 7.565 25.500 Z" fill="#bf45f5"/><path d="M50 50 L7.565 25.500 A49 49 0 0 1 11.126 20.171 Z" fill="#d545f5"/><path d="M50 50 L11.126 20.171 A49 49 0 0 1 15.352 15.352 Z" fill="#eb45f5"/><path d="M50 50 L15.352 15.352 A49 49 0 0 1 20.171 11.126 Z" fill="#f545e8"/><path d="M50 50 L20.171 11.126 A49 49 0 0 1 25.500 7.565 Z" fill="#f545d2"/><path d="M50 50 L25.500 7.565 A49 49 0 0 1 31.249 4.730 Z" fill="#f545bc"/><path d="M50 50 L31.249 4.730 A49 49 0 0 1 37.318 2.670 Z" fill="#f545a6"/><path d="M50 50 L37.318 2.670 A49 49 0 0 1 43.604 1.419 Z" fill="#f54590"/><path d="M50 50 L43.604 1.419 A49 49 0 0 1 50.000 1.000 Z" fill="#f5457a"/></svg></span><span>Shift</span></button>
     </div>
   </div>
   <div class="settings-mobile-navigation-preference">
