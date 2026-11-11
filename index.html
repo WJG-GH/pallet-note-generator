@@ -4348,9 +4348,14 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
    Exclude scan summary pages, which have their own dedicated print layout. */
 @media print {
   body.printing-basket:not(.printing-scan-sheet) #basketPrint .print-page:not(.scan-print-page) > .sheet {
-    left:calc(50% - 138.5mm + .5mm)!important;
-    top:calc(50% - 95mm + .5mm)!important;
-    transform:rotate(90deg) scale(.98)!important;
+    /* Desktop Edge already has an A4 landscape page: do not rotate it again. */
+    left:5mm!important;
+    top:5mm!important;
+    width:287mm!important; min-width:287mm!important; max-width:287mm!important;
+    height:200mm!important; min-height:200mm!important; max-height:200mm!important;
+    transform:none!important;
+    rotate:none!important;
+    zoom:1!important;
     transform-origin:center center!important;
   }
 }
