@@ -4378,6 +4378,32 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
   }
 }
 </style>
+
+<style id="navigation-popovers-theme-fix">
+/* Match both navigation popovers to the user's light/dark appearance setting. */
+@media screen {
+ body.theme-light .header-menu-popover,
+ body.theme-light .description-matches {
+   background:rgba(249,251,255,.97)!important;
+   color:#17212b!important;
+   border-color:rgba(89,111,140,.28)!important;
+   box-shadow:0 16px 40px rgba(30,47,73,.17),inset 0 1px rgba(255,255,255,.95)!important;
+ }
+ body.theme-light .header-menu-item,
+ body.theme-light .description-match {color:#17212b!important;}
+ body.theme-light .header-menu-item + .header-menu-item,
+ body.theme-light .description-match + .description-match {border-top-color:rgba(64,85,112,.16)!important;}
+ body.theme-light .header-menu-item:hover,
+ body.theme-light .header-menu-item:focus-visible,
+ body.theme-light .header-menu-item:active,
+ body.theme-light .description-match:hover,
+ body.theme-light .description-match:focus-visible,
+ body.theme-light .description-match.is-selected {background:rgba(44,90,154,.11)!important;}
+ body.theme-dark .header-menu-popover,
+ body.theme-dark .description-matches {background:rgba(49,63,82,.97)!important;color:#f6f7fb!important;}
+ body.theme-dark .header-menu-item,body.theme-dark .description-match {color:#f6f7fb!important;}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -5814,7 +5840,7 @@ window.addEventListener('afterprint', () => {
  function renderDescriptionMatches(){
    const desktop=window.matchMedia('(pointer:fine)').matches && window.innerWidth>=768;
    const query=normalize(descriptionInput.value);
-   if(!desktop||!query||document.activeElement!==descriptionInput){hideDescriptionMatches();return;}
+   if(!desktop||!query||document.activeElement!==descriptionInput||products.some(p=>normalize(p.description)===query)){hideDescriptionMatches();return;}
    const matches=products.filter(p=>normalize(p.description).includes(query)).slice(0,12);
    matchPanel.replaceChildren();selectedMatch=-1;
    if(!matches.length){hideDescriptionMatches();return;}
@@ -5854,7 +5880,7 @@ window.addEventListener('afterprint', () => {
      byId('expiry').value=''; // Expiry date is always entered manually for each docket.
    }
    updatePreview();
-   renderDescriptionMatches();
+   if(product)hideDescriptionMatches();else renderDescriptionMatches();
  };
  byId('description').addEventListener('change',window.productDescriptionChanged);
  byId('toggleProductDatabase').onclick=()=>{const body=byId('productDatabaseBody');body.hidden=!body.hidden;byId('toggleProductDatabase').setAttribute('aria-expanded',String(!body.hidden));};
