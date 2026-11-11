@@ -2448,6 +2448,8 @@ html body .sheet .location-docket-description-value {
  font-weight:700 !important;
 }
 .other-sign-content.custom-sign-text{white-space:pre-line!important;overflow-wrap:anywhere!important;letter-spacing:0!important;line-height:1.08!important;box-sizing:border-box!important;min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden!important;}
+/* Custom signs: only user-entered newlines may split text; never auto-wrap in print. */
+.sheet .other-sign-content.custom-sign-text { white-space:pre!important; overflow-wrap:normal!important; word-break:normal!important; }
 
 /* Staff product requests: match existing theme without touching printed labels. */
 .product-request-section{padding:12px;border:1px solid #cbd5e1;border-radius:12px;margin-bottom:18px}
@@ -4258,7 +4260,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   let current='white';
   try{const saved=localStorage.getItem(key);if(Object.prototype.hasOwnProperty.call(palette,saved))current=saved;}catch(e){}
   const choices=Array.from(document.querySelectorAll('.accent-colour-choice'));
-  function apply(){const values=palette[current];const root=document.documentElement.style;root.setProperty('--user-accent',values[0]);root.setProperty('--user-accent-deep',values[1]);root.setProperty('--user-accent-tint',values[2]);root.setProperty('--user-accent-text',values[3]);choices.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===current)));}
+  function apply(){const values=palette[current];const root=document.documentElement.style;root.setProperty('--user-accent',values[0]);root.setProperty('--user-accent-deep',values[1]);root.setProperty('--user-accent-tint',values[2]);root.setProperty('--user-accent-text',values[3]);document.documentElement.dataset.selectedAccent=current;choices.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===current)));}
   choices.forEach(b=>b.addEventListener('click',()=>{current=b.dataset.accent;try{localStorage.setItem(key,current);}catch(e){}apply();}));
   apply();
  }
@@ -4329,6 +4331,16 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   position:relative!important;
   overflow:hidden!important;
   flex-shrink:0!important;
+}
+</style>
+<style id="custom-sign-match-single-description-font">
+/* Custom A4 sign: same embedded Calibri Bold face as Single Docket Description. */
+html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content.custom-sign-text {
+  font-family:"PalletCalibriBold",Calibri,Carlito,sans-serif!important;
+  font-weight:700!important;
+  font-synthesis:none!important;
+  -webkit-text-stroke:0!important;
+  text-shadow:none!important;
 }
 </style>
 </head>
@@ -4856,7 +4868,7 @@ function fitCustomSignText(el){
   let lo=8,hi=125;
   for(let i=0;i<20;i++){
     const size=(lo+hi)/2;
-    ctx.font=`900 ${size}px Arial`;
+    ctx.font=`700 ${size}px "PalletCalibriBold", Calibri, Carlito, sans-serif`;
     const widest=Math.max(...lines.map(line=>ctx.measureText(line||' ').width));
     if(widest<=width-32 && size*1.08*lines.length<=height-32)lo=size;
     else hi=size;
@@ -5618,6 +5630,7 @@ async function printCurrentDocket(){
   printArea.innerHTML = '<div class=\"print-page\">' + clone.outerHTML + '</div>';
   document.body.classList.add('printing-basket');
   await fitPreparedPrintFooters();
+  printArea.querySelectorAll('.basket-other-sheet .other-sign-content.custom-sign-text').forEach(fitCustomSignText);
   enforcePrintedHeadingSizes();
   await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
@@ -5712,6 +5725,7 @@ async function printBasket(){
   document.body.classList.add('printing-basket');
   // Allow the browser to lay out all new pages before opening print preview.
   await fitPreparedPrintFooters();
+  printArea.querySelectorAll('.basket-other-sheet .other-sign-content.custom-sign-text').forEach(fitCustomSignText);
   enforcePrintedHeadingSizes();
   await Promise.all(Array.from(printArea.querySelectorAll('img.linear-ean13-image')).map(img => img.decode().catch(()=>{})));
   window.print();
@@ -7093,6 +7107,92 @@ main > .tabs, .mobile-top-nav-row > .tabs{grid-template-columns:repeat(var(--vis
  body.database-page.nav-position-bottom .database-bottom-nav-label > span {
    background:var(--user-accent)!important;
    color:var(--user-accent-text)!important;
+ }
+}
+</style>
+<style id="accent-hover-colour-fix">
+/* Screen-only hover colours follow the chosen Appearance accent. */
+@media screen and (hover:hover) {
+ body .action.primary:hover:not(:disabled),
+ body button.primary:hover:not(:disabled) {
+   background:var(--user-accent-deep)!important;
+   border-color:var(--user-accent-deep)!important;
+   color:var(--user-accent-text)!important;
+   box-shadow:0 3px 10px rgba(0,0,0,.13)!important;
+ }
+ body .action:not(.primary):hover:not(:disabled),
+ body .scan-barcode-btn:hover:not(:disabled),
+ body .tabs > button:not(.active):hover,
+ body .desktop-page-menu button:hover,
+ body .header-menu-item:hover {
+   background:var(--user-accent-tint)!important;
+   border-color:var(--user-accent)!important;
+   color:var(--user-accent-deep)!important;
+ }
+ body .tabs > button.active:hover {
+   background:var(--user-accent-deep)!important;
+   border-color:var(--user-accent-deep)!important;
+   color:var(--user-accent-text)!important;
+ }
+}
+</style>
+<style id="accent-mobile-pressed-and-gradient-fix">
+/* Remove the old blue gradient layer: background-color alone cannot cover it. */
+@media screen {
+ body .action.primary, body button.primary {
+   background-image:none!important;
+   background-color:var(--user-accent)!important;
+   border-color:var(--user-accent-deep)!important;
+   color:var(--user-accent-text)!important;
+ }
+ body .action.primary:disabled, body button.primary:disabled {
+   background-image:none!important;
+   background-color:var(--user-accent)!important;
+   opacity:.48;
+ }
+ body .action.primary:active:not(:disabled), body button.primary:active:not(:disabled),
+ body .action.primary:focus:not(:disabled), body button.primary:focus:not(:disabled),
+ body .action.primary:hover:not(:disabled), body button.primary:hover:not(:disabled) {
+   background-image:none!important;
+   background-color:var(--user-accent-deep)!important;
+   border-color:var(--user-accent-deep)!important;
+   color:var(--user-accent-text)!important;
+ }
+ body .action:not(.primary):active:not(:disabled),
+ body .tabs > button:not(.active):active,
+ body .scan-barcode-btn:active:not(:disabled) {
+   background-image:none!important;
+   background-color:var(--user-accent-tint)!important;
+   border-color:var(--user-accent)!important;
+   color:var(--user-accent-deep)!important;
+ }
+ body .tabs > button.active:active {background-color:var(--user-accent-deep)!important;border-color:var(--user-accent-deep)!important;color:var(--user-accent-text)!important;}
+ body .action:focus-visible, body button.primary:focus-visible, body .tabs button:focus-visible {
+   outline:2px solid var(--user-accent)!important;
+   outline-offset:2px;
+ }
+}
+</style>
+
+<style id="white-accent-button-contrast-fix">
+/* White appearance needs dark readable button labels, not legacy blue fills. */
+@media screen {
+ html[data-selected-accent="white"] body button.action.primary,
+ html[data-selected-accent="white"] body button.primary {
+   background:#eff7ff!important; background-image:none!important;
+   border:1px solid #a9bfd7!important; color:#173e75!important;
+   -webkit-text-fill-color:#173e75!important; text-shadow:none!important;
+ }
+ html[data-selected-accent="white"] body button.action.primary:hover:not(:disabled),
+ html[data-selected-accent="white"] body button.action.primary:active:not(:disabled),
+ html[data-selected-accent="white"] body button.action.primary:focus:not(:disabled),
+ html[data-selected-accent="white"] body button.primary:hover:not(:disabled),
+ html[data-selected-accent="white"] body button.primary:active:not(:disabled) {
+   background:#e2edf9!important; background-image:none!important;
+   color:#173e75!important; -webkit-text-fill-color:#173e75!important;
+ }
+ html[data-selected-accent="white"] body button.action.primary:disabled {
+   opacity:.55!important; color:#173e75!important; -webkit-text-fill-color:#173e75!important;
  }
 }
 </style>
