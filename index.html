@@ -2561,6 +2561,24 @@ body.handover-page #handoverPage { width:100%; max-width:1100px; }
 @media(max-width:400px){.header-menu-item{font-size:18px;}}
 
 
+
+/* Desktop description suggestions: same translucent style as the hamburger menu. */
+.description-autocomplete-anchor{position:relative;min-width:0;width:100%}
+.description-autocomplete-anchor>#description{width:100%!important}
+.description-matches{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:1500;
+ max-height:310px;overflow-y:auto;overscroll-behavior:contain;padding:6px 0;
+ background:rgba(49,63,82,.97);-webkit-backdrop-filter:blur(24px) saturate(135%);
+ backdrop-filter:blur(24px) saturate(135%);border:1px solid rgba(180,195,214,.23);
+ border-radius:18px;box-shadow:0 18px 45px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.12)}
+.description-matches[hidden]{display:none!important}
+.description-match{display:block;width:100%;min-height:45px;padding:10px 16px;border:0;
+ background:transparent;color:#f6f7fb;text-align:left;font:400 16px/1.3 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+ cursor:pointer;overflow-wrap:anywhere;text-transform:none}
+.description-match+.description-match{border-top:1px solid rgba(225,233,243,.15)}
+.description-match:hover,.description-match:focus-visible,.description-match.is-selected{background:rgba(255,255,255,.12);outline:none}
+@media(pointer:coarse){.description-matches{display:none!important}}
+@media print{.description-matches{display:none!important}}
+
 /* One product picker with category headings; responsive and print-safe. */
 .description-product-row{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:10px;width:100%;min-width:0}
 .description-product-row input,.description-product-row select{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box!important;margin:0!important}
@@ -4428,7 +4446,7 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
   <section class="panel">
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
-      <label>Product / description<div class="description-product-row"><input id="description" list="savedProductDescriptions" autocomplete="off" maxlength="35" placeholder="Product description" oninput="productDescriptionChanged()"><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
+      <label>Product / description<div class="description-product-row"><div class="description-autocomplete-anchor"><input id="description" list="savedProductDescriptions" autocomplete="off" maxlength="35" placeholder="Product description" oninput="productDescriptionChanged()" aria-autocomplete="list" aria-controls="descriptionMatches" aria-expanded="false"><div id="descriptionMatches" class="description-matches" role="listbox" hidden></div></div><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
       <datalist id="savedProductDescriptions"></datalist><script>
 /* Retain saved-product datalist on phones/tablets, but suppress the
    duplicate native suggestions on desktop. The separate arrow picker
@@ -4452,7 +4470,7 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
       <div class="single-barcode-entry">
         
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
-        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="singleCode" aria-label="Scan barcode 1 with camera">Scan Barcode</button>
+        <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>
       </div>
       <div class="single-details-row">
         <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
@@ -4623,111 +4641,7 @@ html body .sheet:is(#otherSheet,.basket-other-sheet) .other-sign-content {
   </section>
 </main>
 
-<div id="barcodeScannerOverlay" hidden role="dialog" aria-modal="true" aria-label="Scan product barcode">
-  <div id="barcodeScannerPanel">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><strong>Scan product barcode</strong><button id="barcodeScannerClose" type="button">Close ✕</button></div>
-    <p style="font-size:14px;margin:10px 0">Point the rear camera at a product barcode. The number will fill the selected field automatically.</p>
-    <div class="scanner-controls"><button id="barcodeTorchToggle" type="button" aria-pressed="false" disabled>Torch: Starting…</button></div>
-    <div id="barcodeScannerReader"></div>
-    <p id="barcodeScannerStatus" role="status">Starting camera…</p>
-  </div>
-</div>
 <script>
-
-// Camera barcode scanning (EAN-8, EAN-13, UPC, Code 128, etc.).
-// The scanner library is loaded on demand, so printing and offline form use stay unchanged.
-let activeBarcodeScanner=null, activeBarcodeTarget=null, barcodeScannerBusy=false;
-let barcodeTorchOn=false, barcodeTorchSupported=false;
-function updateScannerControls(){
-  const torch=document.getElementById('barcodeTorchToggle');
-  torch.textContent='Torch: '+(barcodeTorchOn?'ON':'OFF');
-  torch.setAttribute('aria-pressed',String(barcodeTorchOn));
-  torch.disabled=!activeBarcodeScanner||!barcodeTorchSupported;
-  torch.title=barcodeTorchSupported?'Turn the camera torch on or off':'Torch is unavailable on this camera/browser';
-}
-async function setBarcodeTorch(on){
-  if(!activeBarcodeScanner||!barcodeTorchSupported)return;
-  try{
-    await activeBarcodeScanner.applyVideoConstraints({advanced:[{torch:on}]});
-    barcodeTorchOn=on;
-  }catch(e){barcodeTorchOn=false;barcodeScannerStatus('Torch control is not supported by this camera/browser. Scanning still works.');}
-  updateScannerControls();
-}
-async function stopBarcodeCamera(){
-  const scanner=activeBarcodeScanner;activeBarcodeScanner=null;
-  barcodeTorchOn=false;barcodeTorchSupported=false;updateScannerControls();
-  if(scanner){try{await scanner.stop();}catch(e){}try{scanner.clear();}catch(e){}}
-}
-function barcodeScannerStatus(message){document.getElementById('barcodeScannerStatus').textContent=message;}
-function loadBarcodeScannerLibrary(){
-  if(window.Html5Qrcode) return Promise.resolve();
-  if(window.barcodeScannerScriptPromise) return window.barcodeScannerScriptPromise;
-  window.barcodeScannerScriptPromise=new Promise((resolve,reject)=>{
-    const script=document.createElement('script');
-    script.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
-    script.onload=()=>window.Html5Qrcode?resolve():reject(new Error('Scanner library did not load.'));
-    script.onerror=()=>reject(new Error('Scanner library could not load. Check your internet connection.'));
-    document.head.appendChild(script);
-  }).catch(error=>{window.barcodeScannerScriptPromise=null;throw error;});
-  return window.barcodeScannerScriptPromise;
-}
-async function closeBarcodeScanner(){
-  document.getElementById('barcodeScannerOverlay').hidden=true;
-  activeBarcodeTarget=null;
-  await stopBarcodeCamera();
-  barcodeScannerBusy=false;
-}
-async function openBarcodeScanner(targetId){
-  if(barcodeScannerBusy)return;
-  const field=document.getElementById(targetId);
-  if(!field)return;
-  if(!window.isSecureContext){alert('Camera scanning requires HTTPS. Open your deployed Render website to scan.');return;}
-  if(!navigator.mediaDevices?.getUserMedia){alert('This browser does not support camera access. You can still type or use a handheld scanner.');return;}
-  barcodeScannerBusy=true;
-  barcodeTorchOn=false;barcodeTorchSupported=false;
-  activeBarcodeTarget=targetId;updateScannerControls();
-  document.getElementById('barcodeScannerOverlay').hidden=false;
-  barcodeScannerStatus('Loading barcode scanner…');
-  try{
-    await loadBarcodeScannerLibrary();
-    if(activeBarcodeTarget!==targetId)return;
-    const formats=[
-      Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.ITF
-    ];
-    const scanner=new Html5Qrcode('barcodeScannerReader',{formatsToSupport:formats,verbose:false});
-    activeBarcodeScanner=scanner;
-    barcodeScannerStatus('Allow camera access, then hold the barcode steady in view.');
-    await scanner.start({facingMode:'environment'},{fps:10,qrbox:(w,h)=>({width:Math.max(100,Math.floor(w*.86)),height:Math.max(80,Math.floor(Math.min(h*.5,130)))} )},async decoded=>{
-      if(!activeBarcodeTarget)return;
-      const cleaned=String(decoded).replace(/\D/g,'');
-      if(!cleaned||cleaned.length>13)return;
-      const input=document.getElementById(activeBarcodeTarget);
-      if(input){input.value=cleaned;input.dispatchEvent(new Event('input',{bubbles:true}));}
-      await closeBarcodeScanner();
-    },()=>{});
-    barcodeScannerBusy=false;
-    try{
-      const caps=scanner.getRunningTrackCameraCapabilities?.();
-      barcodeTorchSupported=!!(caps?.torchFeature?.().isSupported?.() || scanner.getRunningTrackCapabilities?.()?.torch);
-    }catch(e){barcodeTorchSupported=false;}
-    updateScannerControls();
-    if(barcodeTorchSupported && activeBarcodeScanner===scanner) await setBarcodeTorch(true);
-  }catch(error){
-    barcodeScannerBusy=false;
-    barcodeScannerStatus('Camera could not start: '+(error?.message||error)+'. Check camera permission and use the live HTTPS website.');
-  }
-}
-document.addEventListener('click',event=>{
-  const scan=event.target.closest('[data-scan-target]');
-  if(scan){openBarcodeScanner(scan.dataset.scanTarget);return;}
-  if(event.target.id==='barcodeScannerClose')closeBarcodeScanner();
-  if(event.target.id==='barcodeTorchToggle')setBarcodeTorch(!barcodeTorchOn);
-
-});
-
 let type = 'single';
 function cells(container, count, values='') {
   container.innerHTML = '';
@@ -4949,7 +4863,7 @@ function buildMixedInputs(){
   for(let i=1;i<=4;i++){
     const group=document.createElement('div');
     group.style.cssText='border:1px solid #d9dee4;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 100px;gap:8px';
-    group.innerHTML=`<label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label><button class="scan-barcode-btn scan-barcode-wide" type="button" data-scan-target="mcode${i}" aria-label="Scan barcode ${i} with camera">Scan Barcode</button>`;
+    group.innerHTML=`<label>Barcode<input id="mcode${i}" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label><label>Qty (3 digits)<input id="mqty${i}" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>`;
     host.appendChild(group);
   }
   syncMultiBarcodeInputs();
@@ -5499,6 +5413,11 @@ async function resumeCloudBasket(selectedCode){
 function clearBasket(){
   setEditingState(-1);
   docketBasket.length = 0;
+  // Detach the previous saved basket so the next save creates a fresh code.
+  cloudBasketCode = '';
+  document.getElementById('cloudBasketCode').textContent = '';
+  document.getElementById('cloudBasketCodeBox').style.display = 'none';
+  cloudStatus('Basket cleared. Add dockets and save to generate a new basket code.');
   renderBasket();
 }
 function restorePrintTextSizes(sheet){
@@ -5718,7 +5637,10 @@ function askScanSheetChoice(){
 }
 async function printBasket(){
   if(!docketBasket.length) return;
-  const includeScanSheet=await askScanSheetChoice();
+  // Only offer a barcode sheet when the basket contains Single or Multi product barcodes.
+  // Location and LABELS dockets never generate barcode-sheet entries.
+  const scanEntries=getBasketScanEntries();
+  const includeScanSheet=scanEntries.length>0 ? await askScanSheetChoice() : false;
   const printArea = prepareIsolatedPrintArea();
   // Create one physical print page per requested copy, rather than relying on
   // the printer's own Copies setting (which is unreliable in iOS Edge).
@@ -5736,7 +5658,7 @@ async function printBasket(){
       pages.push('<div class="print-page">' + printClone.innerHTML + '</div>');
     }
   });
-  if(includeScanSheet) pages.push(...createScanSheetPages(getBasketScanEntries()));
+  if(includeScanSheet) pages.push(...createScanSheetPages(scanEntries));
   printArea.innerHTML = pages.join('');
   document.body.classList.remove('printing-scan-sheet');
   document.body.classList.add('printing-basket');
@@ -5872,6 +5794,7 @@ window.addEventListener('afterprint', () => {
    }
    for(const group of groups.values())if(group.children.length)picker.appendChild(group);
    picker.value=''; // Always display only the arrow, never the selected product name.
+   if(typeof renderDescriptionMatches==='function')renderDescriptionMatches();
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
  }
  async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
@@ -5883,6 +5806,41 @@ window.addEventListener('afterprint', () => {
    window.productDescriptionChanged();
    this.value=''; // Restore the arrow after choosing a product.
  });
+ const descriptionInput=byId('description');
+ const matchPanel=byId('descriptionMatches');
+ let selectedMatch=-1;
+ function hideDescriptionMatches(){matchPanel.hidden=true;descriptionInput.setAttribute('aria-expanded','false');selectedMatch=-1;}
+ function renderDescriptionMatches(){
+   const desktop=window.matchMedia('(pointer:fine)').matches && window.innerWidth>=768;
+   const query=normalize(descriptionInput.value);
+   if(!desktop||!query||document.activeElement!==descriptionInput){hideDescriptionMatches();return;}
+   const matches=products.filter(p=>normalize(p.description).includes(query)).slice(0,12);
+   matchPanel.replaceChildren();selectedMatch=-1;
+   if(!matches.length){hideDescriptionMatches();return;}
+   matches.forEach(p=>{
+     const item=document.createElement('button');item.type='button';item.className='description-match';
+     item.setAttribute('role','option');item.textContent=p.description;
+     item.addEventListener('pointerdown',e=>e.preventDefault());
+     item.addEventListener('click',()=>chooseDescriptionMatch(p.description));
+     matchPanel.appendChild(item);
+   });
+   matchPanel.hidden=false;descriptionInput.setAttribute('aria-expanded','true');
+ }
+ function chooseDescriptionMatch(value){descriptionInput.value=value;hideDescriptionMatches();window.productDescriptionChanged();descriptionInput.focus();}
+ descriptionInput.addEventListener('focus',renderDescriptionMatches);
+ descriptionInput.addEventListener('blur',()=>setTimeout(hideDescriptionMatches,120));
+ descriptionInput.addEventListener('keydown',e=>{
+   if(matchPanel.hidden)return;
+   const items=[...matchPanel.querySelectorAll('.description-match')];
+   if(e.key==='Escape'){hideDescriptionMatches();e.preventDefault();return;}
+   if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+     e.preventDefault();selectedMatch=(selectedMatch+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;
+     items.forEach((item,i)=>item.classList.toggle('is-selected',i===selectedMatch));
+     items[selectedMatch]?.scrollIntoView({block:'nearest'});
+   }else if(e.key==='Enter'&&selectedMatch>=0){e.preventDefault();items[selectedMatch].click();}
+ });
+ document.addEventListener('pointerdown',e=>{if(!e.target.closest('.description-autocomplete-anchor'))hideDescriptionMatches();});
+ window.addEventListener('resize',hideDescriptionMatches);
  window.productDescriptionChanged=function(){
    const descriptionField=byId('description');
    if(descriptionField.value.length>35)descriptionField.value=descriptionField.value.slice(0,35);
@@ -5895,6 +5853,7 @@ window.addEventListener('afterprint', () => {
      byId('expiry').value=''; // Expiry date is always entered manually for each docket.
    }
    updatePreview();
+   renderDescriptionMatches();
  };
  byId('description').addEventListener('change',window.productDescriptionChanged);
  byId('toggleProductDatabase').onclick=()=>{const body=byId('productDatabaseBody');body.hidden=!body.hidden;byId('toggleProductDatabase').setAttribute('aria-expanded',String(!body.hidden));};
@@ -7228,6 +7187,23 @@ html body #basketPrint .sheet .mixed-title {
   -webkit-text-stroke:0!important;
   text-shadow:none!important;
   letter-spacing:normal!important;
+}
+</style>
+<style id="pallet-title-preview-print-font-consistency">
+/* The title must use the exact same face and weight as the description,
+   including the live preview, saved basket thumbnails and printed clones. */
+html body .sheet .mixed-title,
+html body .sheet h2.mixed-title,
+html body #basketPrint .sheet .mixed-title,
+html body .basket-thumbnail .sheet .mixed-title {
+  font-family:"PalletCalibriBold",Calibri,Carlito,sans-serif !important;
+  font-weight:700 !important;
+  font-synthesis:none !important;
+  font-style:normal !important;
+  font-stretch:normal !important;
+  letter-spacing:normal !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
 }
 </style>
 </body>
