@@ -3988,6 +3988,15 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 }
 @media print { .workspace-tools { display:none !important; } }
 </style>
+<style id="screen-preview-horizontal-centering-fix">
+/* Screen-only alignment: retain the existing zoom sizing and all print layouts. */
+@media screen {
+  #previewWrap > .sheet.preview-active:not([hidden]) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -6972,5 +6981,38 @@ init();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupWorkspaceTools);else setupWorkspaceTools();
 })();
 </script>
+
+<style id="desktop-menu-appearance-correction">
+/* The active desktop menu is .desktop-page-menu, not the hidden legacy popover. */
+@media screen and (min-width:768px) {
+  body.theme-light .desktop-page-menu {
+    background:#ffffff!important; color:#19283b!important; border-color:#c7d2df!important;
+    box-shadow:0 16px 40px rgba(20,35,55,.20)!important;
+  }
+  body.theme-light .desktop-page-menu button {color:#19283b!important;background:transparent!important;}
+  body.theme-light .desktop-page-menu button:hover,
+  body.theme-light .desktop-page-menu button:focus-visible {background:#e9eff7!important;color:#19283b!important;}
+  body.theme-light .desktop-page-menu .menu-separator {background:#dce4ed!important;}
+  body.theme-dark .desktop-page-menu {
+    background:#1d2d42!important;color:#f1f5f9!important;border-color:#526982!important;
+  }
+  body.theme-dark .desktop-page-menu button {color:#f1f5f9!important;background:transparent!important;}
+  body.theme-dark .desktop-page-menu button:hover,
+  body.theme-dark .desktop-page-menu button:focus-visible {background:#344b67!important;color:#fff!important;}
+  /* The header stays navy in both themes: match its button rather than showing a white square. */
+  body.theme-light > header #headerMenuButton,
+  body.theme-dark > header #headerMenuButton {
+    background:#26394f!important;color:#f6f8fc!important;border:1px solid #536a84!important;
+    box-shadow:none!important;border-radius:12px!important;
+  }
+  body.theme-light > header #headerMenuButton:hover,
+  body.theme-light > header #headerMenuButton[aria-expanded="true"],
+  body.theme-dark > header #headerMenuButton:hover,
+  body.theme-dark > header #headerMenuButton[aria-expanded="true"] {
+    background:#344d68!important;color:#fff!important;border-color:#718ba8!important;
+  }
+  body > header #headerMenuButton .header-menu-icon {color:inherit!important;stroke:currentColor!important;}
+}
+</style>
 </body>
 </html>
