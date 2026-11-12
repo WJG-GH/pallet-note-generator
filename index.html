@@ -5030,6 +5030,30 @@ function addToBasket(){
   if(type==='other')updateOtherPreview();else updatePreview();
   fitPreview();
   renderBasket();
+  // Quick-add originates in the Database tab, where the live docket is hidden.
+  // Fit the actual mounted A4 basket sheet after layout, then persist those
+  // measurements to the saved markup used for printing and basket restore.
+  if(window.__smartQuickAddPending && type==='single'){
+    window.__smartQuickAddPending=false;
+    const savedItem=item;
+    const refit=()=>{
+      const entries=[...document.querySelectorAll('#basketItems .basket-entry')];
+      const entry=entries[entries.length-1];
+      const sheet=entry?.querySelector('.basket-thumbnail-inner > .sheet');
+      if(!sheet)return;
+      const oldTransform=sheet.style.transform;
+      const oldZoom=sheet.style.zoom;
+      sheet.style.transform='none';
+      sheet.style.zoom='1';
+      // The full-size sheet is in the DOM and has real box dimensions.
+      fitTextToBoxes(sheet);
+      savedItem.markup=sheet.outerHTML;
+      sheet.style.transform=oldTransform;
+      sheet.style.zoom=oldZoom;
+      sizeBasketPreviews();
+    };
+    requestAnimationFrame(()=>requestAnimationFrame(refit));
+  }
 }
 function sizeBasketPreviews(){
   document.querySelectorAll('.basket-thumbnail-inner').forEach(viewport => {
@@ -7349,7 +7373,7 @@ requestAnimationFrame(()=>{
   else if(right>filters.scrollLeft+filters.clientWidth-5)filters.scrollLeft=right-filters.clientWidth+5;
 });
 const terms=norm(search.value).split(' ').filter(Boolean);const found=cache.filter(p=>(active==='All'||(p.category||'Other')===active)&&terms.every(t=>norm(p.description+' '+p.barcode+' '+(p.category||'Other')).includes(t))).sort((a,b)=>String(a.description).localeCompare(String(b.description),undefined,{numeric:true,sensitivity:'base'}));count.textContent=found.length+' '+(found.length===1?'product':'products')+' found';results.replaceChildren();if(!found.length){results.appendChild(node('p','hint',cache.length?'No matching products. Try another description or barcode.':'No products loaded.'));return;}
-found.forEach(p=>{const card=node('details','smart-product-card');const summary=node('summary');const main=node('div','smart-product-main');main.append(node('strong','',p.description),node('small','',p.barcode));const side=node('div','smart-product-side');const categoryTag=node('span','smart-product-tag',p.category||'Other');styleCategory(categoryTag,p.category||'Other');side.append(categoryTag,node('span','','QTY: '+p.quantity),node('span','',p.expiry_required?'EXPIRY: YES':'EXPIRY: NO'));summary.append(main,side,node('span','','⌄'));card.appendChild(summary);const detail=node('div','smart-product-detail');const grid=node('div','smart-product-detail-grid');[['DESCRIPTION',p.description],['BARCODE',p.barcode],['QTY',p.quantity],['EXPIRY REQUIRED',p.expiry_required?'YES':'NO']].forEach(([k,v])=>{const box=node('div');box.append(node('small','',k),node('strong','',String(v??'')));grid.appendChild(box)});detail.appendChild(grid);const use=node('button','action primary smart-product-use','Use product');use.type='button';use.onclick=()=>{
+found.forEach(p=>{const card=node('details','smart-product-card');const summary=node('summary');const main=node('div','smart-product-main');main.append(node('strong','',p.description),node('small','',p.barcode));const side=node('div','smart-product-side');const categoryTag=node('span','smart-product-tag',p.category||'Other');styleCategory(categoryTag,p.category||'Other');side.append(categoryTag,node('span','','QTY: '+p.quantity),node('span','',p.expiry_required?'EXPIRY: YES':'EXPIRY: NO'));summary.append(main,side,node('span','','⌄'));card.appendChild(summary);const detail=node('div','smart-product-detail');const grid=node('div','smart-product-detail-grid');[['DESCRIPTION',p.description],['BARCODE',p.barcode],['QTY',p.quantity],['EXPIRY REQUIRED',p.expiry_required?'YES':'NO']].forEach(([k,v])=>{const box=node('div');box.append(node('small','',k),node('strong','',String(v??'')));grid.appendChild(box)});detail.appendChild(grid);const use=node('button','action primary smart-product-use','Add to basket');use.type='button';use.onclick=()=>{
   // Create the basket docket directly from the selected database record.
   // Keep the operator's existing completed-by and located-date fields.
   if(typeof setType!=='function'||typeof addToBasket!=='function')return;
@@ -7363,9 +7387,11 @@ found.forEach(p=>{const card=node('details','smart-product-card');const summary=
   const expiryDate=document.getElementById('expiry');if(expiryDate)expiryDate.value='';
   if(typeof updatePreview==='function')updatePreview();
   const before=docketBasket.length;
+  window.__smartQuickAddPending=true;
   addToBasket();
+  if(docketBasket.length<=before)window.__smartQuickAddPending=false;
   if(docketBasket.length<=before)return;
-  const original='Use product';
+  const original='Add to basket';
   use.textContent='✓ Added to basket';
   use.classList.add('smart-product-added');
   use.disabled=true;
