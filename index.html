@@ -2594,6 +2594,14 @@ body.settings-page #settingsNavigationPosition{background:var(--settings-button,
  body.printing-basket #basketPrint .basket-single-sheet .single-right-stack {grid-template-rows:1.15fr .85fr!important;}
  body.printing-basket #basketPrint .basket-single-sheet .single-quantity .qty-cells > span {font-size:43pt!important;}
 }
+.single-request-box{border:1px solid #c7d2df;border-radius:12px;padding:12px;margin-top:8px;min-width:0}
+.single-request-box>button{width:100%}
+#singleRequestDetails{padding-top:10px}
+#singleRequestDetails label{margin:12px 0}
+#singleRequestCategory{width:100%;min-height:44px;border-radius:8px;padding:10px;background:var(--surface,#fff);color:inherit;border:1px solid #aab6c3}
+#singleRequestSubmit{width:100%}
+@media print{.single-request-box{display:none!important}}
+.basket-entry{display:flex;flex-direction:column}.basket-entry-top{order:0}.basket-entry-buttons{order:1}.basket-request-details{order:2;padding:12px;margin:0 0 14px;border:1px solid #cbd5e1;border-radius:9px}.basket-request-details label{margin:10px 0}.basket-request-details select{width:100%;min-height:46px;padding:10px;border-radius:7px;background:#fff;color:#111}.basket-request-details button{width:100%;margin-top:10px}.basket-thumbnail{order:3}
 </style>
 <style id="high-contrast-without-reverse">.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span.barcode-last-four,
 .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span.barcode-last-four {
@@ -3997,6 +4005,10 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   }
 }
 </style>
+
+<style>
+.basket-request-button:disabled {opacity:.48!important;cursor:not-allowed!important;filter:grayscale(1);box-shadow:none!important;}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -4226,6 +4238,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
             <label class="product-category-field">Category<select id="requestProductCategory" required><option value="">SELECT CATEGORY</option></select></label>
             <label>Qty<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
           </div>
+          <label class="expiry-toggle"><input type="checkbox" id="requestExpiryRequired"><span>EXPIRY DATE REQUIRED</span></label>
           <button class="action primary" id="submitProductRequest" type="submit" style="width:100%;margin-top:12px">Submit for approval</button>
         </form>
         <p id="productRequestMessage" class="hint" role="status" aria-live="polite"></p>
@@ -4890,6 +4903,17 @@ function sizeBasketPreviews(){
     viewport.style.height = Math.ceil(height * scale) + 'px';
   });
 }
+function basketProductAlreadyExists(item){
+  if(item.type!=='single')return false;
+  const products=window.sharedProductsForScanSheet;
+  if(!Array.isArray(products))return false;
+  const v=item.values||{};
+  const norm=x=>String(x??'').trim().replace(/\s+/g,' ').toUpperCase();
+  const barcode=String(v.singleCode??'').trim();
+  const description=norm(v.description);
+  return products.some(p=>(barcode && String(p.barcode??'').trim()===barcode) ||
+    (description && norm(p.description)===description));
+}
 function renderBasket(){
   const list = document.getElementById('basketItems');
   document.getElementById('basketCount').textContent = '(' + docketBasket.length + (docketBasket.length === 1 ? ' docket' : ' dockets') + ')';
@@ -4941,6 +4965,32 @@ function renderBasket(){
         renderBasket();
       };
       buttons.append(edit, duplicate, remove);
+      if(item.type === 'single'){
+        const request=document.createElement('button');
+        request.type='button';request.className='action basket-request-button';request.textContent='Request product';
+        request.setAttribute('aria-expanded','false');
+        const alreadyExists=basketProductAlreadyExists(item);
+        if(alreadyExists){
+          request.disabled=true;
+          request.textContent='Already in database';
+          request.title='This barcode or product description already exists in the database';
+          request.setAttribute('aria-label','Product already in database — request unavailable');
+        }
+        const details=document.createElement('div');
+        details.className='basket-request-details';details.hidden=true;
+        const categoryLabel=document.createElement('label');categoryLabel.textContent='Product category';
+        const category=document.createElement('select');category.required=true;
+        const source=document.getElementById('requestProductCategory');
+        if(source)category.replaceChildren(...Array.from(source.options,o=>new Option(o.text,o.value)));
+        categoryLabel.appendChild(category);
+        const submit=document.createElement('button');submit.type='button';submit.className='action primary';submit.textContent='Submit for approval';
+        const status=document.createElement('p');status.className='hint';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+        submit.onclick=()=>window.submitBasketProductRequest(item,category.value,submit,status);
+        details.append(categoryLabel,submit,status);
+        request.onclick=()=>{details.hidden=!details.hidden;request.setAttribute('aria-expanded',String(!details.hidden));};
+        buttons.appendChild(request);
+        entry.appendChild(details);
+      }
     } else {
       buttons.append(edit, remove);
     }
@@ -5444,7 +5494,7 @@ window.addEventListener('afterprint', () => {
    if(typeof renderDescriptionMatches==='function')renderDescriptionMatches();
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
  }
- async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();}catch(e){status('Cannot load shared products: '+e.message);}}
+ async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();renderBasket();}catch(e){status('Cannot load shared products: '+e.message);}}
  window.reloadProductDatabase=load;
  document.addEventListener('shared-product-categories-updated',refresh);
  byId('singleProductPicker').addEventListener('change',function(){
@@ -5571,6 +5621,23 @@ document.addEventListener('input', function(event) {
     if(!response.ok)throw new Error(data.error||'Request failed ('+response.status+')');
     return data;
   };
+  // Requests are submitted from the saved single docket in the basket.
+  window.submitBasketProductRequest=async function(item,category,button,status){
+    if(basketProductAlreadyExists(item)){button.disabled=true;status.textContent='This product already exists in the database.';return;}
+    const v=item.values||{};
+    const description=String(v.description||'').trim().replace(/\s+/g,' ').toUpperCase();
+    const barcode=String(v.singleCode||'').trim();
+    const quantity=String(v.qty||'').trim();
+    if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1||!category){
+      status.textContent='This docket needs a description, barcode, quantity (1–999) and category.';return;
+    }
+    button.disabled=true;status.textContent='Submitting request…';
+    try{
+      await api('POST',{description,barcode,quantity:Number(quantity),category,expiry_required:v.includeExpiry===true||v.includeExpiry==='true'});
+      status.textContent='Request submitted for administrator approval.';
+    }catch(err){status.textContent='Could not submit: '+err.message;}
+    finally{button.disabled=false;}
+  };
   el('productRequestForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const description=el('requestProductDescription').value.trim().replace(/\s+/g,' ').toUpperCase();
@@ -5579,7 +5646,7 @@ document.addEventListener('input', function(event) {
     const message=el('productRequestMessage');
     if(!description||!/^[0-9]{1,13}$/.test(barcode)||!/^[0-9]{1,3}$/.test(quantity)||Number(quantity)<1){message.textContent='Enter a description, numeric barcode (up to 13 digits) and pallet quantity (1–999).';return;}
     const button=el('submitProductRequest');button.disabled=true;message.textContent='Submitting request…';
-    try{await api('POST',{description,barcode,quantity:Number(quantity),category:el('requestProductCategory').value});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
+    try{await api('POST',{description,barcode,quantity:Number(quantity),category:el('requestProductCategory').value,expiry_required:el('requestExpiryRequired').checked});message.textContent='Request submitted. An administrator can now review it.';el('productRequestForm').reset();}
     catch(err){message.textContent='Could not submit: '+err.message;}
     finally{button.disabled=false;}
   });
@@ -6126,9 +6193,9 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
    try{
      const data=await call('GET');const categories=data.categories||[];
      window.sharedProductCategories=categories;
-     for(const id of ['productDbCategory','requestProductCategory']){
+     for(const id of ['productDbCategory','requestProductCategory','singleRequestCategory']){
        const select=$(id);const previous=select.value;select.replaceChildren();
-       if(id==='requestProductCategory')select.add(new Option('SELECT CATEGORY',''));
+       if(id==='requestProductCategory'||id==='singleRequestCategory')select.add(new Option('SELECT CATEGORY',''));
        categories.forEach(name=>select.add(new Option(name,name)));
        select.value=categories.includes(previous)?previous:(id==='productDbCategory'?(categories.includes('Other')?'Other':categories[0]||''):'');
      }
@@ -7012,6 +7079,54 @@ init();
     background:#344d68!important;color:#fff!important;border-color:#718ba8!important;
   }
   body > header #headerMenuButton .header-menu-icon {color:inherit!important;stroke:currentColor!important;}
+}
+
+/* Basket action toolbar: compact, balanced and touch-friendly. */
+@media screen {
+  .basket-entry-buttons {
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    align-items:end!important;
+    gap:8px!important;
+    margin:0 0 14px!important;
+    width:100%;
+  }
+  .basket-entry-buttons:has(.basket-copies-label) {
+    grid-template-columns:76px repeat(3,minmax(0,1fr));
+  }
+  .basket-entry-buttons .action {
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;min-width:0!important;min-height:44px!important;
+    padding:9px 7px!important;margin:0!important;
+    border-radius:10px!important;font-size:14px!important;font-weight:650!important;
+    line-height:1.2!important;text-align:center!important;white-space:normal!important;
+  }
+  .basket-entry-buttons .basket-copies-label {
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    gap:5px!important;margin:0!important;width:76px!important;min-width:0!important;
+    font-size:12px!important;line-height:1.2!important;white-space:nowrap!important;
+  }
+  .basket-entry-buttons .basket-copies-label input {
+    width:100%!important;height:44px!important;min-height:44px!important;
+    padding:7px 5px!important;margin:0!important;border-radius:10px!important;
+    text-align:center!important;font-size:17px!important;font-weight:700!important;
+  }
+  .basket-entry-buttons .action.basket-request-button {
+    grid-column:1/-1!important;min-height:44px!important;
+  }
+  body.theme-dark .basket-entry-buttons .basket-copies-label {color:#cbd5e1!important;}
+  body.theme-dark .basket-entry-buttons .basket-copies-label input {
+    background:#172536!important;color:#f8fafc!important;border-color:#52677f!important;
+  }
+  body.theme-light .basket-entry-buttons .basket-copies-label input {
+    background:#fff!important;color:#17212b!important;border-color:#b8c4d1!important;
+  }
+  @media(max-width:420px) {
+    .basket-entry-buttons {gap:7px!important;}
+    .basket-entry-buttons:has(.basket-copies-label) {grid-template-columns:64px repeat(3,minmax(0,1fr));}
+    .basket-entry-buttons .basket-copies-label {width:64px!important;}
+    .basket-entry-buttons .action {font-size:12.5px!important;padding:8px 3px!important;}
+  }
 }
 </style>
 </body>
