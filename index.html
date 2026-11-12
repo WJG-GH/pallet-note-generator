@@ -4009,6 +4009,108 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 <style>
 .basket-request-button:disabled {opacity:.48!important;cursor:not-allowed!important;filter:grayscale(1);box-shadow:none!important;}
 </style>
+<style id="request-expiry-toggle-alignment-fix">
+/* Match the expiry checkbox layout used by the Single Docket form. */
+#productRequestForm > label.expiry-toggle {
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:14px 0 4px!important;
+  min-height:30px!important;
+  cursor:pointer;
+}
+#productRequestForm > label.expiry-toggle > input[type="checkbox"] {
+  display:inline-grid!important;
+  flex:0 0 22px!important;
+  width:22px!important;
+  height:22px!important;
+  margin:0!important;
+  vertical-align:middle!important;
+}
+#productRequestForm > label.expiry-toggle > span {
+  display:inline!important;
+  width:auto!important;
+  line-height:1.3!important;
+}
+</style>
+<style id="product-request-single-style-checkbox">
+/* Mirror the Single Docket optional-field card and circular checkbox. */
+@media screen {
+ #productRequestForm > label.expiry-toggle {
+   box-sizing:border-box!important;display:flex!important;flex-direction:row!important;
+   align-items:center!important;justify-content:flex-start!important;
+   width:100%!important;min-height:76px!important;padding:16px!important;
+   margin:14px 0 4px!important;gap:12px!important;
+   border:1px solid #e1e9f3!important;border-radius:13px!important;
+   background:#f8fafd!important;cursor:pointer!important;
+ }
+ #productRequestForm > label.expiry-toggle > input[type="checkbox"] {
+   -webkit-appearance:none!important;appearance:none!important;
+   display:inline-grid!important;place-content:center!important;
+   box-sizing:border-box!important;flex:0 0 24px!important;
+   width:24px!important;height:24px!important;min-width:24px!important;
+   margin:0!important;padding:0!important;border:2px solid #8597ad!important;
+   border-radius:50%!important;background:transparent!important;cursor:pointer!important;
+ }
+ #productRequestForm > label.expiry-toggle > input[type="checkbox"]:checked {
+   background:#3678fa!important;border-color:#3678fa!important;
+ }
+ #productRequestForm > label.expiry-toggle > input[type="checkbox"]:checked::after {
+   content:"";display:block;width:6px;height:11px;
+   border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-1px);
+ }
+ #productRequestForm > label.expiry-toggle > input[type="checkbox"]:focus-visible {
+   outline:3px solid #79aaff!important;outline-offset:3px!important;
+ }
+ #productRequestForm > label.expiry-toggle > span {
+   display:inline-block!important;width:auto!important;margin:0!important;
+   font-weight:700!important;line-height:1.3!important;
+ }
+ body.theme-dark #productRequestForm > label.expiry-toggle {
+   background:#233246!important;border-color:#40536b!important;
+ }
+ body.theme-light #productRequestForm > label.expiry-toggle {
+   background:#f8fafd!important;border-color:#e1e9f3!important;
+ }
+}
+</style>
+
+<style id="settings-width-match-fix">
+@media screen {
+  /* Match the main generator panel's horizontal gutters and responsive width. */
+  body.settings-page #settingsPage {
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:1480px!important;
+    margin-inline:auto!important;
+    padding-left:16px!important;
+    padding-right:16px!important;
+  }
+  body.settings-page #settingsPage > .settings-card {
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  @media (min-width:1000px) {
+    body.settings-page #settingsPage { padding-left:clamp(16px,2.5vw,44px)!important; padding-right:clamp(16px,2.5vw,44px)!important; }
+  }
+}
+</style>
+<style id="settings-top-spacing-alignment-fix">
+/* Align Settings' first card with the Database card below the mobile navigation. */
+@media screen {
+  body.settings-page #settingsPage { padding-top:0!important; }
+  body.settings-page #settingsPage > .settings-card:first-of-type { margin-top:18px!important; }
+}
+@media screen and (max-width:650px) {
+  body.settings-page.nav-position-top #settingsPage { margin-top:0!important; }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -4235,10 +4337,10 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
           <div class="product-manager-fields">
             <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
             <label>Product barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE" required pattern="[0-9]{1,13}"></label>
-            <label class="product-category-field">Category<select id="requestProductCategory" required><option value="">SELECT CATEGORY</option></select></label>
             <label>Qty<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
           </div>
           <label class="expiry-toggle"><input type="checkbox" id="requestExpiryRequired"><span>EXPIRY DATE REQUIRED</span></label>
+          <div class="product-manager-fields"><label class="product-category-field">Category<select id="requestProductCategory" required><option value="">SELECT CATEGORY</option></select></label></div>
           <button class="action primary" id="submitProductRequest" type="submit" style="width:100%;margin-top:12px">Submit for approval</button>
         </form>
         <p id="productRequestMessage" class="hint" role="status" aria-live="polite"></p>
@@ -4899,6 +5001,9 @@ function sizeBasketPreviews(){
     const height = sheet.offsetHeight;
     const available = Math.max(1, viewport.clientWidth);
     const scale = Math.min(1, available / width);
+    // Centre the scaled A4 sheet in the basket viewport on wider screens.
+    sheet.style.left = Math.max(0, (available - width * scale) / 2) + 'px';
+    sheet.style.transformOrigin = 'top left';
     sheet.style.transform = 'scale(' + scale + ')';
     viewport.style.height = Math.ceil(height * scale) + 'px';
   });
@@ -4970,7 +5075,12 @@ function renderBasket(){
         request.type='button';request.className='action basket-request-button';request.textContent='Request product';
         request.setAttribute('aria-expanded','false');
         const alreadyExists=basketProductAlreadyExists(item);
-        if(alreadyExists){
+        if(item.productRequestSubmitted){
+          request.disabled=true;
+          request.textContent='Product requested';
+          request.title='This product has been submitted for administrator approval';
+          request.setAttribute('aria-label','Product requested — awaiting approval');
+        }else if(alreadyExists){
           request.disabled=true;
           request.textContent='Already in database';
           request.title='This barcode or product description already exists in the database';
@@ -4985,7 +5095,7 @@ function renderBasket(){
         categoryLabel.appendChild(category);
         const submit=document.createElement('button');submit.type='button';submit.className='action primary';submit.textContent='Submit for approval';
         const status=document.createElement('p');status.className='hint';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-        submit.onclick=()=>window.submitBasketProductRequest(item,category.value,submit,status);
+        submit.onclick=()=>window.submitBasketProductRequest(item,category.value,submit,status,request,details);
         details.append(categoryLabel,submit,status);
         request.onclick=()=>{details.hidden=!details.hidden;request.setAttribute('aria-expanded',String(!details.hidden));};
         buttons.appendChild(request);
@@ -5622,7 +5732,8 @@ document.addEventListener('input', function(event) {
     return data;
   };
   // Requests are submitted from the saved single docket in the basket.
-  window.submitBasketProductRequest=async function(item,category,button,status){
+  window.submitBasketProductRequest=async function(item,category,button,status,requestButton,details){
+    if(item.productRequestSubmitted){return;}
     if(basketProductAlreadyExists(item)){button.disabled=true;status.textContent='This product already exists in the database.';return;}
     const v=item.values||{};
     const description=String(v.description||'').trim().replace(/\s+/g,' ').toUpperCase();
@@ -5634,7 +5745,16 @@ document.addEventListener('input', function(event) {
     button.disabled=true;status.textContent='Submitting request…';
     try{
       await api('POST',{description,barcode,quantity:Number(quantity),category,expiry_required:v.includeExpiry===true||v.includeExpiry==='true'});
-      status.textContent='Request submitted for administrator approval.';
+      item.productRequestSubmitted=true;
+      if(details)details.hidden=true;
+      if(requestButton){
+        requestButton.disabled=true;
+        requestButton.textContent='Product requested';
+        requestButton.title='This product has been submitted for administrator approval';
+        requestButton.setAttribute('aria-expanded','false');
+        requestButton.setAttribute('aria-label','Product requested — awaiting approval');
+      }
+      status.textContent='Product requested';
     }catch(err){status.textContent='Could not submit: '+err.message;}
     finally{button.disabled=false;}
   };
