@@ -7385,7 +7385,7 @@ init();
 .smart-product-tag[data-category-colour="4"]{background:#15803D;color:#fff;border-color:#15803D}
 .smart-product-tag[data-category-colour="5"]{background:#BE123C;color:#fff;border-color:#BE123C}
 .smart-product-tag[data-category-colour="6"]{background:#C2410C;color:#fff;border-color:#C2410C}
-.smart-product-tag[data-category-colour="7"]{background:#475569;color:#fff;border-color:#475569}.smart-product-tag{box-shadow:0 1px 3px rgba(0,0,0,.16)}.smart-product-detail{border-top:1px solid var(--border,#526174);padding:14px;display:grid;gap:10px}.smart-product-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.smart-product-detail-grid div{overflow-wrap:anywhere}.smart-product-detail-grid small{display:block;opacity:.7;margin-bottom:4px}.smart-product-use{width:100%}.smart-product-use.smart-product-added{background:var(--user-accent,#3478f6)!important;border-color:var(--user-accent-deep,var(--user-accent,#3478f6))!important;color:var(--user-accent-text,#fff)!important;opacity:1!important}#smartBasketToast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:99999;max-width:min(90vw,460px);padding:13px 20px;border-radius:12px;background:var(--user-accent,#3478f6);color:var(--user-accent-text,#fff);font-weight:700;text-align:center;box-shadow:0 5px 24px #0005}#smartBasketToast[hidden]{display:none!important}.smart-legacy-categories{margin-top:20px}.smart-legacy-categories>summary{cursor:pointer;font-weight:700;padding:12px 0}@media(max-width:550px){.smart-product-card>summary{align-items:flex-start}.smart-product-side{flex-direction:column;align-items:flex-end}.smart-product-detail-grid{grid-template-columns:1fr 1fr}}
+.smart-product-tag[data-category-colour="7"]{background:#475569;color:#fff;border-color:#475569}.smart-product-tag{box-shadow:0 1px 3px rgba(0,0,0,.16)}.smart-product-detail{border-top:1px solid var(--border,#526174);padding:14px;display:grid;gap:10px}.smart-product-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.smart-product-detail-grid div{overflow-wrap:anywhere}.smart-product-detail-grid small{display:block;opacity:.7;margin-bottom:4px}.smart-product-use{width:100%}.smart-product-use.smart-product-added{background:var(--user-accent,#3478f6)!important;border-color:var(--user-accent-deep,var(--user-accent,#3478f6))!important;color:var(--user-accent-text,#fff)!important;opacity:1!important}#smartBasketToast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:99999;width:calc(100vw - 32px);max-width:none;box-sizing:border-box;padding:13px 16px;border-radius:12px;background:var(--user-accent,#3478f6);color:var(--user-accent-text,#fff);font-weight:700;text-align:center;box-shadow:0 5px 24px #0005}#smartBasketToast[hidden]{display:none!important}.smart-legacy-categories{margin-top:20px}.smart-legacy-categories>summary{cursor:pointer;font-weight:700;padding:12px 0}@media(max-width:550px){.smart-product-card>summary{align-items:flex-start}.smart-product-side{flex-direction:column;align-items:flex-end}.smart-product-detail-grid{grid-template-columns:1fr 1fr}}
 .smart-category-filters button:not([style])[aria-pressed="true"]{background:var(--user-accent,#3478f6)!important;border-color:var(--user-accent,#3478f6)!important;color:#fff!important}
 .smart-category-filters button[aria-pressed="true"]{outline:3px solid var(--user-accent,#3478f6)!important;outline-offset:2px}
 </style>
@@ -7457,10 +7457,29 @@ found.forEach(p=>{const card=node('details','smart-product-card');const summary=
   use.classList.add('smart-product-added');
   use.disabled=true;
   const toast=document.getElementById('smartBasketToast');
-  if(toast){toast.textContent=p.description+' added to basket';toast.hidden=false;clearTimeout(window.smartBasketToastTimer);window.smartBasketToastTimer=setTimeout(()=>{toast.hidden=true},3200);}
+  if(toast){
+    toast.textContent='✓ '+p.description+' added to basket';
+    // Align the notification precisely with the product cards, not a fixed 460px cap.
+    const alignToast=()=>{
+      const reference=results.querySelector('.smart-product-card')||results;
+      const rect=reference.getBoundingClientRect();
+      const viewportWidth=document.documentElement.clientWidth;
+      const left=Math.max(8,Math.min(rect.left,viewportWidth-8));
+      const width=Math.max(0,Math.min(rect.width,viewportWidth-left-8));
+      toast.style.left=left+'px';
+      toast.style.width=width+'px';
+      toast.style.transform='none';
+    };
+    alignToast();
+    window.smartBasketToastAlign=alignToast;
+    toast.hidden=false;
+    clearTimeout(window.smartBasketToastTimer);
+    window.smartBasketToastTimer=setTimeout(()=>{toast.hidden=true},3200);
+  }
   setTimeout(()=>{if(use.isConnected){use.textContent=original;use.disabled=false;use.classList.remove('smart-product-added')}},2400);
 };detail.appendChild(use);card.appendChild(detail);results.appendChild(card)});
 }
+window.addEventListener('resize',()=>{const toast=document.getElementById('smartBasketToast');if(toast&&!toast.hidden&&window.smartBasketToastAlign)window.smartBasketToastAlign()});
 window.updateSmartProductSearch=function(products){cache=Array.isArray(products)?products.slice():[];render()};search.addEventListener('input',render);clear.onclick=()=>{search.value='';render();search.focus()};render();
 })();
 </script>
