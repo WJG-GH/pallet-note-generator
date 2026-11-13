@@ -6440,7 +6440,7 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
      const data=await call('GET');const categories=data.categories||[];
      window.sharedProductCategories=categories;
      for(const id of ['productDbCategory','requestProductCategory','singleRequestCategory']){
-       const select=$(id);const previous=select.value;select.replaceChildren();
+       const select=$(id);if(!select)continue;const previous=select.value;select.replaceChildren();
        if(id==='requestProductCategory'||id==='singleRequestCategory')select.add(new Option('SELECT CATEGORY',''));
        categories.forEach(name=>select.add(new Option(name,name)));
        select.value=categories.includes(previous)?previous:(id==='productDbCategory'?(categories.includes('Other')?'Other':categories[0]||''):'');
