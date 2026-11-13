@@ -4142,6 +4142,21 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 .category-row .category-colour-control input[type=color]{width:56px;height:42px;padding:4px;border:1px solid var(--border,#64748b);border-radius:10px;background:transparent;cursor:pointer}
 @media print{.category-colour-control{display:none!important}}
 </style>
+<style>
+/* Compact category management actions: buttons and colour picker on one line. */
+.category-manager .category-row{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.category-manager .category-row-actions{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
+.category-manager .category-row .category-buttons{display:flex;flex:1 1 auto;min-width:0;width:auto;gap:8px}
+.category-manager .category-row .category-buttons button{flex:1 1 0;min-width:0;width:auto}
+.category-manager .category-row .category-colour-control{display:flex;flex:0 0 auto;margin:0;gap:0}
+.category-manager .category-row .category-colour-control span{display:none}
+.category-manager .category-row .category-colour-control input[type=color]{width:54px;height:44px;box-sizing:border-box}
+@media(max-width:560px){
+ .category-manager .category-row{flex-direction:column;align-items:stretch}
+ .category-manager .category-row .category-buttons{width:auto}
+ .category-manager .category-row .category-buttons button{padding:9px 8px}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -6488,7 +6503,9 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
          status('Colour saved on this device.');
        });
        colourControl.append(colourText,picker);
-       row.append(title,colourControl,buttons);list.append(row);
+       const actions=document.createElement('div');actions.className='category-row-actions';
+       actions.append(buttons,colourControl);
+       row.append(title,actions);list.append(row);
      }
      document.dispatchEvent(new Event('shared-product-categories-updated'));
    }catch(e){status('Unable to load categories: '+e.message);}
