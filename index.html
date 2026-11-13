@@ -7499,5 +7499,29 @@ window.updateSmartProductSearch=function(products){cache=Array.isArray(products)
   }
 }
 </style>
+<style id="unified-soft-accent-selection-v2">
+/* Single fine accent border and translucent outer focus halo, matching form inputs. */
+@media screen {
+  html body .smart-product-results details.smart-product-card[open],
+  html body .smart-product-results details.smart-product-card[open]:focus-within {
+    border:1px solid var(--user-accent,#3478f6)!important;
+    outline:none!important;
+    box-shadow:0 0 0 5px color-mix(in srgb, var(--user-accent,#3478f6) 12%, transparent)!important;
+  }
+  html body .smart-product-results details.smart-product-card[open] > summary,
+  html body .smart-product-results details.smart-product-card[open] > summary:focus,
+  html body .smart-product-results details.smart-product-card[open] > summary:focus-visible {
+    outline:none!important;box-shadow:none!important;
+  }
+  html body .smart-category-filters button[aria-pressed="true"],
+  html body .smart-category-filters button[data-category-colour][aria-pressed="true"] {
+    border:1px solid var(--user-accent,#3478f6)!important;
+    outline:none!important;
+    outline-offset:0!important;
+    box-shadow:0 0 0 5px color-mix(in srgb, var(--user-accent,#3478f6) 12%, transparent)!important;
+  }
+  html body .smart-category-filters {padding:8px 7px 14px!important;gap:12px!important;}
+}
+</style>
 </body>
 </html>
