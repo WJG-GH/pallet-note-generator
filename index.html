@@ -6441,6 +6441,7 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
 @media print{.category-manager{display:none!important}}
 </style>
 <script>
+const PALLET_FIXED_CATEGORY_COLOURS={"aggregates":"#43A1D2","cement":"#2860F4","compost":"#85B94F","decorative aggregates":"#D7ED50","flooring":"#8B2DB5","fuel":"#F04E2D","garden storage":"#367F45","paint":"#94203F","plaster":"#F57929","plasterboard":"#F9B037","sheet timber":"#922C50","stick timber":"#D93821","storage":"#FFFF62","tiling":"#4823AD","other":"#495568"};
 (function(){
  const $=id=>document.getElementById(id);
  const url=PALLET_SUPABASE_URL+'/functions/v1/product-database';
@@ -6494,7 +6495,9 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
        const fallbackPalette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
        const preferred=['Aggregates','Bagged Plaster','Cement','Flooring','Garden Storage','Sheet Timber','Tiles','Other'];
        const ix=preferred.findIndex(n=>n.toLowerCase()===colourKey);
-       picker.value=storedColours[colourKey]||fallbackPalette[ix>=0?ix:Math.abs([...colourKey].reduce((a,c)=>a+c.charCodeAt(0),0))%fallbackPalette.length];
+       picker.value=PALLET_FIXED_CATEGORY_COLOURS[colourKey]||storedColours[colourKey]||fallbackPalette[ix>=0?ix:Math.abs([...colourKey].reduce((a,c)=>a+c.charCodeAt(0),0))%fallbackPalette.length];
+       picker.disabled=Boolean(PALLET_FIXED_CATEGORY_COLOURS[colourKey]);
+       if(picker.disabled)picker.title="Fixed in this HTML version";
        picker.addEventListener('change',()=>{
          const colours=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}');
          colours[colourKey]=picker.value;
@@ -7457,6 +7460,7 @@ function refreshCategoryColours(){
   });
   let overrides={};try{overrides=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}')}catch(e){}
   for(const [key,value] of Object.entries(overrides))if(/^#[0-9a-f]{6}$/i.test(value))categoryColourMap.set(norm(key),value);
+  for(const [key,value] of Object.entries(PALLET_FIXED_CATEGORY_COLOURS))categoryColourMap.set(norm(key),value);
 }
 function styleCategory(el,name){
   const colour=categoryColourMap.get(norm(name))||'#475569';
