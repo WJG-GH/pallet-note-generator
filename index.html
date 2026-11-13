@@ -4123,6 +4123,20 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   body.settings-page.nav-position-top #settingsPage { margin-top:0!important; }
 }
 </style>
+<style id="basket-search-final-fixes">
+@media screen {
+  html body .smart-product-results details.smart-product-card[open],
+  html body .smart-product-results details.smart-product-card[open]:focus-within {
+    border:2px solid var(--user-accent, #3478f6)!important;
+    outline:0!important;
+    box-shadow:0 0 0 1px var(--user-accent, #3478f6)!important;
+  }
+  html body .smart-product-results details.smart-product-card[open] > summary:focus,
+  html body .smart-product-results details.smart-product-card[open] > summary:focus-visible {
+    outline-color:var(--user-accent, #3478f6)!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -5064,6 +5078,50 @@ function sizeBasketPreviews(){
     // Recalculate typography at native A4 size for the on-screen basket only.
     // Saved/printed docket markup remains untouched.
     if(typeof fitTextToBoxes === 'function') fitTextToBoxes(sheet);
+    // Database quick-add must not inherit measurements taken while the main
+    // Single tab is hidden. Size the visible basket description at native A4
+    // dimensions, then let the whole sheet scale uniformly below.
+    if(sheet.classList.contains('basket-single-sheet')){
+      const desc=sheet.querySelector('.single-description .date-value');
+      if(desc){
+        const original=(desc.dataset.fitOriginal||desc.textContent||'').trim();
+        if(original){
+          const box=desc.getBoundingClientRect();
+          const nativeWidth=desc.clientWidth;
+          const nativeHeight=desc.clientHeight;
+          if(nativeWidth>20 && nativeHeight>20){
+            const canvas=document.createElement('canvas');
+            const ctx=canvas.getContext('2d');
+            const css=getComputedStyle(desc);
+            const family=css.fontFamily||'Arial,sans-serif';
+            const text=original.replace(/\s+/g,' ');
+            const pad=(parseFloat(css.paddingLeft)||0)+(parseFloat(css.paddingRight)||0);
+            const maxW=nativeWidth-pad-12;
+            const maxH=nativeHeight-10;
+            const words=text.split(' ');
+            const measure=(t,size)=>{ctx.font='900 '+size+'px '+family;return ctx.measureText(t).width;};
+            let best=12,bestLines=[text];
+            for(let size=120;size>=12;size-=1){
+              if(size*1.12<=maxH && measure(text,size)<=maxW){best=size;bestLines=[text];break;}
+              if(words.length>1 && size*2.3<=maxH){
+                let found=false;
+                for(let i=1;i<words.length;i++){
+                  const lines=[words.slice(0,i).join(' '),words.slice(i).join(' ')];
+                  if(lines.every(line=>measure(line,size)<=maxW)){
+                    best=size;bestLines=lines;found=true;break;
+                  }
+                }
+                if(found)break;
+              }
+            }
+            desc.replaceChildren(...bestLines.map(line=>{const span=document.createElement('span');span.textContent=line;return span;}));
+            desc.style.setProperty('font-size',best+'px','important');
+            desc.style.setProperty('flex-direction','column','important');
+            desc.style.setProperty('line-height','1.04','important');
+          }
+        }
+      }
+    }
     const width = sheet.offsetWidth;
     const height = sheet.offsetHeight;
     const available = Math.max(1, viewport.clientWidth);
