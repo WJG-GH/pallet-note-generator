@@ -4137,6 +4137,11 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   }
 }
 </style>
+<style id="category-colour-manager-styles">
+.category-row .category-colour-control{display:inline-flex;align-items:center;gap:12px;color:var(--text,#e5e7eb);font-weight:600;margin:10px 0}
+.category-row .category-colour-control input[type=color]{width:56px;height:42px;padding:4px;border:1px solid var(--border,#64748b);border-radius:10px;background:transparent;cursor:pointer}
+@media print{.category-colour-control{display:none!important}}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -6446,7 +6451,8 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
        select.value=categories.includes(previous)?previous:(id==='productDbCategory'?(categories.includes('Other')?'Other':categories[0]||''):'');
      }
      const list=$('categoryManagerList');list.replaceChildren();
-     for(const name of categories){
+     const orderedCategories=[...categories].sort((a,b)=>a.toLowerCase()==='other'?1:b.toLowerCase()==='other'?-1:a.localeCompare(b,undefined,{sensitivity:'base'}));
+     for(const name of orderedCategories){
        const row=document.createElement('div');row.className='category-row';
        const title=document.createElement('strong');title.textContent=name;
        const buttons=document.createElement('div');buttons.className='category-buttons';
@@ -6463,7 +6469,26 @@ body.theme-dark{--settings-ink:#f1f5f9;--settings-card:#1c2838;--settings-border
            catch(e){status(e.message)}finally{button.disabled=false}
          };buttons.append(button);
        }
-       row.append(title,buttons);list.append(row);
+       const colourControl=document.createElement('label');
+       colourControl.className='category-colour-control';
+       const colourText=document.createElement('span');colourText.textContent='Colour';
+       const picker=document.createElement('input');picker.type='color';
+       picker.setAttribute('aria-label','Choose colour for '+name);
+       const storedColours=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}');
+       const colourKey=name.toLowerCase().trim();
+       const fallbackPalette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
+       const preferred=['Aggregates','Bagged Plaster','Cement','Flooring','Garden Storage','Sheet Timber','Tiles','Other'];
+       const ix=preferred.findIndex(n=>n.toLowerCase()===colourKey);
+       picker.value=storedColours[colourKey]||fallbackPalette[ix>=0?ix:Math.abs([...colourKey].reduce((a,c)=>a+c.charCodeAt(0),0))%fallbackPalette.length];
+       picker.addEventListener('change',()=>{
+         const colours=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}');
+         colours[colourKey]=picker.value;
+         localStorage.setItem('pallet-category-colour-overrides',JSON.stringify(colours));
+         document.dispatchEvent(new Event('shared-product-categories-updated'));
+         status('Colour saved on this device.');
+       });
+       colourControl.append(colourText,picker);
+       row.append(title,colourControl,buttons);list.append(row);
      }
      document.dispatchEvent(new Event('shared-product-categories-updated'));
    }catch(e){status('Unable to load categories: '+e.message);}
@@ -7401,7 +7426,7 @@ function node(tag,cls,value){const el=document.createElement(tag);if(cls)el.clas
 const categoryPalette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
 let categoryColourMap=new Map();
 function refreshCategoryColours(){
-  const names=[...new Set(cache.map(p=>String(p.category||'Other').trim()))].sort((a,b)=>a.localeCompare(b));
+  const names=[...new Set(cache.map(p=>String(p.category||'Other').trim()))].sort((a,b)=>norm(a)==='other'?1:norm(b)==='other'?-1:a.localeCompare(b));
   const preferred=['Aggregates','Bagged Plaster','Cement','Flooring','Garden Storage','Sheet Timber','Tiles','Other'];
   const reserved=new Map(preferred.map((n,i)=>[norm(n),i]));
   const used=new Set();categoryColourMap=new Map();
@@ -7413,6 +7438,8 @@ function refreshCategoryColours(){
     const colour=next<categoryPalette.length?categoryPalette[next]:`hsl(${Math.round((next*137.508)%360)} 75% ${34+Math.floor((next-categoryPalette.length)/24)*7}% )`;
     categoryColourMap.set(key,colour);used.add(next++);
   });
+  let overrides={};try{overrides=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}')}catch(e){}
+  for(const [key,value] of Object.entries(overrides))if(/^#[0-9a-f]{6}$/i.test(value))categoryColourMap.set(norm(key),value);
 }
 function styleCategory(el,name){
   const colour=categoryColourMap.get(norm(name))||'#475569';
@@ -7421,7 +7448,8 @@ function styleCategory(el,name){
   el.style.setProperty('color','#ffffff','important');
 }
 
-function render(){refreshCategoryColours();const categories=['All',...new Set(cache.map(p=>p.category||'Other'))].sort((a,b)=>a==='All'?-1:b==='All'?1:a.localeCompare(b));if(!categories.includes(active))active='All';filters.replaceChildren();categories.forEach(c=>{const b=node('button','',c);b.type='button';b.setAttribute('aria-pressed',String(c===active));if(c!=='All')styleCategory(b,c);b.onclick=()=>{active=c;render()};filters.appendChild(b)});
+document.addEventListener('shared-product-categories-updated',()=>render());
+function render(){refreshCategoryColours();const categories=['All',...new Set(cache.map(p=>p.category||'Other'))].sort((a,b)=>a==='All'?-1:b==='All'?1:norm(a)==='other'?1:norm(b)==='other'?-1:a.localeCompare(b));if(!categories.includes(active))active='All';filters.replaceChildren();categories.forEach(c=>{const b=node('button','',c);b.type='button';b.setAttribute('aria-pressed',String(c===active));if(c!=='All')styleCategory(b,c);b.onclick=()=>{active=c;render()};filters.appendChild(b)});
 // Rebuilding the filter buttons must not preserve an obsolete horizontal scroll position.
 // Keep the active category fully visible, without scrolling the whole page.
 requestAnimationFrame(()=>{
