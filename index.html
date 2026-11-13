@@ -4157,6 +4157,25 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
  .category-manager .category-row .category-buttons button{padding:9px 8px}
 }
 </style>
+<style id="single-docket-category-tag-v1">
+/* Category tag shares the existing title strip; no change to A4 dimensions. */
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-category-title {
+ position:relative!important; display:flex!important; align-items:center!important;
+ justify-content:center!important; padding:0 2mm!important; box-sizing:border-box!important;
+}
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-category-title .single-title-text {
+ display:block; text-align:center; white-space:nowrap; line-height:1!important;
+}
+html body .sheet:is(#singleSheet,.basket-single-sheet) .single-category-title .single-docket-category:not([hidden]) {
+ position:absolute!important; right:2mm!important; top:50%!important;
+ transform:translateY(-50%)!important; display:flex!important; align-items:center!important;
+ justify-content:center!important; max-width:37mm!important; padding:1.5mm 2mm!important;
+ border-radius:2mm!important; color:#fff!important; font-size:11pt!important;
+ font-weight:800!important; line-height:1.1!important; text-align:center!important;
+ overflow-wrap:anywhere!important; box-sizing:border-box!important;
+ -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important;
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
@@ -4309,7 +4328,7 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   <h2 class="preview-title">LABEL PREVIEW</h2>
   <div id="previewWrap">
     <section class="sheet preview-active" id="singleSheet">
-      <h2 class="mixed-title">PALLET NOTE</h2>
+      <h2 class="mixed-title single-category-title"><span class="single-title-text">PALLET NOTE</span><span class="single-docket-category" hidden></span></h2>
       <div class="single-mixed-row">
         <div class="single-barcode-area"><div class="single-barcode-heading">BARCODE</div><div class="mixed-code single-barcode-grid" id="singleCodeCells"></div></div>
       </div>
@@ -4711,7 +4730,26 @@ function syncOptionalExpiry(){
   document.getElementById('singleSheet').classList.toggle('no-single-location',!showLocation);
   return enabled;
 }
+function updateSingleDocketCategory(){
+ const badge=document.querySelector('#singleSheet .single-docket-category');
+ if(!badge)return;
+ const description=String(document.getElementById('description')?.value||'').trim().toLowerCase().replace(/\s+/g,' ');
+ const barcode=String(document.getElementById('singleCode')?.value||'').trim();
+ const products=window.sharedProductsForScanSheet||[];
+ const product=products.find(p=>String(p.description||'').trim().toLowerCase().replace(/\s+/g,' ')===description && (!barcode || String(p.barcode||'')===barcode));
+ const category=String(product?.category||'').trim();
+ if(!category){badge.hidden=true;badge.textContent='';return;}
+ let overrides={};try{overrides=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}')||{}}catch(e){}
+ const key=category.toLowerCase().replace(/\s+/g,' ');
+ const palette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
+ const preferred=['aggregates','bagged plaster','cement','flooring','garden storage','sheet timber','tiles','other'];
+ const idx=preferred.indexOf(key);
+ const names=[...new Set(products.map(p=>String(p.category||'Other').trim().toLowerCase().replace(/\s+/g,' ')))].sort();
+ const colour=overrides[key]||overrides[category]||(idx>=0?palette[idx]:palette[Math.max(0,names.indexOf(key))%palette.length]);
+ badge.textContent=category;badge.style.backgroundColor=/^#[0-9a-f]{6}$/i.test(colour)?colour:'#475569';badge.hidden=false;
+}
 function updatePreview(){
+  updateSingleDocketCategory();
   const showExpiry=syncOptionalExpiry();
   const singleLocationField=document.getElementById('singleLocationInput');
   if(singleLocationField) singleLocationField.value=formatLocationCode(singleLocationField.value);
@@ -5750,7 +5788,7 @@ window.addEventListener('afterprint', () => {
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
    if(typeof window.updateSmartProductSearch==='function')window.updateSmartProductSearch(products);
  }
- async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();renderBasket();}catch(e){status('Cannot load shared products: '+e.message);}}
+ async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();updateSingleDocketCategory();renderBasket();}catch(e){status('Cannot load shared products: '+e.message);}}
  window.reloadProductDatabase=load;
  document.addEventListener('shared-product-categories-updated',refresh);
  byId('singleProductPicker').addEventListener('change',function(){
