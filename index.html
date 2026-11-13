@@ -7464,5 +7464,21 @@ found.forEach(p=>{const card=node('details','smart-product-card');const summary=
 window.updateSmartProductSearch=function(products){cache=Array.isArray(products)?products.slice():[];render()};search.addEventListener('input',render);clear.onclick=()=>{search.value='';render();search.focus()};render();
 })();
 </script>
+<style id="smart-product-thin-selection-outline">
+/* Match the product description field: one thin accent-coloured border, no stacked rings. */
+@media screen {
+  html body .smart-product-results details.smart-product-card[open],
+  html body .smart-product-results details.smart-product-card[open]:focus-within {
+    border:1px solid var(--user-accent,#3478f6)!important;
+    outline:none!important;
+    box-shadow:none!important;
+  }
+  html body .smart-product-results details.smart-product-card[open] > summary:focus,
+  html body .smart-product-results details.smart-product-card[open] > summary:focus-visible {
+    outline:none!important;
+    box-shadow:none!important;
+  }
+}
+</style>
 </body>
 </html>
