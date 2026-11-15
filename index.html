@@ -4157,9 +4157,144 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
  .category-manager .category-row .category-buttons button{padding:9px 8px}
 }
 </style>
+
+<style id="unified-round-checkboxes">
+/* Consistent circular check controls across every application page. */
+@media screen {
+  body input[type="checkbox"],
+  body #navigationTabEditor .navigation-tab-editor-row > label input[type="checkbox"],
+  body #productRequestForm > label.expiry-toggle > input[type="checkbox"] {
+    -webkit-appearance:none!important;appearance:none!important;
+    display:inline-grid!important;place-content:center!important;
+    box-sizing:border-box!important;flex:0 0 24px!important;
+    width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;
+    padding:0!important;margin:0!important;
+    border:2px solid #8597ad!important;border-radius:50%!important;
+    background:transparent!important;background-image:none!important;
+    box-shadow:none!important;cursor:pointer!important;vertical-align:middle!important;
+  }
+  body input[type="checkbox"]:checked,
+  body #navigationTabEditor .navigation-tab-editor-row > label input[type="checkbox"]:checked {
+    background:var(--user-accent,#3678fa)!important;
+    border-color:var(--user-accent,#3678fa)!important;
+    background-image:none!important;
+  }
+  body input[type="checkbox"]::before {content:none!important;display:none!important;}
+  body input[type="checkbox"]:not(:checked)::after {content:none!important;display:none!important;}
+  body input[type="checkbox"]:focus-visible {outline:3px solid #79aaff!important;outline-offset:3px!important;}
+  body.theme-dark input[type="checkbox"]:not(:checked) {border-color:#91a4bc!important;background:#152232!important;}
+}
+</style>
+<style id="centered-round-checkbox-fix">
+/* Use a centred SVG tick rather than pseudo-elements that can be displaced by older styles. */
+@media screen {
+ body input[type="checkbox"]:checked,
+ body #navigationTabEditor .navigation-tab-editor-row > label input[type="checkbox"]:checked {
+   background-color:var(--user-accent,#3678fa)!important;
+   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+   background-position:center center!important;
+   background-size:19px 19px!important;
+   background-repeat:no-repeat!important;
+ }
+ body input[type="checkbox"]::after,
+ body input[type="checkbox"]::before,
+ body input[type="checkbox"]:checked::after,
+ body input[type="checkbox"]:checked::before {
+   content:none!important;display:none!important;
+ }
+}
+</style>
+
+<style id="multi-bottom-readability-v1">
+/* Multi docket only: preserve the single docket and all barcode/QR content. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .completed,
+html body.printing-basket #basketPrint .sheet.basket-mixed-sheet > .completed {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:2mm!important;
+  height:35mm!important;
+  flex:0 0 35mm!important;
+  padding-top:2mm!important;
+  min-height:0!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .completed > .completed-item,
+html body.printing-basket #basketPrint .sheet.basket-mixed-sheet > .completed > .completed-item {
+  display:grid!important;
+  grid-template-rows:9mm minmax(0,1fr)!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .completed .date-label,
+html body.printing-basket #basketPrint .sheet.basket-mixed-sheet > .completed .date-label {
+  display:flex!important;justify-content:center!important;text-align:center!important;
+  font-size:17pt!important;font-weight:700!important;
+}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .completed .date-value,
+html body.printing-basket #basketPrint .sheet.basket-mixed-sheet > .completed .date-value {
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  text-align:center!important;font-size:36pt!important;font-weight:700!important;
+  min-height:0!important;min-width:0!important;overflow:hidden!important;
+}
+/* Keep the already larger two- and three-product footer geometry. */
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows[data-row-count="3"]) > .completed {height:39mm!important;flex-basis:39mm!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet):has(.multi-stable-rows[data-row-count="2"]) > .completed {height:48mm!important;flex-basis:48mm!important;}
+html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-height:0!important;}
+</style>
+
+<style id="compact-site-header-20261115">
+/* Mobile-only header spacing; leaves all docket, print and form styles untouched. */
+@media screen and (max-width:650px) {
+  body > header {
+    padding-top:calc(15px + env(safe-area-inset-top, 0px))!important;
+    padding-bottom:15px!important;
+    padding-left:17px!important;
+    padding-right:17px!important;
+  }
+  body > header .site-header-row {gap:10px!important;}
+  body > header h1 {
+    font-size:clamp(18px,4.4vw,23px)!important;
+    line-height:1.15!important;
+    letter-spacing:-.55px!important;
+    margin:0!important;
+  }
+  body > header .header-menu-button {
+    width:42px!important; height:42px!important; min-width:42px!important;
+  }
+}
+</style>
+
+<style id="bottom-navigation-light-specificity-correction">
+/* The floating navigation's four :not() selectors previously outweighed theme rules. */
+@media screen and (max-width:650px) {
+ body.theme-light.nav-position-bottom:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs {
+   background:rgba(255,255,255,.96)!important;
+   border:1px solid #d5deeb!important;
+   box-shadow:0 12px 32px rgba(25,42,68,.12),inset 0 1px rgba(255,255,255,.8)!important;
+ }
+ body.theme-light.nav-position-bottom:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button:not(.active) {
+   background:transparent!important;color:#51627a!important;border-color:transparent!important;
+ }
+ body.theme-light.nav-position-bottom:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs > button.active {
+   background:var(--user-accent,#3678fa)!important;color:var(--user-accent-text,#fff)!important;
+   border-color:var(--user-accent,#3678fa)!important;
+ }
+}
+</style>
+<style id="navigation-reference-icons">
+@media screen {
+ .tabs > button {display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;}
+ .nav-line-icon {width:20px;height:20px;flex:0 0 20px;display:inline-block;vertical-align:middle;}
+ .header-menu-item {display:flex!important;align-items:center!important;gap:13px!important;}
+ .header-menu-item .nav-line-icon {width:23px;height:23px;flex-basis:23px;}
+ .header-menu-item .header-menu-chevron {margin-left:auto;}
+ @media(max-width:650px){.tabs > button {gap:5px!important;}.tabs > button .nav-line-icon{width:17px;height:17px;flex-basis:17px;}}
+ @media(max-width:370px){.tabs > button {gap:3px!important;}.tabs > button .nav-line-icon{width:15px;height:15px;flex-basis:15px;}}
+}
+@media print {.nav-line-icon{display:none!important}}
+</style>
 </head>
 <body>
-<header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><span class="header-menu-item-icon" aria-hidden="true">▦</span><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item">Settings</button></nav></div></div></header>
+<header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2h4l.7 2.5 2 1 2.4-1 2.8 2.8-1 2.4 1 2 .1 2.3-2.5.7-1 2 1 2.4-2.8 2.8-2.4-1-2 1L14 22h-4l-.7-2.5-2-1-2.4 1-2.8-2.8 1-2.4-1-2L2 10l2.5-.7 1-2-1-2.4 2.8-2.8 2.4 1 2-1Z"/><circle cx="12" cy="12" r="3"/></svg><span>Settings</span></button></nav></div></div></header>
 <section id="taskDatabasePage" hidden style="display:none!important"><button id="taskDatabaseBack" hidden></button></section>
 <section id="settingsPage" hidden aria-label="Settings">
   <button type="button" id="settingsBack" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button>
@@ -4180,6 +4315,12 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
   <div class="settings-mobile-navigation-preference">
   <label for="settingsNavigationPosition" class="settings-field-label" style="display:block;margin-top:18px">Navigation</label>
   <select id="settingsNavigationPosition" aria-label="Navigation"><option value="top">Top (Default)</option><option value="bottom">Bottom</option></select>
+  </div>
+  <div class="settings-navigation-icons-preference">
+    <label class="navigation-icons-toggle-row" for="settingsShowNavigationIcons">
+      <span><strong>Navigation icons</strong><small>Show icons alongside navigation labels</small></span>
+      <input type="checkbox" id="settingsShowNavigationIcons" role="switch" checked aria-label="Show navigation icons">
+    </label>
   </div>
   <div class="settings-navigation-customisation">
     <h3 style="margin:22px 0 6px">Navigation tabs</h3>
@@ -4217,10 +4358,10 @@ html body .basket-thumbnail .sheet h2, html body .basket-thumbnail .sheet .mixed
 <section id="handoverPage" hidden style="display:none!important"><button id="handoverBack" hidden></button><iframe id="handoverFrame" hidden></iframe></section>
 <main>
   <div class="tabs" role="tablist">
-    <button id="singleTab" class="active" type="button">SINGLE</button>
-    <button id="mixedTab" type="button">MULTI</button>
-    <button id="locationTab" type="button">LOCATION</button>
-    <button id="otherTab" type="button">LABEL</button>
+    <button id="singleTab" class="active" type="button"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 13h4"/></svg><span>SINGLE</span></button>
+    <button id="mixedTab" type="button"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 5h14l3 6H2l3-6ZM3 15h18M4 19h16"/></svg><span>MULTI</span></button>
+    <button id="locationTab" type="button"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>LOCATION</span></button>
+    <button id="otherTab" type="button"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12V5a2 2 0 0 1 2-2h7l9 9a2 2 0 0 1 0 3l-6 6a2 2 0 0 1-3 0L3 12Z"/><circle cx="8" cy="8" r="1.5"/></svg><span>LABEL</span></button>
   </div>
   <section class="panel">
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
@@ -6961,7 +7102,7 @@ main > .tabs, .mobile-top-nav-row > .tabs{grid-template-columns:repeat(var(--vis
 #navigationTabEditor{display:grid!important;gap:8px!important}
 #navigationTabEditor .navigation-tab-editor-row{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;min-height:58px!important;padding:7px 9px 7px 15px!important;gap:12px!important;border:1px solid var(--nav-top-border,#657b92)!important;border-radius:12px!important;background:rgba(110,145,184,.045)!important;box-sizing:border-box!important}
 #navigationTabEditor .navigation-tab-editor-row > label{display:flex!important;flex:1 1 auto!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:13px!important;width:auto!important;min-width:0!important;margin:0!important;padding:0!important;text-align:left!important;line-height:1.2!important;font-size:16px!important;font-weight:600!important;cursor:pointer!important}
-#navigationTabEditor .navigation-tab-editor-row > label input[type=checkbox]{appearance:auto!important;-webkit-appearance:checkbox!important;display:block!important;position:static!important;flex:0 0 20px!important;width:20px!important;height:20px!important;margin:0!important;accent-color:#3979e7!important}
+#navigationTabEditor .navigation-tab-editor-row > label input[type=checkbox]{appearance:none!important;-webkit-appearance:none!important;display:inline-block!important;position:relative!important;flex:0 0 24px!important;width:24px!important;height:24px!important;margin:0!important;}
 #navigationTabEditor .navigation-tab-editor-row .nav-tab-name{display:inline!important;white-space:nowrap!important;line-height:1.25!important}
 #navigationTabEditor .navigation-tab-editor-row > .nav-drag-handle{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;padding:0!important;margin:0!important;border:1px solid rgba(145,166,192,.22)!important;border-radius:10px!important;background:rgba(130,159,192,.15)!important;color:inherit!important;font-size:21px!important;line-height:1!important;cursor:grab!important;touch-action:none!important}
 #navigationTabEditor .navigation-tab-editor-row.is-dragging{opacity:.7!important;background:rgba(65,124,213,.17)!important;outline:2px solid #4789e9!important;outline-offset:0!important}
@@ -7572,5 +7713,231 @@ window.updateSmartProductSearch=function(products){cache=Array.isArray(products)
   html body .smart-category-filters {padding:8px 7px 14px!important;gap:12px!important;}
 }
 </style>
+
+<style id="checkbox-final-consistency-fix">
+/* Final override: native checkbox rendering and legacy pseudo ticks are disabled. */
+@media screen {
+ html body input[type="checkbox"],
+ html body #navigationTabEditor .navigation-tab-editor-row > label input[type="checkbox"],
+ html body #productRequestForm > label.expiry-toggle > input[type="checkbox"] {
+   -webkit-appearance:none!important;appearance:none!important;
+   display:inline-block!important;position:relative!important;
+   flex:0 0 24px!important;width:24px!important;height:24px!important;
+   min-width:24px!important;min-height:24px!important;max-width:24px!important;max-height:24px!important;
+   padding:0!important;margin:0!important;box-sizing:border-box!important;
+   border:2px solid #8597ad!important;border-radius:50%!important;
+   background-color:transparent!important;background-image:none!important;
+   box-shadow:none!important;vertical-align:middle!important;cursor:pointer!important;
+ }
+ html body input[type="checkbox"]:checked,
+ html body #navigationTabEditor .navigation-tab-editor-row > label input[type="checkbox"]:checked,
+ html body #productRequestForm > label.expiry-toggle > input[type="checkbox"]:checked {
+   background-color:var(--user-accent,#3678fa)!important;
+   border-color:var(--user-accent,#3678fa)!important;
+   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+   background-position:center!important;background-repeat:no-repeat!important;background-size:19px 19px!important;
+ }
+ html body input[type="checkbox"]::before,html body input[type="checkbox"]::after,
+ html body input[type="checkbox"]:checked::before,html body input[type="checkbox"]:checked::after {
+   content:none!important;display:none!important;
+ }
+}
+</style>
+<style id="settings-single-tick-only">
+@media screen {
+ html body #navigationTabEditor input[type="checkbox"] {
+   -webkit-appearance:none!important;appearance:none!important;
+   background-image:none!important;
+ }
+ html body #navigationTabEditor input[type="checkbox"]:checked {
+   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+   background-repeat:no-repeat!important;background-position:center!important;background-size:19px 19px!important;
+ }
+ html body #navigationTabEditor input[type="checkbox"]::before,
+ html body #navigationTabEditor input[type="checkbox"]::after {content:none!important;display:none!important;}
+}
+</style>
+
+<style id="bottom-navigation-theme-and-menu-consistency-fix">
+/* Screen-only navigation presentation. Docket/print CSS is untouched. */
+@media screen and (max-width:650px) {
+  /* Match the existing top navigation's light and dark palettes. */
+  body.nav-position-bottom.theme-light main > .tabs,
+  body.nav-position-bottom.theme-light > .database-bottom-nav-label,
+  body.nav-position-bottom.theme-light > .settings-bottom-nav-label {
+    background:rgba(255,255,255,.92)!important;
+    border-color:#d5deeb!important;
+    box-shadow:0 12px 32px rgba(25,42,68,.12),inset 0 1px rgba(255,255,255,.8)!important;
+  }
+  body.nav-position-bottom.theme-light main > .tabs > button:not(.active) {
+    color:#51627a!important;
+    background:transparent!important;
+  }
+  body.nav-position-bottom.theme-dark main > .tabs,
+  body.nav-position-bottom.theme-dark > .database-bottom-nav-label,
+  body.nav-position-bottom.theme-dark > .settings-bottom-nav-label {
+    background:rgba(35,52,72,.92)!important;
+    border-color:rgba(210,229,251,.30)!important;
+  }
+  body.nav-position-bottom.theme-dark main > .tabs > button:not(.active) {
+    color:#f3f7ff!important;
+    background:transparent!important;
+  }
+  /* The same actual menu button is moved between top and bottom positions.
+     Keep its size, rounded outline and icon identical in both positions. */
+  body.nav-position-bottom > header .header-menu {
+    width:51px!important;height:51px!important;
+    right:14px!important;
+  }
+  body.nav-position-bottom > header .header-menu-button,
+  body.nav-position-top > .mobile-top-nav-row .header-menu-button {
+    display:grid!important;place-items:center!important;
+    width:51px!important;height:51px!important;
+    min-width:51px!important;min-height:51px!important;
+    padding:0!important;border-radius:20px!important;
+    line-height:0!important;
+  }
+  body.nav-position-bottom.theme-light > header .header-menu-button,
+  body.nav-position-top.theme-light > .mobile-top-nav-row .header-menu-button {
+    background:rgba(240,243,247,.96)!important;
+    color:#17212b!important;
+    border:1px solid #aebdce!important;
+  }
+  body.nav-position-bottom.theme-dark > header .header-menu-button,
+  body.nav-position-top.theme-dark > .mobile-top-nav-row .header-menu-button {
+    background:rgba(35,52,72,.92)!important;
+    color:#fff!important;
+    border:1px solid rgba(210,229,251,.30)!important;
+  }
+  body.nav-position-bottom > header .header-menu-button .header-menu-icon,
+  body.nav-position-top > .mobile-top-nav-row .header-menu-button .header-menu-icon {
+    display:block!important;width:24px!important;height:24px!important;
+    margin:auto!important;
+  }
+  /* Maintain light selected-page pills for Settings and Database as well. */
+  body.nav-position-bottom.theme-light > .database-bottom-nav-label > span,
+  body.nav-position-bottom.theme-light > .settings-bottom-nav-label > span,
+  body.nav-position-bottom.theme-dark > .database-bottom-nav-label > span,
+  body.nav-position-bottom.theme-dark > .settings-bottom-nav-label > span {
+    background:var(--user-accent,#3678fa)!important;
+    color:var(--user-accent-text,#fff)!important;
+  }
+}
+@media print {
+  #bottom-navigation-theme-and-menu-consistency-fix {display:none!important;}
+}
+</style>
+
+<style id="bottom-navigation-spacing-alignment-fix">
+/* Align the floating navigation and menu as two non-overlapping siblings.
+   14px outer gutters + 8px internal gap, matching top navigation. */
+@media screen and (max-width:650px) {
+  body.nav-position-bottom > header .header-menu {
+    position:fixed!important;
+    right:14px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px))!important;
+    width:51px!important;
+    height:51px!important;
+    box-sizing:border-box!important;
+  }
+  body.nav-position-bottom:not(.database-page):not(.settings-page):not(.tasks-page):not(.handover-page) main > .tabs {
+    position:fixed!important;
+    left:14px!important;
+    right:73px!important;
+    width:auto!important;
+    max-width:none!important;
+    transform:none!important;
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px))!important;
+    box-sizing:border-box!important;
+  }
+  body.nav-position-bottom.database-page > .database-bottom-nav-label,
+  body.nav-position-bottom.settings-page > .settings-bottom-nav-label {
+    position:fixed!important;
+    left:14px!important;
+    right:73px!important;
+    width:auto!important;
+    max-width:none!important;
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px))!important;
+    box-sizing:border-box!important;
+  }
+}
+</style>
+
+<style id="custom-mobile-navigation-menu-style">
+@media(max-width:767px){
+ #nativeHeaderMenu{display:none!important;pointer-events:none!important}
+ .header-menu .header-menu-button{pointer-events:auto!important;cursor:pointer!important}
+ .header-menu{position:relative!important}
+ .custom-mobile-page-menu{position:absolute;right:0;top:calc(100% + 9px);width:min(290px,calc(100vw - 30px));padding:10px;background:var(--settings-panel,#fff);color:var(--settings-ink,#17212b);border:1px solid #cdd5df;border-radius:17px;box-shadow:0 14px 40px #0003;z-index:99999}
+ .custom-mobile-page-menu[hidden]{display:none!important}
+ .custom-mobile-page-menu button{width:100%;display:flex;align-items:center;gap:13px;border:0;border-radius:11px;padding:14px 13px;background:transparent;color:inherit;font:600 16px Arial,Helvetica,sans-serif;text-align:left;cursor:pointer}
+ .custom-mobile-page-menu button[aria-current="page"]{background:#3279f3;color:#fff}
+ .custom-mobile-page-menu svg{width:23px;height:23px;flex:none}
+ .custom-mobile-page-menu button:last-child svg{width:23px;height:23px;stroke-width:1.9}
+ .custom-mobile-page-menu .mobile-menu-check{margin-left:auto;font-size:18px}
+ .custom-mobile-page-menu .mobile-menu-divider{height:1px;background:#d8dfe8;margin:6px 10px}
+ body.theme-dark .custom-mobile-page-menu{background:#26364a;color:#f5f7fb;border-color:#53657a}
+ body.theme-dark .custom-mobile-page-menu .mobile-menu-divider{background:#53657a}
+}
+@media(min-width:768px){.custom-mobile-page-menu{display:none!important}}
+@media print{.custom-mobile-page-menu{display:none!important}}
+</style>
+<script id="custom-mobile-navigation-menu-script">
+(function(){
+ const wrapper=document.querySelector('.header-menu');
+ const button=wrapper?.querySelector('.header-menu-button');
+ const native=wrapper?.querySelector('#nativeHeaderMenu');
+ if(!wrapper||!button||!native)return;
+ const menu=document.createElement('div');menu.className='custom-mobile-page-menu';menu.hidden=true;
+ menu.setAttribute('role','menu');menu.setAttribute('aria-label','Navigation');wrapper.appendChild(menu);
+ const icons={
+ generator:'<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 9h6M9 13h4"/>',
+ database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+ settings:'<path d="M12 2.5c.55 0 1.1.05 1.63.15l.48 2.06a7.6 7.6 0 0 1 1.8.75l1.8-1.12a9.7 9.7 0 0 1 2.3 2.3l-1.12 1.8c.33.57.58 1.17.75 1.8l2.06.48a9.7 9.7 0 0 1 0 3.26l-2.06.48a7.6 7.6 0 0 1-.75 1.8l1.12 1.8a9.7 9.7 0 0 1-2.3 2.3l-1.8-1.12a7.6 7.6 0 0 1-1.8.75l-.48 2.06a9.7 9.7 0 0 1-3.26 0l-.48-2.06a7.6 7.6 0 0 1-1.8-.75l-1.8 1.12a9.7 9.7 0 0 1-2.3-2.3l1.12-1.8a7.6 7.6 0 0 1-.75-1.8l-2.06-.48a9.7 9.7 0 0 1 0-3.26l2.06-.48c.17-.63.42-1.23.75-1.8l-1.12-1.8a9.7 9.7 0 0 1 2.3-2.3l1.8 1.12a7.6 7.6 0 0 1 1.8-.75l.48-2.06A9.7 9.7 0 0 1 12 2.5Z"/><circle cx="12" cy="12" r="3.2"/>'
+ };
+ function current(){return document.body.classList.contains('settings-page')?'settings':document.body.classList.contains('database-page')?'database':'generator'}
+ function close(){menu.hidden=true;button.setAttribute('aria-expanded','false')}
+ function render(){menu.replaceChildren();[['generator','Pallet Notes'],['database','Database'],['settings','Settings']].forEach(([id,label],i)=>{
+  if(i){const sep=document.createElement('div');sep.className='mobile-menu-divider';menu.appendChild(sep)}
+  const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');
+  if(current()===id)item.setAttribute('aria-current','page');
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.9');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');svg.innerHTML=icons[id];
+  const txt=document.createElement('span');txt.textContent=label;item.append(svg,txt);
+  if(current()===id){const tick=document.createElement('span');tick.className='mobile-menu-check';tick.textContent='✓';item.append(tick)}
+  item.addEventListener('click',()=>{close();native.value=id;native.dispatchEvent(new Event('change',{bubbles:true}))});menu.appendChild(item)
+ })}
+ button.addEventListener('click',function(e){if(window.innerWidth>=768)return;e.preventDefault();e.stopImmediatePropagation();if(menu.hidden){render();menu.hidden=false;button.setAttribute('aria-expanded','true')}else close()},true);
+ document.addEventListener('click',e=>{if(!wrapper.contains(e.target))close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+ window.addEventListener('resize',close);
+ new MutationObserver(()=>{if(!menu.hidden)render()}).observe(document.body,{attributes:true,attributeFilter:['class']});
+})();
+</script>
+<style id="navigation-icons-preference-style">
+.settings-navigation-icons-preference{margin-top:18px}
+.navigation-icons-toggle-row{display:flex!important;flex-direction:row!important;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;border:1px solid #cdd5df;border-radius:11px;cursor:pointer}
+.navigation-icons-toggle-row span{display:flex;flex-direction:column;gap:3px}
+.navigation-icons-toggle-row strong{font-size:15px}
+.navigation-icons-toggle-row small{font-size:12px;font-weight:400;opacity:.8}
+#settingsShowNavigationIcons{width:22px!important;height:22px!important;flex:0 0 22px;accent-color:#3478f6;cursor:pointer}
+body.navigation-icons-off .tabs button > svg.nav-line-icon,
+body.navigation-icons-off .header-menu-item > svg.nav-line-icon,
+body.navigation-icons-off .custom-mobile-page-menu button > svg,
+body.navigation-icons-off .settings-bottom-nav-label svg,
+body.navigation-icons-off .database-bottom-nav-label svg{display:none!important}
+@media print{.settings-navigation-icons-preference{display:none!important}}
+</style>
+<script id="navigation-icons-preference-script">
+(function(){
+ const key='pallet-note-navigation-icons-enabled';
+ const control=document.getElementById('settingsShowNavigationIcons');
+ if(!control)return;
+ let enabled=true;
+ try{enabled=localStorage.getItem(key)!=='false'}catch(e){}
+ function apply(value){control.checked=value;document.body.classList.toggle('navigation-icons-off',!value);}
+ apply(enabled);
+ control.addEventListener('change',function(){apply(control.checked);try{localStorage.setItem(key,String(control.checked))}catch(e){}});
+})();
+</script>
 </body>
 </html>
