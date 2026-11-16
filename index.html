@@ -6601,6 +6601,7 @@ const PALLET_FIXED_CATEGORY_COLOURS={"aggregates":"#43A1D2","cement":"#2860F4","
    try{
      const data=await call('GET');const categories=data.categories||[];
      window.sharedProductCategories=categories;
+     window.sharedCategoryColours=data.colours||{};
      for(const id of ['productDbCategory','requestProductCategory','singleRequestCategory']){
        const select=$(id);if(!select)continue;const previous=select.value;select.replaceChildren();
        if(id==='requestProductCategory'||id==='singleRequestCategory')select.add(new Option('SELECT CATEGORY',''));
@@ -6631,20 +6632,22 @@ const PALLET_FIXED_CATEGORY_COLOURS={"aggregates":"#43A1D2","cement":"#2860F4","
        const colourText=document.createElement('span');colourText.textContent='Colour';
        const picker=document.createElement('input');picker.type='color';
        picker.setAttribute('aria-label','Choose colour for '+name);
-       const storedColours=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}');
        const colourKey=name.toLowerCase().trim();
        const fallbackPalette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
        const preferred=['Aggregates','Bagged Plaster','Cement','Flooring','Garden Storage','Sheet Timber','Tiles','Other'];
        const ix=preferred.findIndex(n=>n.toLowerCase()===colourKey);
-       picker.value=PALLET_FIXED_CATEGORY_COLOURS[colourKey]||storedColours[colourKey]||fallbackPalette[ix>=0?ix:Math.abs([...colourKey].reduce((a,c)=>a+c.charCodeAt(0),0))%fallbackPalette.length];
-       picker.disabled=Boolean(PALLET_FIXED_CATEGORY_COLOURS[colourKey]);
-       if(picker.disabled)picker.title="Fixed in this HTML version";
-       picker.addEventListener('change',()=>{
-         const colours=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}');
-         colours[colourKey]=picker.value;
-         localStorage.setItem('pallet-category-colour-overrides',JSON.stringify(colours));
-         document.dispatchEvent(new Event('shared-product-categories-updated'));
-         status('Colour saved on this device.');
+       picker.value=(window.sharedCategoryColours||{})[colourKey]||PALLET_FIXED_CATEGORY_COLOURS[colourKey]||fallbackPalette[ix>=0?ix:Math.abs([...colourKey].reduce((a,c)=>a+c.charCodeAt(0),0))%fallbackPalette.length];
+       picker.addEventListener('change',async()=>{
+         const selected=picker.value;
+         picker.disabled=true;
+         try{
+           await call('POST',{action:'set-colour',name,colour:selected});
+           await refresh();
+           status('Category colour saved to Supabase for all devices.');
+         }catch(e){
+           picker.value=(window.sharedCategoryColours||{})[colourKey]||PALLET_FIXED_CATEGORY_COLOURS[colourKey]||'#475569';
+           status('Could not save colour: '+e.message);
+         }finally{picker.disabled=false;}
        });
        colourControl.append(colourText,picker);
        const actions=document.createElement('div');actions.className='category-row-actions';
@@ -7599,9 +7602,8 @@ function refreshCategoryColours(){
     const colour=next<categoryPalette.length?categoryPalette[next]:`hsl(${Math.round((next*137.508)%360)} 75% ${34+Math.floor((next-categoryPalette.length)/24)*7}% )`;
     categoryColourMap.set(key,colour);used.add(next++);
   });
-  let overrides={};try{overrides=JSON.parse(localStorage.getItem('pallet-category-colour-overrides')||'{}')}catch(e){}
-  for(const [key,value] of Object.entries(overrides))if(/^#[0-9a-f]{6}$/i.test(value))categoryColourMap.set(norm(key),value);
   for(const [key,value] of Object.entries(PALLET_FIXED_CATEGORY_COLOURS))categoryColourMap.set(norm(key),value);
+  for(const [key,value] of Object.entries(window.sharedCategoryColours||{}))if(/^#[0-9a-f]{6}$/i.test(value))categoryColourMap.set(norm(key),value);
 }
 function styleCategory(el,name){
   const colour=categoryColourMap.get(norm(name))||'#475569';
