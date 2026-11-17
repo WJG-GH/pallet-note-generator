@@ -4292,6 +4292,17 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
 }
 @media print {.nav-line-icon{display:none!important}}
 </style>
+<style id="category-list-colours-update">
+#productDbList .product-db-category {border-color:var(--category-list-colour,#526174)!important;}
+#productDbList .product-db-category > summary {
+ background:var(--category-list-colour,#475569)!important;
+ color:#fff!important;
+ border:0!important;
+ font-weight:800!important;
+}
+#productDbList .product-db-category > summary .product-db-count {color:#fff!important;opacity:.95!important;}
+#productDbList .product-db-category-items {background:var(--panel-bg,transparent);}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2h4l.7 2.5 2 1 2.4-1 2.8 2.8-1 2.4 1 2 .1 2.3-2.5.7-1 2 1 2.4-2.8 2.8-2.4-1-2 1L14 22h-4l-.7-2.5-2-1-2.4 1-2.8-2.8 1-2.4-1-2L2 10l2.5-.7 1-2-1-2.4 2.8-2.8 2.4 1 2-1Z"/><circle cx="12" cy="12" r="3"/></svg><span>Settings</span></button></nav></div></div></header>
@@ -4557,12 +4568,10 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
           <div class="actions product-db-save-actions" style="margin:12px 0"><button class="action primary" id="saveProductDb" type="button">Save product</button><button class="action" id="clearProductDb" type="button">Clear</button></div>
         </section>
       </div><p id="productDbMessage" role="status" aria-live="polite" class="hint"></p>
-      <section class="database-subpanel database-list-panel smart-search-panel" aria-label="Product search"><h3>PRODUCT DATABASE</h3>
-<div class="smart-search-line"><input id="smartProductSearch" type="search" placeholder="Search product or barcode..." aria-label="Search products by name or barcode" autocomplete="off"><button id="smartSearchClear" class="action" type="button" aria-label="Clear product search">✕</button></div>
-<div id="smartCategoryFilters" class="smart-category-filters" aria-label="Filter product categories"></div>
-<div class="smart-search-meta"><span id="smartProductCount" role="status">Products</span><span>Sorted A–Z</span></div>
-<div id="smartProductResults" class="smart-product-results"></div>
-<details class="smart-legacy-categories"><summary>Browse category lists</summary><div id="productDbList"></div></details></section>
+      <section class="database-subpanel database-list-panel" aria-label="Product categories">
+        <h3>PRODUCT DATABASE</h3>
+        <div id="productDbList"></div>
+      </section>
     </div>
   </section>
 </main>
@@ -5859,6 +5868,18 @@ window.addEventListener('afterprint', () => {
        categoryOpenState[category]=section.open;
        try{localStorage.setItem(categoryStateKey,JSON.stringify(categoryOpenState));}catch(e){}
      });
+     const categoryKey=String(category).trim().toLowerCase().replace(/\s+/g,' ');
+     const palette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
+     const preferred=['Aggregates','Bagged Plaster','Cement','Flooring','Garden Storage','Sheet Timber','Tiles','Other'];
+     const preferredIndex=preferred.findIndex(n=>n.toLowerCase()===categoryKey);
+     const colourIndex=preferredIndex>=0?preferredIndex:sortedCategories.indexOf(category)%palette.length;
+     const fixed=(typeof PALLET_FIXED_CATEGORY_COLOURS!=='undefined'?PALLET_FIXED_CATEGORY_COLOURS:{});
+     const shared=window.sharedCategoryColours||{};
+     const findColour=(obj)=>Object.entries(obj).find(([name])=>name.trim().toLowerCase()===categoryKey)?.[1];
+     const categoryColour=findColour(shared)||findColour(fixed)||palette[colourIndex];
+     if(/^#[0-9a-f]{6}$/i.test(categoryColour)){
+       section.style.setProperty('--category-list-colour',categoryColour);
+     }
      const heading=document.createElement('summary');
      const title=document.createElement('span');title.textContent=category;
      const count=document.createElement('span');count.className='product-db-count';count.textContent='0 products';
@@ -5889,9 +5910,9 @@ window.addEventListener('afterprint', () => {
    picker.value=''; // Always display only the arrow, never the selected product name.
    if(typeof renderDescriptionMatches==='function')renderDescriptionMatches();
    if(!products.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='No products saved yet.';output.appendChild(empty);}
-   if(typeof window.updateSmartProductSearch==='function')window.updateSmartProductSearch(products);
+
  }
- async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();updateSingleDocketCategory();renderBasket();}catch(e){status('Cannot load shared products: '+e.message);}}
+ async function load(){try{const data=await request();products=data.products||[];window.sharedProductsForScanSheet=products;refresh();if(typeof window.updateSingleDocketCategory==='function')window.updateSingleDocketCategory();renderBasket();}catch(e){status('Cannot load shared products: '+e.message);}}
  window.reloadProductDatabase=load;
  document.addEventListener('shared-product-categories-updated',refresh);
  byId('singleProductPicker').addEventListener('change',function(){
@@ -7579,102 +7600,7 @@ init();
 .smart-category-filters button[aria-pressed="true"]{outline:3px solid var(--user-accent,#3478f6)!important;outline-offset:2px}
 </style>
 <div id="smartBasketToast" role="status" aria-live="polite" hidden></div>
-<script>
-(function(){
-const search=document.getElementById('smartProductSearch'),clear=document.getElementById('smartSearchClear'),filters=document.getElementById('smartCategoryFilters'),results=document.getElementById('smartProductResults'),count=document.getElementById('smartProductCount');
-if(!search||!results)return;
-let active='All';let cache=[];
-const norm=s=>String(s||'').toLowerCase().trim().replace(/\s+/g,' ');
-function node(tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;}
-// Stable one-to-one category colour assignment. Never reuse a colour for two categories.
-const categoryPalette=['#B45309','#7C3AED','#2563EB','#0F766E','#15803D','#BE123C','#C2410C','#475569','#A21CAF','#0369A1','#854D0E','#4338CA','#9F1239','#047857','#6D28D9','#1D4ED8'];
-let categoryColourMap=new Map();
-function refreshCategoryColours(){
-  const names=[...new Set(cache.map(p=>String(p.category||'Other').trim()))].sort((a,b)=>norm(a)==='other'?1:norm(b)==='other'?-1:a.localeCompare(b));
-  const preferred=['Aggregates','Bagged Plaster','Cement','Flooring','Garden Storage','Sheet Timber','Tiles','Other'];
-  const reserved=new Map(preferred.map((n,i)=>[norm(n),i]));
-  const used=new Set();categoryColourMap=new Map();
-  names.forEach(n=>{const idx=reserved.get(norm(n));if(idx!==undefined){categoryColourMap.set(norm(n),categoryPalette[idx]);used.add(idx);}});
-  let next=0;
-  names.forEach(n=>{const key=norm(n);if(categoryColourMap.has(key))return;
-    while(used.has(next))next++;
-    // For large databases, generate a new hue/lightness pair rather than wrapping the palette.
-    const colour=next<categoryPalette.length?categoryPalette[next]:`hsl(${Math.round((next*137.508)%360)} 75% ${34+Math.floor((next-categoryPalette.length)/24)*7}% )`;
-    categoryColourMap.set(key,colour);used.add(next++);
-  });
-  for(const [key,value] of Object.entries(PALLET_FIXED_CATEGORY_COLOURS))categoryColourMap.set(norm(key),value);
-  for(const [key,value] of Object.entries(window.sharedCategoryColours||{}))if(/^#[0-9a-f]{6}$/i.test(value))categoryColourMap.set(norm(key),value);
-}
-function styleCategory(el,name){
-  const colour=categoryColourMap.get(norm(name))||'#475569';
-  el.style.setProperty('background-color',colour,'important');
-  el.style.setProperty('border-color',colour,'important');
-  el.style.setProperty('color','#ffffff','important');
-}
 
-document.addEventListener('shared-product-categories-updated',()=>render());
-function render(){refreshCategoryColours();const categories=['All',...new Set(cache.map(p=>p.category||'Other'))].sort((a,b)=>a==='All'?-1:b==='All'?1:norm(a)==='other'?1:norm(b)==='other'?-1:a.localeCompare(b));if(!categories.includes(active))active='All';filters.replaceChildren();categories.forEach(c=>{const b=node('button','',c);b.type='button';b.setAttribute('aria-pressed',String(c===active));if(c!=='All')styleCategory(b,c);b.onclick=()=>{active=c;render()};filters.appendChild(b)});
-// Rebuilding the filter buttons must not preserve an obsolete horizontal scroll position.
-// Keep the active category fully visible, without scrolling the whole page.
-requestAnimationFrame(()=>{
-  if(active==='All'){filters.scrollLeft=0;return;}
-  const selected=Array.from(filters.children).find(el=>el.getAttribute('aria-pressed')==='true');
-  if(!selected)return;
-  const left=selected.offsetLeft-filters.offsetLeft;
-  const right=left+selected.offsetWidth;
-  if(left<filters.scrollLeft+5)filters.scrollLeft=Math.max(0,left-5);
-  else if(right>filters.scrollLeft+filters.clientWidth-5)filters.scrollLeft=right-filters.clientWidth+5;
-});
-const terms=norm(search.value).split(' ').filter(Boolean);const found=cache.filter(p=>(active==='All'||(p.category||'Other')===active)&&terms.every(t=>norm(p.description+' '+p.barcode+' '+(p.category||'Other')).includes(t))).sort((a,b)=>String(a.description).localeCompare(String(b.description),undefined,{numeric:true,sensitivity:'base'}));count.textContent=found.length+' '+(found.length===1?'product':'products')+' found';results.replaceChildren();if(!found.length){results.appendChild(node('p','hint',cache.length?'No matching products. Try another description or barcode.':'No products loaded.'));return;}
-found.forEach(p=>{const card=node('details','smart-product-card');const summary=node('summary');const main=node('div','smart-product-main');main.append(node('strong','',p.description),node('small','',p.barcode));const side=node('div','smart-product-side');const categoryTag=node('span','smart-product-tag',p.category||'Other');styleCategory(categoryTag,p.category||'Other');side.append(categoryTag,node('span','','QTY: '+p.quantity),node('span','',p.expiry_required?'EXPIRY: YES':'EXPIRY: NO'));summary.append(main,side,node('span','','⌄'));card.appendChild(summary);const detail=node('div','smart-product-detail');const grid=node('div','smart-product-detail-grid');[['DESCRIPTION',p.description],['BARCODE',p.barcode],['QTY',p.quantity],['EXPIRY REQUIRED',p.expiry_required?'YES':'NO']].forEach(([k,v])=>{const box=node('div');box.append(node('small','',k),node('strong','',String(v??'')));grid.appendChild(box)});detail.appendChild(grid);const use=node('button','action primary smart-product-use','Add to basket');use.type='button';use.onclick=()=>{
-  // Create the basket docket directly from the selected database record.
-  // Keep the operator's existing completed-by and located-date fields.
-  if(typeof setType!=='function'||typeof addToBasket!=='function')return;
-  if(typeof editingBasketIndex!=='undefined'&&editingBasketIndex>=0&&typeof setEditingState==='function')setEditingState(-1);
-  setType('single');
-  const put=(id,value)=>{const field=document.getElementById(id);if(field)field.value=String(value??'');};
-  put('description',p.description);
-  put('singleCode',p.barcode);
-  put('qty',p.quantity);
-  const expiry=document.getElementById('includeExpiry');if(expiry)expiry.checked=Boolean(p.expiry_required);
-  const expiryDate=document.getElementById('expiry');if(expiryDate)expiryDate.value='';
-  if(typeof updatePreview==='function')updatePreview();
-  const before=docketBasket.length;
-  window.__smartQuickAddPending=true;
-  addToBasket();
-  if(docketBasket.length<=before)window.__smartQuickAddPending=false;
-  if(docketBasket.length<=before)return;
-  const original='Add to basket';
-  use.textContent='✓ Added to basket';
-  use.classList.add('smart-product-added');
-  use.disabled=true;
-  const toast=document.getElementById('smartBasketToast');
-  if(toast){
-    toast.textContent='✓ '+p.description+' added to basket';
-    // Align the notification precisely with the product cards, not a fixed 460px cap.
-    const alignToast=()=>{
-      const reference=results.querySelector('.smart-product-card')||results;
-      const rect=reference.getBoundingClientRect();
-      const viewportWidth=document.documentElement.clientWidth;
-      const left=Math.max(8,Math.min(rect.left,viewportWidth-8));
-      const width=Math.max(0,Math.min(rect.width,viewportWidth-left-8));
-      toast.style.left=left+'px';
-      toast.style.width=width+'px';
-      toast.style.transform='none';
-    };
-    alignToast();
-    window.smartBasketToastAlign=alignToast;
-    toast.hidden=false;
-    clearTimeout(window.smartBasketToastTimer);
-    window.smartBasketToastTimer=setTimeout(()=>{toast.hidden=true},3200);
-  }
-  setTimeout(()=>{if(use.isConnected){use.textContent=original;use.disabled=false;use.classList.remove('smart-product-added')}},2400);
-};detail.appendChild(use);card.appendChild(detail);results.appendChild(card)});
-}
-window.addEventListener('resize',()=>{const toast=document.getElementById('smartBasketToast');if(toast&&!toast.hidden&&window.smartBasketToastAlign)window.smartBasketToastAlign()});
-window.updateSmartProductSearch=function(products){cache=Array.isArray(products)?products.slice():[];render()};search.addEventListener('input',render);clear.onclick=()=>{search.value='';render();search.focus()};render();
-})();
-</script>
 <style id="smart-product-thin-selection-outline">
 /* Match the product description field: one thin accent-coloured border, no stacked rings. */
 @media screen {
