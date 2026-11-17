@@ -2614,6 +2614,10 @@ body.settings-page #settingsNavigationPosition{background:var(--settings-button,
 .smart-category-filters button[data-category-colour="6"],.smart-product-tag[data-category-colour="6"]{background:#C2410C!important;border-color:#C2410C!important}
 .smart-category-filters button[data-category-colour="7"],.smart-product-tag[data-category-colour="7"]{background:#475569!important;border-color:#475569!important}
 .smart-category-filters button[data-category-colour][aria-pressed="true"]{outline:3px solid var(--accent,#7430e8);outline-offset:2px}
+
+/* Multi: only operator entry is needed; date is generated automatically. */
+#mixedForm .multi-details-row { grid-template-columns:minmax(0,1fr)!important; }
+#mixedForm .multi-details-row > label { width:100%!important; }
 </style>
 <style id="high-contrast-without-reverse">.sheet:is(#singleSheet,.basket-single-sheet) .single-barcode-grid > span.barcode-last-four,
 .sheet:is(#mixedSheet,.basket-mixed-sheet) .multi-stable-code > span.barcode-last-four {
@@ -4303,6 +4307,53 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
 #productDbList .product-db-category > summary .product-db-count {color:#fff!important;opacity:.95!important;}
 #productDbList .product-db-category-items {background:var(--panel-bg,transparent);}
 </style>
+<style id="unified-settings-controls-v2">
+@media screen {
+#settingsPage .unified-choice-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:9px 0 19px}
+#settingsPage .unified-choice-group.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settingsPage .unified-choice{appearance:none;min-width:0;min-height:55px;border:1px solid var(--settings-border,#cbd5e1);border-radius:12px;background:var(--settings-button,#f8fafc);color:var(--settings-ink,inherit);font:inherit;font-size:15px;font-weight:650;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 8px;transition:background .15s,border-color .15s}
+#settingsPage .unified-choice[aria-pressed="true"]{border:2px solid var(--user-accent)!important;background:color-mix(in srgb,var(--user-accent) 11%,transparent)!important;color:var(--settings-ink,inherit)!important}
+#settingsPage .unified-choice[aria-pressed="true"]::before{content:'✓';display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px;border-radius:50%;background:var(--user-accent);color:white;font-size:13px}
+#settingsPage .unified-choice:focus-visible,#settingsPage .accent-colour-choice:focus-visible{outline:3px solid var(--user-accent);outline-offset:2px}
+#settingsPage select.unified-native-select, #settingsPage #settingsTheme, #settingsPage #settingsNavigationPosition{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#settingsPage .accent-colour-options{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px!important;justify-content:stretch!important}
+#settingsPage .accent-colour-choice{width:100%!important;min-width:0!important;min-height:73px!important;border:1px solid var(--settings-border,#cbd5e1)!important;border-radius:12px!important;background:var(--settings-button,#f8fafc)!important;gap:5px!important;padding:9px 4px!important;color:var(--settings-ink,inherit)!important}
+#settingsPage .accent-colour-choice[aria-pressed="true"]{border:2px solid var(--user-accent)!important;background:color-mix(in srgb,var(--user-accent) 11%,transparent)!important}
+#settingsPage .navigation-icons-toggle-row,#settingsPage .navigation-tab-editor-row{border:1px solid var(--settings-border,#cbd5e1)!important;border-radius:12px!important;background:var(--settings-button,#f8fafc)!important;min-height:60px!important}
+#settingsPage .navigation-icons-toggle-row:has(input:checked),#settingsPage .navigation-tab-editor-row:has(input:checked){border-color:color-mix(in srgb,var(--user-accent) 45%,var(--settings-border,#cbd5e1))!important}
+#settingsPage .settings-field-label{margin-bottom:6px!important}
+@media(min-width:650px){#settingsPage .accent-colour-options{grid-template-columns:repeat(6,minmax(0,1fr))}}
+}
+</style>
+<style id="bottom-hamburger-functional-fix">
+@media screen and (max-width:767px){
+ body.nav-position-bottom > header .header-menu{position:fixed!important;right:14px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;top:auto!important;left:auto!important;width:51px!important;height:51px!important;z-index:50000!important;overflow:visible!important;}
+ body.nav-position-bottom > header .header-menu .header-menu-button{position:relative!important;z-index:1!important;pointer-events:auto!important;touch-action:manipulation!important;}
+ body.nav-position-bottom > header .header-menu .custom-mobile-page-menu{position:absolute!important;top:auto!important;bottom:calc(100% + 12px)!important;right:0!important;left:auto!important;z-index:50001!important;max-height:calc(100dvh - 110px)!important;overflow-y:auto!important;}
+ body.nav-position-top .custom-mobile-page-menu{top:calc(100% + 9px)!important;bottom:auto!important;}
+}
+</style>
+<style id="single-form-layout-20261117">
+@media screen {
+ #singleForm .auto-date-hidden,#singleForm #locatedDate{display:none!important}
+ #singleForm .single-details-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:end!important}
+ #singleForm .single-details-row>label{min-width:0!important;width:100%!important}
+ #singleForm .single-details-row input{height:48px!important;min-height:48px!important;box-sizing:border-box!important}
+ #singleForm #singleCopies{text-align:center!important;font-weight:700!important;font-variant-numeric:tabular-nums!important}
+ #singleForm .single-optional-row{margin-top:4px!important}
+ @media(max-width:390px){#singleForm .single-details-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}}
+}
+</style>
+<style id="unified-description-picker-v2">
+@media screen {
+ .description-product-row {display:block!important;width:100%!important;}
+ .description-autocomplete-anchor {width:100%!important;}
+ #singleProductPicker {display:none!important;}
+ .description-matches {display:block;z-index:9999;max-height:min(320px,45dvh);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+ .description-matches[hidden] {display:none!important;}
+ .description-match {min-height:48px;touch-action:manipulation;}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button type="button" id="headerMenuButton" class="header-menu-button" aria-label="Open menu" aria-controls="headerMenuPopover" aria-expanded="false"><svg class="header-menu-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button><nav id="headerMenuPopover" class="header-menu-popover" aria-label="Main menu" hidden><div class="header-menu-caption">TOOLS</div><button type="button" id="menuProductDatabase" class="header-menu-item"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span>Database</span><span class="header-menu-chevron" aria-hidden="true">›</span></button><button type="button" id="menuGenerateHandover" hidden style="display:none!important"></button><button type="button" id="menuTaskDatabase" hidden style="display:none!important"></button><button type="button" id="menuSettings" class="header-menu-item"><svg class="nav-line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2h4l.7 2.5 2 1 2.4-1 2.8 2.8-1 2.4 1 2 .1 2.3-2.5.7-1 2 1 2.4-2.8 2.8-2.4-1-2 1L14 22h-4l-.7-2.5-2-1-2.4 1-2.8-2.8 1-2.4-1-2L2 10l2.5-.7 1-2-1-2.4 2.8-2.8 2.4 1 2-1Z"/><circle cx="12" cy="12" r="3"/></svg><span>Settings</span></button></nav></div></div></header>
@@ -4310,8 +4361,8 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
 <section id="settingsPage" hidden aria-label="Settings">
   <button type="button" id="settingsBack" hidden style="display:none!important" aria-hidden="true" tabindex="-1">← Back to generator</button>
   <div class="settings-card"><h3>Appearance</h3>
-  <label for="settingsTheme" class="settings-field-label">Colour theme</label>
-  <select id="settingsTheme" aria-label="Colour theme"><option value="system">System (Default)</option><option value="light">Light</option><option value="dark">Dark</option></select>
+  <div class="settings-field-label" id="themeChoiceLabel">Colour theme</div>
+  <select id="settingsTheme" aria-label="Colour theme" tabindex="-1" hidden><option value="system">System (Default)</option><option value="light">Light</option><option value="dark">Dark</option></select>
   <div class="settings-accent-preference">
     <label class="settings-field-label" id="accentColourLabel" style="margin-top:18px">Accent colour</label>
     <div class="accent-colour-options" role="group" aria-labelledby="accentColourLabel">
@@ -4324,8 +4375,8 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
     </div>
   </div>
   <div class="settings-mobile-navigation-preference">
-  <label for="settingsNavigationPosition" class="settings-field-label" style="display:block;margin-top:18px">Navigation</label>
-  <select id="settingsNavigationPosition" aria-label="Navigation"><option value="top">Top (Default)</option><option value="bottom">Bottom</option></select>
+  <div class="settings-field-label" style="display:block;margin-top:18px">Navigation</div>
+  <select id="settingsNavigationPosition" aria-label="Navigation" tabindex="-1" hidden><option value="top">Top (Default)</option><option value="bottom">Bottom</option></select>
   </div>
   <div class="settings-navigation-icons-preference">
     <label class="navigation-icons-toggle-row" for="settingsShowNavigationIcons">
@@ -4377,7 +4428,7 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
   <section class="panel">
     <h2 id="formTitle">SINGLE PALLET NOTE</h2>
     <div id="singleForm" class="fields">
-      <label>Product / description<div class="description-product-row"><div class="description-autocomplete-anchor"><input id="description" list="savedProductDescriptions" autocomplete="off" maxlength="35" placeholder="Product description" oninput="productDescriptionChanged()" aria-autocomplete="list" aria-controls="descriptionMatches" aria-expanded="false"><div id="descriptionMatches" class="description-matches" role="listbox" hidden></div></div><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
+      <label>Product / description<div class="description-product-row"><div class="description-autocomplete-anchor"><input id="description" autocomplete="off" maxlength="35" placeholder="Product description" oninput="productDescriptionChanged()" aria-autocomplete="list" aria-controls="descriptionMatches" aria-expanded="false"><div id="descriptionMatches" class="description-matches" role="listbox" hidden></div></div><select id="singleProductPicker" aria-label="Select saved product by category" title="Select product from database"><option value="">▾</option></select></div></label>
       <datalist id="savedProductDescriptions"></datalist><script>
 /* Retain saved-product datalist on phones/tablets, but suppress the
    duplicate native suggestions on desktop. The separate arrow picker
@@ -4403,9 +4454,10 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
         <label>Barcode<input id="singleCode" inputmode="numeric" maxlength="13" placeholder="Enter barcode" oninput="updatePreview()"></label>
         <label>Qty (3 digits)<input id="qty" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Qty" oninput="this.value=this.value.replace(/\D/g,'').slice(0,3);updatePreview()"></label>
       </div>
+      <input id="locatedDate" type="hidden" aria-hidden="true">
       <div class="single-details-row">
-        <label>Located date<input id="locatedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
         <label>Completed by<input id="forklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
+        <label>Copies<input id="singleCopies" type="number" inputmode="numeric" min="1" max="99" step="1" value="1" aria-label="Number of copies to print" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,2)"></label>
       </div>
       <div class="single-optional-row">
         <div class="single-optional-field">
@@ -4424,7 +4476,7 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
       <div id="mixedLines" style="grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr);gap:12px"></div>
       
       <div class="multi-details-row">
-        <label>Located date<input id="completedDate" type="date" onchange="updatePreview()" oninput="updatePreview()"></label>
+        <input id="completedDate" type="hidden" value="">
         <label>Completed by<input id="mixedForklifted" placeholder="Name or initials" oninput="updatePreview()"></label>
       </div>
       <input type="hidden" id="mixedLocated" value="">
@@ -4532,10 +4584,12 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
         <h3 id="toggleProductRequest" class="product-request-heading">REQUEST A PRODUCT</h3>
         <form id="productRequestForm">
           <p class="hint">Suggest a product for administrator approval. It will not appear in the database until approved.</p>
-          <div class="product-manager-fields">
-            <label>Product description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
-            <label>Product barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="BARCODE" required pattern="[0-9]{1,13}"></label>
-            <label>Qty<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
+          <div class="request-description-row">
+            <label>Product / description<input id="requestProductDescription" maxlength="180" placeholder="PRODUCT DESCRIPTION" required autocomplete="off"></label>
+          </div>
+          <div class="request-barcode-row">
+            <label>Barcode<input id="requestProductBarcode" inputmode="numeric" maxlength="13" placeholder="ENTER BARCODE" required pattern="[0-9]{1,13}"></label>
+            <label>Qty (3 digits)<input id="requestProductQty" inputmode="numeric" maxlength="3" placeholder="QTY" required pattern="[0-9]{1,3}"></label>
           </div>
           <label class="expiry-toggle"><input type="checkbox" id="requestExpiryRequired"><span>EXPIRY DATE REQUIRED</span></label>
           <div class="product-manager-fields"><label class="product-category-field">Category<select id="requestProductCategory" required><option value="">SELECT CATEGORY</option></select></label></div>
@@ -4862,6 +4916,8 @@ function syncOptionalExpiry(){
   return enabled;
 }
 function updatePreview(){
+  const automaticDate=document.getElementById('locatedDate');
+  if(automaticDate) automaticDate.value=currentDateString();
   const showExpiry=syncOptionalExpiry();
   const singleLocationField=document.getElementById('singleLocationInput');
   if(singleLocationField) singleLocationField.value=formatLocationCode(singleLocationField.value);
@@ -4915,6 +4971,7 @@ function updatePreview(){
     const qrBox=document.createElement('div'); qrBox.className='multi-stable-qr'; const scanHeading=document.createElement('div'); scanHeading.className='scan-barcode-heading'; scanHeading.textContent='BARCODE'; qrBox.append(scanHeading,qr);
     row.append(code,qrBox,grey,qty); rows.appendChild(row); setQrImage(qr, codeVal);
   }
+  document.getElementById('completedDate').value=currentDateString();
   document.getElementById('pCompletedDate').textContent=formatDocketDate(val('completedDate'));
   document.getElementById('pMixedForklifted').textContent=val('mixedForklifted');
   document.getElementById('pMixedLocated').textContent=val('mixedLocated');
@@ -5106,13 +5163,14 @@ function clearForm(){
     if(el.id === 'locatedDate' || el.id === 'completedDate') return;
     if(el.type==='checkbox')el.checked=false; else el.value='';
   });
+  document.getElementById('singleCopies').value='1';
   multiBarcodeCount=4;
   syncMultiBarcodeInputs();
   if(type==='other')updateOtherPreview();else updatePreview();
   fitPreview();
 }
 const docketBasket = [];
-const basketFieldIds = ['description','qty','forklifted','expiry','located','locatedDate','location','singleCode','includeExpiry','includeSingleLocation','singleLocationInput',
+const basketFieldIds = ['singleCopies','description','qty','forklifted','expiry','located','locatedDate','location','singleCode','includeExpiry','includeSingleLocation','singleLocationInput',
   'completedDate','mixedForklifted','mixedLocated','mixedLocation',
   'mcode1','mcode2','mcode3','mcode4','mqty1','mqty2','mqty3','mqty4','locationDescription','locationShort','otherSign','customSignText'];
 let editingBasketIndex = -1;
@@ -5137,6 +5195,7 @@ function editBasketDocket(index){
   multiBarcodeCount=4;
   syncMultiBarcodeInputs();
   setEditingState(index);
+  if(type==='single') document.getElementById('singleCopies').value=String(item.copies||1);
   if(type==='other')updateOtherPreview();else updatePreview();
   document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -5191,7 +5250,7 @@ function addToBasket(){
     values: {...snapshotFields(), multiBarcodeCount},
     label: (type === 'single' ? 'Single docket' : type === 'mixed' ? 'Multi docket' : type === 'location' ? 'Location docket' : document.getElementById('otherSign').selectedOptions[0].text) + ' #' + (docketBasket.length + 1),
     markup: clone.outerHTML,
-    copies: (editingBasketIndex >= 0 && docketBasket[editingBasketIndex]) ? (docketBasket[editingBasketIndex].copies || 1) : 1
+    copies: type === 'single' ? Math.max(1,Math.min(99,parseInt(document.getElementById('singleCopies').value,10)||1)) : ((editingBasketIndex >= 0 && docketBasket[editingBasketIndex]) ? (docketBasket[editingBasketIndex].copies || 1) : 1)
   };
   if(editingBasketIndex >= 0 && editingBasketIndex < docketBasket.length){
     docketBasket[editingBasketIndex] = item;
@@ -5199,6 +5258,7 @@ function addToBasket(){
     docketBasket.push(item);
   }
   setEditingState(-1);
+  document.getElementById('singleCopies').value='1';
   // Clear fields that change from docket to docket, while keeping the operator/location audit fields.
   ['description','qty','expiry','location','singleCode','singleLocationInput',
    'mcode1','mcode2','mcode3','mcode4',
@@ -5926,10 +5986,9 @@ window.addEventListener('afterprint', () => {
  let selectedMatch=-1;
  function hideDescriptionMatches(){matchPanel.hidden=true;descriptionInput.setAttribute('aria-expanded','false');selectedMatch=-1;}
  function renderDescriptionMatches(){
-   const desktop=window.matchMedia('(pointer:fine)').matches && window.innerWidth>=768;
    const query=normalize(descriptionInput.value);
-   if(!desktop||!query||document.activeElement!==descriptionInput||products.some(p=>normalize(p.description)===query)){hideDescriptionMatches();return;}
-   const matches=products.filter(p=>normalize(p.description).includes(query)).slice(0,12);
+   if(document.activeElement!==descriptionInput|| (query && products.some(p=>normalize(p.description)===query))){hideDescriptionMatches();return;}
+   const matches=products.filter(p=>!query||normalize(p.description).includes(query)).slice(0,60);
    matchPanel.replaceChildren();selectedMatch=-1;
    if(!matches.length){hideDescriptionMatches();return;}
    matches.forEach(p=>{
@@ -7867,5 +7926,134 @@ body.navigation-icons-off .database-bottom-nav-label svg{display:none!important}
  control.addEventListener('change',function(){apply(control.checked);try{localStorage.setItem(key,String(control.checked))}catch(e){}});
 })();
 </script>
+
+<style id="ui-consistency-translucent-categories-20261117">
+/* Screen-only refinement: printed A4 pallet notes remain unchanged. */
+@media screen {
+  :root { --ui-space:14px; --ui-radius:12px; }
+  html {scroll-behavior:smooth;}
+  body {line-height:1.48; -webkit-font-smoothing:antialiased;}
+  .panel {border-radius:var(--ui-radius);}
+  .fields {gap:14px;}
+  .fields label {line-height:1.4;}
+  .fields input:not([type=checkbox]):not([type=color]),.fields textarea,.fields select {min-height:44px;}
+  button,.action,summary {touch-action:manipulation;}
+  button:focus-visible,.action:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {outline:2px solid var(--user-accent,#3478f6);outline-offset:2px;}
+  .smart-search-panel {min-width:0;}
+  .smart-search-line {gap:10px;}
+  .smart-product-results {gap:11px;}
+  .smart-product-card {border-radius:12px;transition:border-color .16s,background .16s;}
+  .smart-product-card > summary {min-height:66px;gap:12px;line-height:1.4;}
+  .smart-product-card > summary:hover {background:rgba(127,145,165,.075);}
+  .smart-product-main strong {line-height:1.4;}
+  .smart-product-side {min-width:0;}
+  .smart-product-tag,.smart-category-filters button[data-category-colour] {
+    --category-tone:#64748b;
+    background:color-mix(in srgb,var(--category-tone) 16%,transparent)!important;
+    border:1px solid color-mix(in srgb,var(--category-tone) 52%,transparent)!important;
+    color:var(--category-tone)!important;
+    text-shadow:none!important;
+    box-shadow:none!important;
+    font-weight:750!important;
+  }
+  .smart-product-tag[data-category-colour="0"],.smart-category-filters button[data-category-colour="0"]{--category-tone:#B45309}
+  .smart-product-tag[data-category-colour="1"],.smart-category-filters button[data-category-colour="1"]{--category-tone:#7C3AED}
+  .smart-product-tag[data-category-colour="2"],.smart-category-filters button[data-category-colour="2"]{--category-tone:#2563EB}
+  .smart-product-tag[data-category-colour="3"],.smart-category-filters button[data-category-colour="3"]{--category-tone:#0F766E}
+  .smart-product-tag[data-category-colour="4"],.smart-category-filters button[data-category-colour="4"]{--category-tone:#15803D}
+  .smart-product-tag[data-category-colour="5"],.smart-category-filters button[data-category-colour="5"]{--category-tone:#BE123C}
+  .smart-product-tag[data-category-colour="6"],.smart-category-filters button[data-category-colour="6"]{--category-tone:#C2410C}
+  .smart-product-tag[data-category-colour="7"],.smart-category-filters button[data-category-colour="7"]{--category-tone:#475569}
+  .smart-category-filters {gap:9px!important;padding:9px 6px 15px!important;}
+  .smart-category-filters button {min-height:42px;line-height:1.25;}
+  .smart-category-filters button[data-category-colour][aria-pressed="true"] {
+    background:color-mix(in srgb,var(--category-tone) 25%,transparent)!important;
+    border:1.5px solid var(--category-tone)!important;
+    color:var(--category-tone)!important;
+    outline:none!important;
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--category-tone) 15%,transparent)!important;
+  }
+  .smart-category-filters button:not([data-category-colour])[aria-pressed="true"] {
+    background:color-mix(in srgb,var(--user-accent,#3478f6) 15%,transparent)!important;
+    color:inherit!important;
+    border:1.5px solid var(--user-accent,#3478f6)!important;
+    outline:none!important;
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--user-accent,#3478f6) 13%,transparent)!important;
+  }
+  #productDbList .product-db-category {border-color:color-mix(in srgb,var(--category-list-colour,#64748b) 48%,transparent)!important;overflow:hidden;}
+  #productDbList .product-db-category > summary {
+    background:color-mix(in srgb,var(--category-list-colour,#64748b) 15%,transparent)!important;
+    border-color:color-mix(in srgb,var(--category-list-colour,#64748b) 35%,transparent)!important;
+    color:inherit!important;text-shadow:none!important;min-height:50px;
+  }
+  #productDbList .product-db-category > summary * {color:inherit!important;text-shadow:none!important;}
+  .category-manager .category-row {gap:12px;}
+  .basket-entry {gap:2px;}
+  .basket-entry-buttons {gap:10px;}
+  .basket-entry-buttons .action {min-height:44px;}
+  @media(max-width:600px) {
+    main {padding-left:12px;padding-right:12px;}
+    .panel {padding:14px;}
+    .smart-product-card > summary {padding:13px 12px;gap:10px;}
+    .smart-product-side {max-width:48%;}
+    .smart-product-tag {font-size:12px;}
+    .smart-search-line input {min-width:0;}
+    .smart-category-filters button {padding:10px 13px;}
+  }
+}
+</style>
+<script id="unified-settings-controls-script">
+(function(){
+function setup(id,entries,cols){const select=document.getElementById(id);if(!select||select.dataset.unified)return;select.dataset.unified='1';select.classList.add('unified-native-select');select.tabIndex=-1;select.hidden=true;const group=document.createElement('div');group.className='unified-choice-group'+(cols===2?' two':'');group.setAttribute('role','group');group.setAttribute('aria-label',select.getAttribute('aria-label')||'Choose option');const buttons=entries.map(([value,label])=>{const b=document.createElement('button');b.type='button';b.className='unified-choice';b.textContent=label;b.addEventListener('click',()=>{select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));sync()});group.appendChild(b);return [value,b]});select.insertAdjacentElement('afterend',group);function sync(){buttons.forEach(([value,b])=>b.setAttribute('aria-pressed',String(select.value===value)))}select.addEventListener('change',sync);sync();}
+function init(){setup('settingsTheme',[['system','System'],['light','Light'],['dark','Dark']],3);setup('settingsNavigationPosition',[['top','Top'],['bottom','Bottom']],2)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<style id="unified-mobile-menu-theme-fix">
+@media screen and (max-width:767px) {
+  body.theme-light .custom-mobile-page-menu, body.theme-dark .custom-mobile-page-menu {
+    box-sizing:border-box!important; padding:12px!important; border-radius:18px!important;
+  }
+  body.theme-light .custom-mobile-page-menu { background:#fff!important;color:#17212b!important;border:1px solid #cbd6e4!important; }
+  body.theme-dark .custom-mobile-page-menu { background:#26364a!important;color:#f5f7fb!important;border:1px solid #52647c!important; }
+  body .custom-mobile-page-menu button {
+    box-sizing:border-box!important;min-height:48px!important;padding:13px 14px!important;
+    border:1.5px solid transparent!important;border-radius:12px!important;
+    background:transparent!important;color:inherit!important;
+    font-weight:600!important;line-height:1.25!important;
+  }
+  body.theme-light .custom-mobile-page-menu button:not([aria-current="page"]):active {background:rgba(30,55,90,.07)!important;}
+  body.theme-dark .custom-mobile-page-menu button:not([aria-current="page"]):active {background:rgba(255,255,255,.07)!important;}
+  body.theme-light .custom-mobile-page-menu button[aria-current="page"],
+  body.theme-dark .custom-mobile-page-menu button[aria-current="page"] {
+    background:rgba(50,121,243,.14)!important;
+    border-color:#3279f3!important;
+    color:inherit!important;
+  }
+  body .custom-mobile-page-menu button[aria-current="page"] .mobile-menu-check {
+    color:#fff!important;background:#3279f3!important;
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    width:24px!important;height:24px!important;flex:0 0 24px!important;
+    border-radius:50%!important;font-size:16px!important;font-weight:700!important;
+  }
+  body .custom-mobile-page-menu .mobile-menu-divider {
+    height:1px!important;margin:6px 12px!important;
+  }
+  body.theme-light .custom-mobile-page-menu .mobile-menu-divider {background:#d8dfe8!important;}
+  body.theme-dark .custom-mobile-page-menu .mobile-menu-divider {background:#53657a!important;}
+}
+
+/* Request a product — same field hierarchy as the Single docket */
+#productRequestForm .request-description-row {margin:16px 0 12px;}
+#productRequestForm .request-description-row label {display:flex;flex-direction:column;gap:8px;min-width:0;}
+#productRequestForm .request-barcode-row {display:grid;grid-template-columns:minmax(0,2.45fr) minmax(0,1fr);gap:12px;padding:14px;border:1px solid var(--border-color,#dbe4ef);border-radius:14px;background:rgba(125,151,184,.055);margin:0 0 14px;}
+#productRequestForm .request-barcode-row label {min-width:0;display:flex;flex-direction:column;gap:8px;}
+#productRequestForm .request-barcode-row input,#productRequestForm .request-description-row input {width:100%;min-width:0;max-width:100%;box-sizing:border-box;}
+#productRequestForm .expiry-toggle {margin:0 0 14px;}
+#productRequestForm .product-category-field {display:flex;flex-direction:column;gap:8px;}
+#productRequestForm .product-category-field select {width:100%;min-height:48px;}
+@media(max-width:420px){#productRequestForm .request-barcode-row{grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px;padding:10px;}#productRequestForm .request-barcode-row input{padding-left:10px;padding-right:8px;}}
+@media print{#productRequestForm .request-barcode-row{display:none!important;}}
+</style>
 </body>
 </html>
