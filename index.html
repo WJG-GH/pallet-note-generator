@@ -4284,7 +4284,9 @@ html body .sheet:is(#mixedSheet,.basket-mixed-sheet) > .multi-stable-rows {min-h
  border:0!important;
  font-weight:800!important;
 }
-#productDbList .product-db-category > summary .product-db-count {color:#fff!important;opacity:.95!important;}
+#productDbList .product-db-category > summary .product-db-count {color:#17263e!important;opacity:1!important;}
+body.theme-light #productDbList .product-db-category > summary, body.theme-light #productDbList .product-db-category > summary * {color:#17263e!important;}
+body.theme-dark #productDbList .product-db-category > summary, body.theme-dark #productDbList .product-db-category > summary * {color:#fff!important;}
 #productDbList .product-db-category-items {background:var(--panel-bg,transparent);}
 </style>
 <style id="unified-settings-controls-v2">
@@ -8857,6 +8859,53 @@ body.theme-light.nav-position-bottom main > .tabs > button.active {
   height: 22px;
   background: var(--accent, #3b82f6);
   border-radius: 5px;
+}
+</style>
+<style id="hamburger-accent-sync-final">
+@media screen {
+ body.theme-light .custom-mobile-page-menu button[aria-current="page"],
+ body.theme-dark .custom-mobile-page-menu button[aria-current="page"],
+ body .custom-mobile-page-menu button[aria-current="page"],
+ body .desktop-page-menu button[aria-current="page"],
+ body .desktop-page-menu button.active {
+   background:var(--user-accent,#3478f6)!important;
+   border-color:var(--user-accent,#3478f6)!important;
+   color:var(--user-accent-text,#fff)!important;
+ }
+ body .custom-mobile-page-menu button[aria-current="page"] .mobile-menu-check {
+   background:transparent!important;
+   color:inherit!important;
+ }
+ body .custom-mobile-page-menu button[aria-current="page"] svg,
+ body .desktop-page-menu button[aria-current="page"] svg {color:inherit!important;stroke:currentColor!important}
+}
+</style>
+<style id="category-expanded-light-contrast-fix">
+@media screen {
+ body.theme-light #productDbList .product-db-category,
+ body.theme-light #productDbList .product-db-category-items {
+   background:#ffffff!important;
+   color:#17263e!important;
+ }
+ body.theme-light #productDbList .product-db-category-items .product-db-item,
+ body.theme-light #productDbList .product-db-category-items .product-db-name,
+ body.theme-light #productDbList .product-db-category-items .product-db-name strong,
+ body.theme-light #productDbList .product-db-category-items .product-db-name > div:not(.hint) {
+   color:#17263e!important;
+   -webkit-text-fill-color:#17263e!important;
+   opacity:1!important;
+   text-shadow:none!important;
+ }
+ body.theme-light #productDbList .product-db-category-items .hint {
+   color:#56677d!important;
+   -webkit-text-fill-color:#56677d!important;
+   opacity:1!important;
+ }
+ body.theme-light #productDbList .product-db-category-items .product-db-item {border-top-color:#dbe3ed!important;}
+ body.theme-light #productDbList .product-db-category > summary .product-db-count {
+   color:#17263e!important;
+   -webkit-text-fill-color:#17263e!important;
+ }
 }
 </style>
 </body>
