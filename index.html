@@ -8743,5 +8743,28 @@ body.theme-light.nav-position-bottom main > .tabs > button.active {
   }
 }
 </style>
+<style id="category-edge-cleanup-20261118">
+@media screen {
+  /* A single rounded outline: remove the summary's extra inset border. */
+  #productDbList .product-db-category {
+    border:1px solid color-mix(in srgb,var(--category-list-colour,#64748b) 72%,transparent)!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+    background:var(--panel-bg,#1e2b3d)!important;
+    background-clip:padding-box!important;
+    box-shadow:none!important;
+  }
+  #productDbList .product-db-category > summary {
+    border:0!important;
+    border-radius:0!important;
+    outline:0!important;
+    box-shadow:none!important;
+    background-clip:padding-box!important;
+    margin:0!important;
+  }
+  #productDbList .product-db-category > summary::before,
+  #productDbList .product-db-category > summary::after { box-shadow:none!important; }
+}
+</style>
 </body>
 </html>
