@@ -4449,6 +4449,13 @@ body.stock-count-page #stockCountFrame{display:block!important;visibility:visibl
 html body > header, html body.theme-light > header, html body.theme-dark > header { background:var(--user-accent,#3478f6) !important; background-image:none !important; border-bottom-color:var(--user-accent,#3478f6) !important; }
 html body > header h1 { color:var(--user-accent-text,#fff) !important; }
 </style>
+
+<style id="equipment-desktop-header-gap-v2">
+/* Match the desktop clearance used by the Pallet Note tabs. */
+@media screen and (min-width:768px){
+  body.stock-count-page #stockCountPage{padding-top:68px!important;}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
