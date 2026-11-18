@@ -5364,7 +5364,7 @@ html body .sheet.pending-missing-sheet .pending-five-rows .multi-stable-code > s
 <p id="recentBasketsStatus" role="status"></p>
 <button class="action" id="recentBasketsRefresh" type="button">Refresh</button>
 </div>
-<div class="settings-card"><h3>Version</h3><p><strong>2.1.0</strong></p></div>
+<div class="settings-card"><h3>Version</h3><p><strong>2.1.1</strong></p></div>
 </section>
 <section hidden="" id="handoverPage"><button hidden="" id="handoverBack"></button><iframe id="handoverFrame" loading="eager" title="Warehouse Handover Generator"></iframe></section>
 <main>
@@ -7445,6 +7445,53 @@ document.addEventListener('input', function(event) {
             catch(err){alert('Unable to '+action+': '+err.message);btn.disabled=false;}
           });actions.append(btn);
         }
+        const editBtn=document.createElement('button');
+        editBtn.type='button';editBtn.className='action';editBtn.textContent='Edit';
+        editBtn.addEventListener('click',()=>{
+          if(card.querySelector('.pending-request-edit'))return;
+          const form=document.createElement('form');form.className='pending-request-edit';
+          form.style.cssText='display:grid;gap:10px;margin-top:12px';
+          const fields=[
+            ['Description','description','text',180],
+            ['Barcode','barcode','text',13],
+            ['Pallet QTY','quantity','number',3],
+            ['Category','category','text',80]
+          ];
+          const controls={};
+          fields.forEach(([label,key,type,max])=>{
+            const wrap=document.createElement('label');wrap.textContent=label;
+            const input=document.createElement('input');input.type=type;input.value=request[key]??'';
+            input.required=true;input.maxLength=max;
+            if(key==='barcode'){input.inputMode='numeric';input.pattern='[0-9]{1,13}';}
+            if(key==='quantity'){input.min='1';input.max='999';input.inputMode='numeric';}
+            wrap.append(input);form.append(wrap);controls[key]=input;
+          });
+          const expiryWrap=document.createElement('label');
+          const expiry=document.createElement('input');expiry.type='checkbox';expiry.checked=!!request.expiry_required;
+          expiryWrap.append(expiry,document.createTextNode(' Expiry date required'));form.append(expiryWrap);
+          const row=document.createElement('div');row.className='actions';
+          const save=document.createElement('button');save.type='submit';save.className='action primary';save.textContent='Save changes';
+          const cancel=document.createElement('button');cancel.type='button';cancel.className='action';cancel.textContent='Cancel';
+          cancel.addEventListener('click',()=>{form.remove();editBtn.disabled=false;});
+          row.append(save,cancel);form.append(row);
+          form.addEventListener('submit',async event=>{
+            event.preventDefault();
+            const description=controls.description.value.trim().replace(/\\s+/g,' ').toUpperCase();
+            const barcode=controls.barcode.value.trim();
+            const quantity=Number(controls.quantity.value);
+            const category=controls.category.value.trim();
+            if(!description||!/^\\d{1,13}$/.test(barcode)||!Number.isInteger(quantity)||quantity<1||quantity>999||!category){
+              alert('Enter a description, barcode (up to 13 digits), quantity (1–999) and category.');return;
+            }
+            save.disabled=true;
+            try{
+              await api('PATCH',{id:request.id,action:'edit',description,barcode,quantity,category,expiry_required:expiry.checked},adminPassword);
+              await refreshPending();
+            }catch(err){alert('Unable to save request. The Supabase Edge Function may need to support the edit action: '+err.message);save.disabled=false;}
+          });
+          card.append(form);editBtn.disabled=true;
+        });
+        actions.insertBefore(editBtn,actions.children[1]);
         card.append(title,detail,actions);list.append(card);
       }
     }catch(err){list.textContent='Unable to load requests: '+err.message;}
