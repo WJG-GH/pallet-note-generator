@@ -4444,6 +4444,11 @@ body.stock-count-page #stockCountFrame{display:block!important;visibility:visibl
   }
 }
 </style>
+<style id="accent-site-title-header-fix">
+/* Keep the main PALLET NOTE GENERATOR heading in sync with the selected accent. */
+html body > header, html body.theme-light > header, html body.theme-dark > header { background:var(--user-accent,#3478f6) !important; background-image:none !important; border-bottom-color:var(--user-accent,#3478f6) !important; }
+html body > header h1 { color:var(--user-accent-text,#fff) !important; }
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
@@ -4498,7 +4503,7 @@ body.stock-count-page #stockCountFrame{display:block!important;visibility:visibl
 <p id="recentBasketsStatus" role="status"></p>
 <button class="action" id="recentBasketsRefresh" type="button">Refresh</button>
 </div>
-<div class="settings-card"><h3>Version</h3><p><strong>1.0.0</strong></p></div>
+<div class="settings-card"><h3>Version</h3><p><strong>2.0.0</strong></p></div>
 </section>
 <section hidden="" id="handoverPage"><button hidden="" id="handoverBack"></button><iframe id="handoverFrame" loading="eager" title="Warehouse Handover Generator"></iframe></section>
 <main>
@@ -6424,8 +6429,8 @@ window.returnToPalletNotes=function(){
 
   const pages = [
     ['generator', 'Pallet Note'],
+    ['stockcount', 'Equipment'],
     ['handover', 'Handover'],
-    ['stockcount', 'Equipment Count'],
     ['settings', 'Settings']
   ];
   function currentPage() {
@@ -8013,7 +8018,7 @@ init();
  };
  function current(){return document.body.classList.contains('stock-count-page')?'stockcount':document.body.classList.contains('settings-page')?'settings':document.body.classList.contains('handover-page')?'handover':document.body.classList.contains('database-page')?'database':'generator'}
  function close(){menu.hidden=true;button.setAttribute('aria-expanded','false')}
- function render(){menu.replaceChildren();[['generator','Pallet Note'],['handover','Handover'],['stockcount','Equipment Count'],['settings','Settings']].forEach(([id,label],i)=>{
+ function render(){menu.replaceChildren();[['generator','Pallet Note'],['stockcount','Equipment'],['handover','Handover'],['settings','Settings']].forEach(([id,label],i)=>{
   if(i){const sep=document.createElement('div');sep.className='mobile-menu-divider';menu.appendChild(sep)}
   const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');
   if(current()===id)item.setAttribute('aria-current','page');
@@ -8166,6 +8171,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <style id="stock-count-integration-css">
 #stockCountPage[hidden]{display:none!important}
 #stockCountPage{max-width:1100px;margin:0 auto;padding:18px 16px 24px}
+@media (min-width: 768px){#stockCountPage{padding-top:38px!important}}
 #stockCountFrame{display:block;width:100%;height:400px;min-height:0;border:0;border-radius:16px;background:transparent;overflow:hidden}
 body.stock-count-page > main,body.stock-count-page > #settingsPage,body.stock-count-page > #handoverPage,body.stock-count-page > #taskDatabasePage{display:none!important}
 body.stock-count-page #stockCountPage{display:block!important}
