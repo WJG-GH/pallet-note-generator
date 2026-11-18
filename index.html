@@ -8707,5 +8707,41 @@ body.theme-light.nav-position-bottom main > .tabs > button.active {
  }
 }
 </style>
+<style id="navigation-fill-and-category-contrast-v1">
+@media screen {
+  /* Distribute the space across whichever Pallet Note tabs are visible. */
+  body .mobile-top-nav-row .tabs:has(> #singleTab),
+  body main > .tabs:has(> #singleTab),
+  body .tabs:has(> #singleTab) {
+    display:flex!important;
+    grid-template-columns:none!important;
+    width:100%!important;
+    gap:4px!important;
+  }
+  body .tabs:has(> #singleTab) > button:not([hidden]) {
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+  body .tabs:has(> #singleTab) > button[hidden],
+  body .tabs:has(> #singleTab) > button[style*="display: none"],
+  body .tabs:has(> #singleTab) > button[style*="display:none"] {
+    display:none!important;
+    flex:0 0 0!important;
+  }
+  /* More opaque category tones, retaining individually configured colours. */
+  #productDbList .product-db-category > summary {
+    background:color-mix(in srgb,var(--category-list-colour,#64748b) 38%,var(--panel-bg,#1e2b3d))!important;
+    border:1px solid color-mix(in srgb,var(--category-list-colour,#64748b) 65%,transparent)!important;
+    color:var(--text,#f3f7ff)!important;
+  }
+  #productDbList .product-db-category > summary * {color:inherit!important;opacity:1!important;}
+  body.theme-light #productDbList .product-db-category > summary {
+    background:color-mix(in srgb,var(--category-list-colour,#64748b) 30%,#fff)!important;
+    color:#14243b!important;
+  }
+}
+</style>
 </body>
 </html>
