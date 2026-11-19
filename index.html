@@ -5343,6 +5343,29 @@ html body #basketPrint .sheet:is(.basket-single-sheet,.basket-location-sheet) > 
   }
 }
 </style>
+<style id="desktop-handover-equipment-width-v224">
+/* Match the actual 1480px Pallet Note workspace rather than the older 1100px width. */
+@media screen and (min-width:768px){
+  body.handover-page #handoverPage,
+  body.stock-count-page #stockCountPage{
+    width:100%!important;
+    max-width:1480px!important;
+    margin:24px auto 0!important;
+    padding:0 16px 40px!important;
+    box-sizing:border-box!important;
+  }
+  body.handover-page #handoverFrame,
+  body.stock-count-page #stockCountFrame{
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
