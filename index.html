@@ -5392,6 +5392,29 @@ html body #basketPrint .sheet:is(.basket-single-sheet,.basket-location-sheet) > 
 }
 @media print {html {background:white!important;}}
 </style>
+<style id="ios-solid-safe-area-header-fix-20261120">
+/* Keep the status-bar safe area and the visible header one flat accent colour.
+   Do not introduce gradients, masks or filters over the title. */
+@media screen {
+  html, body > header, html body.theme-light > header, html body.theme-dark > header {
+    background-color:var(--user-accent,#16a085)!important;
+    background-image:none!important;
+  }
+  body > header, body > header .site-header-row, body > header h1 {
+    filter:none!important;
+    -webkit-filter:none!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+    text-shadow:none!important;
+  }
+  body > header::before {
+    background-color:var(--user-accent,#16a085)!important;
+    background-image:none!important;
+    filter:none!important;
+    -webkit-filter:none!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
