@@ -7679,8 +7679,8 @@ document.addEventListener('input', function(event) {
       if(handoverObserver) handoverObserver.disconnect();
       handoverObserver=new ResizeObserver(resizeHandover);
       handoverObserver.observe(doc.body);
-      handoverObserver.observe(doc.documentElement);
-      doc.addEventListener('input',resizeHandover);
+      // Observe content only: documentElement height follows the iframe viewport.
+      // ResizeObserver handles actual content changes; typing must not resize the iframe.
       doc.addEventListener('click',function(){requestAnimationFrame(resizeHandover)});
       resizeHandover();
     } catch(e) { /* Fall back to embedded view. */ }
@@ -9833,7 +9833,7 @@ body.handover-page>main,body.handover-page>#settingsPage,body.handover-page>#sto
    if(root){const height=Math.ceil(root.getBoundingClientRect().bottom+20);if(height>200&&Math.abs(frame.getBoundingClientRect().height-height)>3)frame.style.height=height+'px'}
   }catch(e){}
  }
- frame.addEventListener('load',()=>{refresh();try{const doc=frame.contentDocument;const main=doc.querySelector('main');if(main)new ResizeObserver(refresh).observe(main);doc.addEventListener('input',refresh,true);doc.addEventListener('change',refresh,true);doc.addEventListener('click',()=>requestAnimationFrame(refresh),true)}catch(e){}});
+ frame.addEventListener('load',()=>{refresh();try{const doc=frame.contentDocument;const main=doc.querySelector('main');if(main)new ResizeObserver(refresh).observe(main);doc.addEventListener('change',refresh,true);doc.addEventListener('click',()=>requestAnimationFrame(refresh),true)}catch(e){}});
  new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['class','style']});
  new MutationObserver(refresh).observe(document.documentElement,{attributes:true,attributeFilter:['style','class']});
  // Keep the embedded handover in sync with the selected accent, including Shift.
