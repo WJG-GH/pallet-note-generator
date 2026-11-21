@@ -5533,6 +5533,26 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
   body > header::before, body > header::after { content: none !important; display: none !important; }
 }
 </style>
+
+<!-- v249: Bay Location Labels actions use the same accent buttons as the main Pallet Note interface. Screen only; label print geometry unchanged. -->
+<style id="bay-location-action-buttons-v249">
+@media screen {
+ html body #bayLabelsPage .bay-actions {gap:12px;margin-top:16px;}
+ html body #bayLabelsPage .bay-actions #bayGenerate,
+ html body #bayLabelsPage .bay-actions #bayPrint {
+  appearance:none!important;-webkit-appearance:none!important;
+  background:var(--user-accent,var(--accent,#ef8a24))!important;
+  background-color:var(--user-accent,var(--accent,#ef8a24))!important;
+  background-image:none!important;color:#fff!important;
+  border:1px solid var(--user-accent,var(--accent,#ef8a24))!important;
+  border-radius:16px!important;min-height:52px!important;
+  padding:14px 18px!important;font:inherit!important;font-weight:750!important;
+  text-align:center!important;box-shadow:none!important;
+  cursor:pointer;
+ }
+ html body #bayLabelsPage .bay-actions button:focus-visible {outline:2px solid var(--user-accent,var(--accent,#ef8a24));outline-offset:3px;}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
@@ -10890,6 +10910,18 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
   }
   body.bay-print-mode #bayPrintSheet .bay-print-grid {display:grid!important;}
 }
+
+/* v250: 70 x 35 mm stock calibration. Anchor grid from sheet edges rather than centring Excel's narrower print region. */
+#bayPrintSheet .bay-print-grid{
+ left:8mm!important;top:17.5mm!important;transform:none!important;
+ width:280mm!important;height:175mm!important;
+ grid-template-columns:repeat(4,70mm)!important;
+ grid-template-rows:repeat(5,35mm)!important;
+}
+#bayPrintSheet .bay-label{padding:1mm 1.5mm 2mm!important;justify-content:space-between!important}
+#bayPrintSheet .bay-code{height:16mm!important;flex-shrink:0}
+#bayPrintSheet .bay-title{font-size:12pt!important;line-height:1.05!important}
+#bayPrintSheet .bay-foot{font-size:10pt!important;line-height:1.05!important}
 </style>
 <script id="bay-location-labels-script-v245">
 (function(){
