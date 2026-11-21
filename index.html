@@ -5284,7 +5284,7 @@ html body .sheet.pending-missing-sheet .pending-five-rows .multi-stable-code > s
 #soldDelivery::-webkit-datetime-edit,#pendingDelivery::-webkit-datetime-edit{display:inline-flex!important;justify-content:center!important;align-items:center!important;width:100%!important;min-width:0!important;padding:0!important;margin:0!important;}
 #soldDelivery::-webkit-calendar-picker-indicator,#pendingDelivery::-webkit-calendar-picker-indicator{display:none!important;}
 </style>
-<style id="sold-pending-date-vertical-alignment-v244">
+<style id="sold-pending-date-vertical-alignment-v245">
 /* iOS Edge/Safari draws the native date glyph above the input's optical centre.
    Move only its inner text, leaving the field dimensions and calendar hit area intact. */
 @media screen {
@@ -5590,6 +5590,12 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
 <div class="settings-card"><h3>Version</h3><p><strong>2.1.5</strong></p></div>
 </section>
 <section hidden="" id="handoverPage"><button hidden="" id="handoverBack"></button><iframe id="handoverFrame" loading="eager" title="Warehouse Handover Generator"></iframe></section>
+<section id="bayLabelsPage" hidden aria-label="Bay Location Labels">
+<div class="bay-ui"><h2>Bay Location Labels</h2><p>Generate up to 20 Code 39 location labels on one A4 landscape sheet.</p>
+<div class="bay-fields"><label>Aisle number<input id="bayAisle" inputmode="numeric" maxlength="3" value="20"></label><label>First bay<input id="bayFirst" inputmode="numeric" maxlength="3" value="2"></label><label>Last bay<input id="bayLast" inputmode="numeric" maxlength="3" value="10"></label><label>Area<select id="bayArea"><option>Selling</option><option>Internal W/House</option><option>External W/House</option><option>Tradepoint</option><option>Stockroom</option><option>Hub</option></select></label></div>
+<div class="bay-actions"><button type="button" id="bayGenerate">Generate labels</button><button type="button" id="bayPrint">Print labels</button></div>
+<p id="bayMessage" role="status" aria-live="polite"></p><p class="bay-advice">Use A4 landscape, 100% / actual size, no headers or footers. Test on plain paper against the proprietary sheet before using label stock.</p>
+<div class="bay-preview-wrap"><div id="bayPrintSheet" aria-label="A4 label preview"></div></div></div></section>
 <main>
 <div class="tabs" role="tablist">
 <button class="active" id="singleTab" type="button"><span>SINGLE</span></button>
@@ -7855,8 +7861,8 @@ body.settings-page .database-page-heading{display:none!important}
 <script>
 window.returnToPalletNotes=function(){
  const body=document.body;
- body.classList.remove('stock-count-page','handover-page','settings-page','database-page','tasks-page');
- for(const id of ['stockCountPage','handoverPage','settingsPage','taskDatabasePage']){
+ body.classList.remove('stock-count-page','handover-page','settings-page','database-page','tasks-page','bay-labels-page');
+ for(const id of ['stockCountPage','handoverPage','settingsPage','taskDatabasePage','bayLabelsPage']){
   const el=document.getElementById(id);if(el)el.hidden=true;
  }
  const main=document.querySelector('body > main');
@@ -7879,9 +7885,11 @@ window.returnToPalletNotes=function(){
     ['generator', 'Pallet Note'],
     ['stockcount', 'Equipment'],
     ['handover', 'Handover'],
+    ['baylabels', 'Bay Location Labels'],
     ['settings', 'Settings']
   ];
   function currentPage() {
+    if (document.body.classList.contains('bay-labels-page')) return 'baylabels';
     if (document.body.classList.contains('stock-count-page')) return 'stockcount';
     if (document.body.classList.contains('tasks-page')) return 'tasks';
     if (document.body.classList.contains('settings-page')) return 'settings';
@@ -7959,6 +7967,7 @@ window.returnToPalletNotes=function(){
     if (choice === 'stockcount') window.openStockCountPage?.();
     else if (choice === 'database') document.getElementById('menuProductDatabase')?.click();
     else if (choice === 'handover') document.getElementById('menuGenerateHandover')?.click();
+    else if (choice === 'baylabels') window.openBayLabelsPage?.();
     else if (choice === 'settings') document.getElementById('menuSettings')?.click();
     else if (choice === 'tasks') document.getElementById('menuTaskDatabase')?.click();
     else if (choice === 'generator') window.returnToPalletNotes();
@@ -9462,12 +9471,13 @@ init();
  const icons={
  generator:'<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 9h6M9 13h4"/>',
  database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+ baylabels:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 11h18M9 4v16M15 4v16"/>',
  stockcount:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/>',
  settings:'<path d="M12 2.5c.55 0 1.1.05 1.63.15l.48 2.06a7.6 7.6 0 0 1 1.8.75l1.8-1.12a9.7 9.7 0 0 1 2.3 2.3l-1.12 1.8c.33.57.58 1.17.75 1.8l2.06.48a9.7 9.7 0 0 1 0 3.26l-2.06.48a7.6 7.6 0 0 1-.75 1.8l1.12 1.8a9.7 9.7 0 0 1-2.3 2.3l-1.8-1.12a7.6 7.6 0 0 1-1.8.75l-.48 2.06a9.7 9.7 0 0 1-3.26 0l-.48-2.06a7.6 7.6 0 0 1-1.8-.75l-1.8 1.12a9.7 9.7 0 0 1-2.3-2.3l1.12-1.8a7.6 7.6 0 0 1-.75-1.8l-2.06-.48a9.7 9.7 0 0 1 0-3.26l2.06-.48c.17-.63.42-1.23.75-1.8l-1.12-1.8a9.7 9.7 0 0 1 2.3-2.3l1.8 1.12a7.6 7.6 0 0 1 1.8-.75l.48-2.06A9.7 9.7 0 0 1 12 2.5Z"/><circle cx="12" cy="12" r="3.2"/>'
  };
- function current(){return document.body.classList.contains('stock-count-page')?'stockcount':document.body.classList.contains('settings-page')?'settings':document.body.classList.contains('handover-page')?'handover':document.body.classList.contains('database-page')?'database':'generator'}
+ function current(){return document.body.classList.contains('bay-labels-page')?'baylabels':document.body.classList.contains('stock-count-page')?'stockcount':document.body.classList.contains('settings-page')?'settings':document.body.classList.contains('handover-page')?'handover':document.body.classList.contains('database-page')?'database':'generator'}
  function close(){menu.hidden=true;button.setAttribute('aria-expanded','false')}
- function render(){menu.replaceChildren();[['generator','Pallet Note'],['stockcount','Equipment'],['handover','Handover'],['settings','Settings']].forEach(([id,label],i)=>{
+ function render(){menu.replaceChildren();[['generator','Pallet Note'],['stockcount','Equipment'],['handover','Handover'],['baylabels','Bay Location Labels'],['settings','Settings']].forEach(([id,label],i)=>{
   if(i){const sep=document.createElement('div');sep.className='mobile-menu-divider';menu.appendChild(sep)}
   const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');
   if(current()===id)item.setAttribute('aria-current','page');
@@ -10054,11 +10064,12 @@ body.handover-page>main,body.handover-page>#settingsPage,body.handover-page>#sto
  document.addEventListener('click',e=>{
   const item=e.target.closest('.custom-mobile-page-menu button');if(!item)return;
   const name=item.textContent.replace('✓','').trim().toLowerCase();
-  if(!['equipment count','settings','pallet note','handover'].includes(name))return;
+  if(!['equipment count','settings','pallet note','handover','bay location labels'].includes(name))return;
   e.preventDefault();e.stopImmediatePropagation();
   document.querySelector('.custom-mobile-page-menu')?.setAttribute('hidden','');
   if(main)main.style.removeProperty('display');
-  if(name==='equipment count')window.openStockCountPage();
+  if(name==='bay location labels')window.openBayLabelsPage?.();
+  else if(name==='equipment count')window.openStockCountPage();
   else {
    if(document.body.classList.contains('stock-count-page')){page.hidden=true;document.body.classList.remove('stock-count-page')}
    if(name==='pallet note')window.returnToPalletNotes();
@@ -10809,5 +10820,138 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
  }
 }
 </style>
+
+<style id="bay-location-labels-v245">
+@media screen {
+ body.bay-labels-page > main,body.bay-labels-page > #handoverPage,body.bay-labels-page > #stockCountPage,body.bay-labels-page > #settingsPage,body.bay-labels-page > #taskDatabasePage {display:none!important}
+ #bayLabelsPage[hidden]{display:none!important}
+ body.bay-labels-page #bayLabelsPage{display:block!important}
+ #bayLabelsPage{max-width:1100px;margin:0 auto;padding:24px 16px 75px;box-sizing:border-box;color:inherit}
+ #bayLabelsPage .bay-ui{background:var(--card-bg,var(--surface,#262626));border:1px solid var(--border-color,#555);border-radius:14px;padding:20px;}
+ #bayLabelsPage h2{font-size:23px;margin:0 0 8px;color:var(--user-accent,#3478f6)}
+ #bayLabelsPage p{line-height:1.45}
+ #bayLabelsPage .bay-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
+ #bayLabelsPage label{display:flex;flex-direction:column;gap:7px;font-weight:650}
+ #bayLabelsPage input,#bayLabelsPage select{box-sizing:border-box;width:100%;font:inherit;padding:12px;border:1px solid #777;border-radius:9px;background:var(--input-bg,#fff);color:var(--text-color,inherit);color-scheme:normal}
+ body.theme-dark #bayLabelsPage input,body.theme-dark #bayLabelsPage select{background:#2c2c2e!important;color:white!important;border-color:#555!important;color-scheme:dark}
+ body.theme-light #bayLabelsPage input,body.theme-light #bayLabelsPage select{background:#fff!important;color:#111!important}
+ #bayLabelsPage .bay-actions{display:flex;gap:10px;flex-wrap:wrap}
+ #bayLabelsPage .bay-actions button{flex:1 1 140px;border:0;border-radius:9px;background:var(--user-accent,#3478f6);color:#fff;padding:13px 16px;font:inherit;font-weight:700;cursor:pointer}
+ #bayLabelsPage .bay-advice{font-size:13px;opacity:.8}
+ #bayLabelsPage #bayMessage{font-weight:650}
+ #bayLabelsPage .bay-preview-wrap{width:100%;overflow:auto;background:#8885;border-radius:10px;padding:12px;box-sizing:border-box}
+ #bayPrintSheet{background:white;color:black;width:297mm;height:210mm;box-sizing:border-box;position:relative;margin:0 auto;box-shadow:0 2px 14px #0005;flex:none}
+}
+@media screen and (max-width:650px){#bayLabelsPage .bay-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#bayLabelsPage .bay-ui{padding:14px}}
+/* Original Excel print region J7:Q21: four columns, five rows, centred on landscape A4.
+   Total row height 489.75pt = 172.42mm. Width approximates Excel merged column widths. */
+#bayPrintSheet .bay-print-grid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:266mm;height:172.42mm;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:0}
+#bayPrintSheet .bay-label{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;overflow:hidden;padding:1mm 0.8mm 1mm;font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff}
+#bayPrintSheet .bay-title{font-size:14pt;line-height:1.15;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:clip}
+#bayPrintSheet .bay-code{width:100%;height:18.2mm;display:block;overflow:visible}
+#bayPrintSheet .bay-foot{font-size:11pt;line-height:1.2;white-space:nowrap;max-width:100%;overflow:hidden}
+@page{size:A4 landscape;margin:0}
+@media print{
+ html,body{width:297mm!important;height:210mm!important;margin:0!important;padding:0!important;}
+ body.bay-print-mode > *:not(#bayLabelsPage){display:none!important}
+ body.bay-print-mode #bayLabelsPage{display:block!important;position:static!important;margin:0!important;padding:0!important;width:297mm!important;height:210mm!important;max-width:none!important;background:#fff!important}
+ body.bay-print-mode #bayLabelsPage .bay-ui{display:block!important;border:0!important;padding:0!important;margin:0!important;background:#fff!important}
+ body.bay-print-mode #bayLabelsPage .bay-ui > *:not(.bay-preview-wrap){display:none!important}
+ body.bay-print-mode #bayLabelsPage .bay-preview-wrap{display:block!important;position:static!important;padding:0!important;margin:0!important;border:0!important;overflow:visible!important;background:white!important;width:297mm!important;height:210mm!important}
+ body.bay-print-mode #bayPrintSheet{display:block!important;position:relative!important;width:297mm!important;height:210mm!important;margin:0!important;padding:0!important;box-shadow:none!important;background:#fff!important;color:#000!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ body.bay-print-mode #bayPrintSheet .bay-print-grid{display:grid!important}
+}
+/* v246: Fit the on-screen A4 preview to the available width without changing print geometry. */
+@media screen {
+  #bayLabelsPage .bay-preview-wrap{overflow:hidden!important;position:relative;padding:10px!important}
+  #bayPrintSheet{margin:0!important;transform-origin:top left;}
+}
+@media print {
+  #bayPrintSheet{transform:none!important;}
+}
+/* v247: Hard-isolate the physical label sheet from all app UI in iOS print snapshots. */
+@media print {
+  body.bay-print-mode, body.bay-print-mode html { margin:0!important;padding:0!important; }
+  body.bay-print-mode * { visibility:hidden!important; }
+  body.bay-print-mode #bayPrintSheet,
+  body.bay-print-mode #bayPrintSheet * { visibility:visible!important; }
+  body.bay-print-mode #bayPrintSheet {
+    position:fixed!important;top:0!important;left:0!important;
+    display:block!important;transform:none!important;
+    width:297mm!important;height:210mm!important;
+    margin:0!important;padding:0!important;
+    overflow:hidden!important;z-index:2147483647!important;
+  }
+  body.bay-print-mode #bayPrintSheet .bay-print-grid {display:grid!important;}
+}
+</style>
+<script id="bay-location-labels-script-v245">
+(function(){
+'use strict';
+const page=document.getElementById('bayLabelsPage'),sheet=document.getElementById('bayPrintSheet');
+if(!page||!sheet)return;
+// Scale the *preview only*. The actual printed A4 sheet remains at 297 x 210 mm.
+const previewWrap=sheet.parentElement;
+function fitBayPreview(){
+ if(!previewWrap||!sheet||page.hidden)return;
+ const available=Math.max(1,previewWrap.clientWidth-20);
+ const pageWidth=297*96/25.4, pageHeight=210*96/25.4;
+ const scale=Math.min(1,available/pageWidth);
+ sheet.style.transform='scale('+scale+')';
+ previewWrap.style.height=(pageHeight*scale+20)+'px';
+}
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitBayPreview).observe(previewWrap);
+window.addEventListener('resize',fitBayPreview);
+
+// Code 39 narrow/wide bar-and-space patterns. Asterisk is the start/stop character.
+const chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*';
+const patterns=['nnnwwnwnn','wnnwnnnnw','nnwwnnnnw','wnwwnnnnn','nnnwwnnnw','wnnwwnnnn','nnwwwnnnn','nnnwnnwnw','wnnwnnwnn','nnwwnnwnn','wnnnnwnnw','nnwnnwnnw','wnnwnwnnn','nnnnwwnnw','wnnnwwnnn','nnwnwwnnn','nnnnnwwnw','wnnnnwwnn','nnwnnwwnn','nnnnwwwnn','wnnnnnnww','nnwnnnnww','wnnwnnnwn','nnnnwnnww','wnnnwnnwn','nnwnwnnwn','nnnnnnwww','wnnnnnwwn','nnwnnnwwn','nnnnwnwwn','wwnnnnnnw','nwwnnnnnw','wwwnnnnnn','nwnnwnnnw','wwnnwnnnn','nwwnwnnnn','nwnnnnwnw','wwnnnnwnn','nwwnnnwnn','nwnwnwnnn','nwnwnnnwn','nwnnnwnwn','nwnnnnnww','nnnwnwnwn'];
+function barcodeSVG(text){
+ let x=8,rects=[];const narrow=1.5,wide=3.6;
+ for(const c of '*'+text+'*'){
+  const ix=chars.indexOf(c);if(ix<0)throw Error('Invalid barcode character');
+  const pattern=patterns[ix];
+  for(let j=0;j<9;j++){const w=pattern[j]==='w'?wide:narrow;if(j%2===0)rects.push('<rect x="'+x+'" y="0" width="'+w+'" height="56"/>');x+=w;}
+  x+=narrow;
+ }
+ return '<svg class="bay-code" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(x+8)+' 56" preserveAspectRatio="none" role="img" aria-label="Code 39 '+text+'"><g fill="#000">'+rects.join('')+'</g></svg>';
+}
+function generate(){
+ const aisle=document.getElementById('bayAisle').value.trim(),first=document.getElementById('bayFirst').value.trim(),last=document.getElementById('bayLast').value.trim(),area=document.getElementById('bayArea').value;
+ const msg=document.getElementById('bayMessage');
+ if(!/^\d{1,3}$/.test(aisle)||!/^\d{1,3}$/.test(first)||!/^\d{1,3}$/.test(last)){msg.textContent='Enter aisle and bay numbers using 1–3 digits.';return false}
+ const a=Number(aisle),f=Number(first),l=Number(last);
+ if(l<f||l-f+1>20){msg.textContent='Choose a valid range of 1 to 20 consecutive bays.';return false}
+ const grid=document.createElement('div');grid.className='bay-print-grid';
+ for(let i=0;i<20;i++){
+  const cell=document.createElement('div');cell.className='bay-label';
+  if(i<l-f+1){
+   const value=String(a).padStart(3,'0')+'-'+String(f+i).padStart(2,'0');
+   const title=document.createElement('div');title.className='bay-title';title.textContent=area+' '+value;
+   const foot=document.createElement('div');foot.className='bay-foot';foot.textContent='Excess Stock in this Bay';
+   cell.appendChild(title);cell.insertAdjacentHTML('beforeend',barcodeSVG(value));cell.appendChild(foot);
+  }
+  grid.appendChild(cell);
+ }
+ sheet.replaceChildren(grid);msg.textContent=(l-f+1)+' labels generated — '+area+', aisle '+String(a).padStart(3,'0')+', bays '+f+'–'+l+'.';return true;
+}
+window.openBayLabelsPage=function(){
+ for(const id of ['stockCountPage','handoverPage','settingsPage','taskDatabasePage']){const e=document.getElementById(id);if(e)e.hidden=true}
+ const main=document.querySelector('body > main');if(main){main.hidden=true;main.style.display='none'}
+ document.body.classList.remove('stock-count-page','handover-page','settings-page','database-page','tasks-page');
+ document.body.classList.add('bay-labels-page');page.hidden=false;
+ const mobile=document.querySelector('.custom-mobile-page-menu');if(mobile)mobile.hidden=true;
+ const desktop=document.querySelector('.desktop-page-menu');if(desktop)desktop.hidden=true;
+ window.scrollTo(0,0);generate();fitBayPreview();requestAnimationFrame(fitBayPreview);
+};
+document.getElementById('bayGenerate').addEventListener('click',generate);
+document.getElementById('bayPrint').addEventListener('click',()=>{if(!generate())return;document.body.classList.add('bay-print-mode');window.print()});
+window.addEventListener('afterprint',()=>{document.body.classList.remove('bay-print-mode');fitBayPreview()});
+// Return to other pages without leaving print-only styles active.
+new MutationObserver(()=>{if(!document.body.classList.contains('bay-labels-page')){page.hidden=true;document.body.classList.remove('bay-print-mode')}}).observe(document.body,{attributes:true,attributeFilter:['class']});
+for(const id of ['menuSettings','menuGenerateHandover','menuProductDatabase'])document.getElementById(id)?.addEventListener('click',()=>{page.hidden=true;document.body.classList.remove('bay-labels-page','bay-print-mode')},{capture:true});
+generate();
+})();
+</script>
 </body>
 </html>
