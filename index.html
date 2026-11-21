@@ -5553,6 +5553,31 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
  html body #bayLabelsPage .bay-actions button:focus-visible {outline:2px solid var(--user-accent,var(--accent,#ef8a24));outline-offset:3px;}
 }
 </style>
+
+<!-- v256: Basket buttons follow the site accent/neutral theme; remove legacy navy. -->
+<style id="basket-button-theme-v256">
+@media screen {
+  html body.theme-dark #basketPanel .basket-top-actions .action:not(.primary),
+  html body.theme-dark #basketPanel .basket-entry-buttons .action,
+  html body.theme-dark #basketPanel #copyCloudBasketCodeButton {
+    background:#292929!important;background-color:#292929!important;background-image:none!important;
+    border:1px solid #4b4b4b!important;color:#f5f5f7!important;box-shadow:none!important;
+  }
+  html body.theme-dark #basketPanel .basket-top-actions .action.primary {
+    background:var(--user-accent,var(--accent,#3478f6))!important;
+    background-image:none!important;color:#fff!important;
+    border-color:var(--user-accent,var(--accent,#3478f6))!important;
+  }
+  html body.theme-dark #basketPanel #cloudBasketCodeBox {
+    background:#252525!important;border-color:#48484a!important;color:#f5f5f7!important;
+  }
+  html body.theme-dark #basketPanel #cloudBasketCodeBox .hint {color:#c6c6cc!important;}
+  html body.theme-light #basketPanel .basket-entry-buttons .action,
+  html body.theme-light #basketPanel #copyCloudBasketCodeButton {
+    background:#f1f1f3!important;border-color:#c7c7cd!important;color:#222!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
@@ -10945,6 +10970,19 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
 }
 #bayPrintSheet .bay-code{
  left:2mm!important;width:64mm!important;
+}
+/* v256: Fine horizontal pitch calibration based on four-label print comparison.
+   Preserve the first column origin, vertical positions and barcode geometry.
+   Move column 2 left 1mm, column 3 left 2mm, column 4 left 3mm. */
+#bayPrintSheet .bay-print-grid{
+ width:268mm!important;
+ grid-template-columns:repeat(4,67mm)!important;
+}
+#bayPrintSheet .bay-title,#bayPrintSheet .bay-foot{
+ left:0!important;width:67mm!important;
+}
+#bayPrintSheet .bay-code{
+ left:1.5mm!important;width:64mm!important;
 }
 </style>
 <script id="bay-location-labels-script-v245">
