@@ -7972,10 +7972,10 @@ window.returnToPalletNotes=function(){
   wrapper.appendChild(select);
 
   const pages = [
-    ['generator', 'Pallet Note'],
-    ['stockcount', 'Equipment'],
-    ['handover', 'Handover'],
-    ['baylabels', 'Bay Location Labels'],
+    ['generator', 'Pallet Note Generator'],
+    ['stockcount', 'Equipment Count Generator'],
+    ['handover', 'Handover Generator'],
+    ['baylabels', 'Location Sticker Generator'],
     ['settings', 'Settings']
   ];
   function currentPage() {
@@ -11065,9 +11065,9 @@ function fitBayPreview(){
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitBayPreview).observe(previewWrap);
 window.addEventListener('resize',fitBayPreview);
 
-// Code 39 narrow/wide bar-and-space patterns. Asterisk is the start/stop character.
+// Code 39 narrow/wide bar-and-space patterns verified against standard Code 39. Asterisk is the start/stop character.
 const chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*';
-const patterns=['nnnwwnwnn','wnnwnnnnw','nnwwnnnnw','wnwwnnnnn','nnnwwnnnw','wnnwwnnnn','nnwwwnnnn','nnnwnnwnw','wnnwnnwnn','nnwwnnwnn','wnnnnwnnw','nnwnnwnnw','wnnwnwnnn','nnnnwwnnw','wnnnwwnnn','nnwnwwnnn','nnnnnwwnw','wnnnnwwnn','nnwnnwwnn','nnnnwwwnn','wnnnnnnww','nnwnnnnww','wnnwnnnwn','nnnnwnnww','wnnnwnnwn','nnwnwnnwn','nnnnnnwww','wnnnnnwwn','nnwnnnwwn','nnnnwnwwn','wwnnnnnnw','nwwnnnnnw','wwwnnnnnn','nwnnwnnnw','wwnnwnnnn','nwwnwnnnn','nwnnnnwnw','wwnnnnwnn','nwwnnnwnn','nwnwnwnnn','nwnwnnnwn','nwnnnwnwn','nwnnnnnww','nnnwnwnwn'];
+const patterns=['nnnwwnwnn','wnnwnnnnw','nnwwnnnnw','wnwwnnnnn','nnnwwnnnw','wnnwwnnnn','nnwwwnnnn','nnnwnnwnw','wnnwnnwnn','nnwwnnwnn','wnnnnwnnw','nnwnnwnnw','wnwnnwnnn','nnnnwwnnw','wnnnwwnnn','nnwnwwnnn','nnnnnwwnw','wnnnnwwnn','nnwnnwwnn','nnnnwwwnn','wnnnnnnww','nnwnnnnww','wnwnnnnwn','nnnnwnnww','wnnnwnnwn','nnwnwnnwn','nnnnnnwww','wnnnnnwwn','nnwnnnwwn','nnnnwnwwn','wwnnnnnnw','nwwnnnnnw','wwwnnnnnn','nwnnwnnnw','wwnnwnnnn','nwwnwnnnn','nwnnnnwnw','wwnnnnwnn','nwwnnnwnn','nwnwnwnnn','nwnwnnnwn','nwnnnwnwn','nnnwnwnwn','nwnnwnwnn'];
 function barcodeSVG(text){
  let x=8,rects=[];const narrow=1.5,wide=3.6;
  for(const c of '*'+text+'*'){
