@@ -7,7 +7,7 @@
 <title>PALLET NOTE GENERATOR</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Pallet Note"/>
 <meta name="application-name" content="Pallet Note"/>
 <meta name="format-detection" content="telephone=no"/>
@@ -5424,20 +5424,7 @@ html body #basketPrint .sheet:is(.basket-single-sheet,.basket-location-sheet) > 
 }
 </style>
 
-<style id="ios-opaque-status-safe-area-20261120">
-@media screen and (display-mode:standalone) {
-  body::before {
-    content:"" !important; display:block !important; position:fixed !important;
-    left:0 !important; right:0 !important; top:0 !important;
-    height:env(safe-area-inset-top, 0px) !important;
-    background:var(--user-accent,#16a085) !important;
-    background-image:none !important; opacity:1 !important;
-    filter:none !important; -webkit-filter:none !important;
-    backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
-    z-index:2147483646 !important; pointer-events:none !important;
-  }
-}
-</style>
+
 <style id="ios-header-title-clearance-20261120">
 /* Add 30px of clearance below the iOS status bar on mobile only. */
 @media screen and (max-width:767px) {
@@ -5529,6 +5516,21 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
    background-image:none!important;filter:none!important;-webkit-filter:none!important;
    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
  }
+}
+</style>
+
+<style id="ios-standalone-safe-area-layout-v243">
+/* Standalone PWA: paint behind the translucent iOS status bar without overlaying it. */
+@media screen and (display-mode: standalone) {
+  html { background: var(--user-accent,#16a085) !important; }
+  body { margin: 0 !important; }
+  body::before { content: none !important; display: none !important; }
+  body > header {
+    background: var(--user-accent,#16a085) !important;
+    background-image: none !important;
+    padding-top: calc(59px + env(safe-area-inset-top,0px)) !important;
+  }
+  body > header::before, body > header::after { content: none !important; display: none !important; }
 }
 </style>
 </head>
