@@ -5621,6 +5621,54 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
  body.theme-dark #bayLabelsPage #bayClear {background:#303030!important;color:#fff!important;border:1px solid #666!important;}
 }
 </style>
+
+<!-- v266: Location Sticker page navigation and consistent action styles. Print geometry unaffected. -->
+<style id="location-sticker-ui-v266">
+@media screen {
+ body.bay-labels-page .pallet-navigation-heading {font-size:0!important;}
+ body.bay-labels-page .pallet-navigation-heading::after {content:"LOCATION STICKER";font-size:clamp(14px,3.6vw,20px)!important;font-weight:800!important;letter-spacing:.01em;}
+ #bayLabelsPage .bay-ui > h2 {color:var(--text,#f4f4f5)!important;}
+ body.theme-light #bayLabelsPage .bay-ui > h2,
+ body:not(.theme-dark) #bayLabelsPage .bay-ui > h2 {color:#18212e!important;}
+ html body #bayLabelsPage .bay-actions #baySingle,
+ html body #bayLabelsPage .bay-actions #bayGenerate,
+ html body #bayLabelsPage .bay-actions #bayPrint {
+   appearance:none!important;-webkit-appearance:none!important;
+   background:var(--user-accent,var(--accent,#3478f6))!important;
+   background-color:var(--user-accent,var(--accent,#3478f6))!important;
+   background-image:none!important;
+   color:#fff!important;
+   border:1px solid var(--user-accent,var(--accent,#3478f6))!important;
+   border-radius:16px!important;
+   min-height:52px!important;
+   padding:14px 18px!important;
+   font:inherit!important;font-weight:750!important;
+   box-shadow:none!important;
+ }
+}
+</style>
+
+<!-- v267: Override the top-navigation pseudo-label only on the Location Sticker page. -->
+<style id="location-sticker-navigation-v267">
+@media screen {
+ body.bay-labels-page.nav-position-top .mobile-top-nav-row > .pallet-navigation-heading::after {
+   content:"LOCATION STICKER" !important;
+ }
+}
+</style>
+
+<!-- v268: Consistent first-card spacing beneath the page navigation; screen only. -->
+<style id="page-content-spacing-v268">
+@media screen {
+  /* Use the existing Settings first-card offset as the shared reference. */
+  body.bay-labels-page #bayLabelsPage {padding-top:0!important;margin-top:0!important;}
+  body.bay-labels-page #bayLabelsPage > .bay-ui {margin-top:18px!important;}
+  body.settings-page #settingsPage {padding-top:0!important;margin-top:0!important;}
+  body.settings-page #settingsPage > .settings-card:first-of-type {margin-top:18px!important;}
+  body.handover-page #handoverPage,
+  body.stock-count-page #stockCountPage {margin-top:18px!important;}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
@@ -9572,7 +9620,7 @@ init();
  };
  function current(){return document.body.classList.contains('bay-labels-page')?'baylabels':document.body.classList.contains('stock-count-page')?'stockcount':document.body.classList.contains('settings-page')?'settings':document.body.classList.contains('handover-page')?'handover':document.body.classList.contains('database-page')?'database':'generator'}
  function close(){menu.hidden=true;button.setAttribute('aria-expanded','false')}
- function render(){menu.replaceChildren();[['generator','Pallet Note'],['stockcount','Equipment'],['handover','Handover'],['baylabels','Bay Location Labels'],['settings','Settings']].forEach(([id,label],i)=>{
+ function render(){menu.replaceChildren();[['generator','Pallet Note Generator'],['stockcount','Equipment Count Generator'],['handover','Handover Generator'],['baylabels','Location Sticker Generator'],['settings','Settings']].forEach(([id,label],i)=>{
   if(i){const sep=document.createElement('div');sep.className='mobile-menu-divider';menu.appendChild(sep)}
   const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');
   if(current()===id)item.setAttribute('aria-current','page');
@@ -11078,7 +11126,18 @@ function barcodeSVG(text){
  }
  return '<svg class="bay-code" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(x+8)+' 56" preserveAspectRatio="none" role="img" aria-label="Code 39 '+text+'"><g fill="#000">'+rects.join('')+'</g></svg>';
 }
+// Persist only stickers explicitly added by the user on this device.
+const bayStorageKey='pallet-note-location-stickers-v1';
 const labels=[];
+try {
+ const saved=JSON.parse(localStorage.getItem(bayStorageKey)||'[]');
+ if(Array.isArray(saved)) {
+  for(const entry of saved.slice(0,20)) {
+   if(entry && typeof entry.area==='string' && typeof entry.value==='string' && /^\d{3}-\d{2,3}$/.test(entry.value) && /^[A-Za-z0-9 ._\-/]{1,40}$/.test(entry.area)) labels.push({area:entry.area,value:entry.value});
+  }
+ }
+} catch(e) { /* Private browsing or unavailable storage: session-only labels. */ }
+function saveBayLabels(){try{localStorage.setItem(bayStorageKey,JSON.stringify(labels))}catch(e){}}
 const msg=document.getElementById('bayMessage');
 function readEntries(single){
  const aisle=document.getElementById('bayAisle').value.trim(),first=document.getElementById('bayFirst').value.trim(),last=document.getElementById('bayLast').value.trim(),area=document.getElementById('bayArea').value;
@@ -11107,14 +11166,14 @@ function render(){
   const item=document.createElement('div');item.className='bay-queue-item';
   const name=document.createElement('span');name.textContent=(index+1)+'. '+entry.area+' '+entry.value;
   const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.setAttribute('aria-label','Remove '+entry.area+' '+entry.value);
-  remove.addEventListener('click',()=>{labels.splice(index,1);render();msg.textContent='Label removed.'});
+  remove.addEventListener('click',()=>{labels.splice(index,1);saveBayLabels();render();msg.textContent='Label removed.'});
   item.append(name,remove);queue.appendChild(item);
  });
  fitBayPreview();
 }
 function add(single){
  const entries=readEntries(single);if(!entries)return;
- labels.push(...entries);render();msg.textContent=entries.length+' label'+(entries.length===1?'':'s')+' added. '+labels.length+' of 20 spaces used.';
+ labels.push(...entries);saveBayLabels();render();msg.textContent=entries.length+' label'+(entries.length===1?'':'s')+' added. '+labels.length+' of 20 spaces used.';
 }
 window.openBayLabelsPage=function(){
  for(const id of ['stockCountPage','handoverPage','settingsPage','taskDatabasePage']){const e=document.getElementById(id);if(e)e.hidden=true}
@@ -11127,7 +11186,7 @@ window.openBayLabelsPage=function(){
 };
 document.getElementById('bayGenerate').addEventListener('click',()=>add(false));
 document.getElementById('baySingle').addEventListener('click',()=>add(true));
-document.getElementById('bayClear').addEventListener('click',()=>{labels.length=0;render();msg.textContent='Sheet cleared.'});
+document.getElementById('bayClear').addEventListener('click',()=>{labels.length=0;saveBayLabels();render();msg.textContent='Sheet cleared.'});
 document.getElementById('bayPrint').addEventListener('click',()=>{if(!labels.length){msg.textContent='Add at least one label before printing.';return}document.body.classList.add('bay-print-mode');window.print()});
 window.addEventListener('afterprint',()=>{document.body.classList.remove('bay-print-mode');fitBayPreview()});
 // Restore the main document before any other navigation handler runs.
@@ -11144,7 +11203,131 @@ for(const id of ['menuSettings','menuGenerateHandover','menuProductDatabase','me
 }
 // No body MutationObserver here: page navigation should not trigger repeated DOM work.
 
-add(false);
+// Restore previously entered labels; a first-time user starts with an empty sheet.
+render();
+})();
+</script>
+
+<!-- v269: Align the visible first content row with the Pallet Note, Settings and Location Sticker baseline on mobile. -->
+
+
+
+<!-- v271: Align embedded content gutters and first-row positions to the native Pallet Note layout. -->
+
+
+<!-- v272: One mobile content baseline, compensating for the iframe documents' own inner gutters. -->
+
+
+<!-- v273: Shared mobile page shell. Overrides legacy per-page offsets without touching print rules or page logic. -->
+
+
+<!-- v274: Match the visible first-card baseline and horizontal gutters across pages.
+     Embedded documents have internal spacing, so their host offsets are intentionally
+     different; the visible result is the shared 18px card gap. -->
+
+
+<!-- v275: Single mobile first-card offset for native pages.
+     v268 added 18px on the first card, while v274 added another 18px
+     on its page host. Remove the duplicate offset without changing frames. -->
+
+
+<!-- v277: Separate native page baselines. The former shared -43px offset
+     placed the bay card under the navigation while leaving Settings too low.
+     These page-specific host corrections align the visible cards at the same
+     first-content baseline without altering embedded pages or print layout. -->
+
+<style id="unified-app-shell-v278">
+/* A single layout contract for all five tools. Printing is deliberately untouched. */
+@media screen {
+ :root{--unified-gutter:clamp(12px,2vw,18px);--unified-gap:18px;--unified-width:1100px;--unified-radius:17px;--unified-border:#48484a}
+ body{overflow-x:clip}
+ /* Native sections and embedded hosts occupy exactly the same page column. */
+ html body.settings-page #settingsPage,
+ html body.bay-labels-page #bayLabelsPage,
+ html body.handover-page #handoverPage,
+ html body.stock-count-page #stockCountPage {
+   width:100%!important;max-width:var(--unified-width)!important;
+   box-sizing:border-box!important;margin:0 auto!important;
+   padding:0 var(--unified-gutter) 36px!important;
+   position:relative!important;left:auto!important;right:auto!important;
+   transform:none!important;
+ }
+ html body.handover-page #handoverFrame,
+ html body.stock-count-page #stockCountFrame{
+   display:block!important;width:100%!important;max-width:100%!important;
+   min-width:0!important;box-sizing:border-box!important;
+   border:0!important;border-radius:0!important;
+   margin:0!important;padding:0!important;background:transparent!important;
+ }
+ html body.settings-page #settingsPage>.settings-card:first-of-type,
+ html body.bay-labels-page #bayLabelsPage>.bay-ui {margin-top:0!important}
+ html body.settings-page #settingsPage .settings-card,
+ html body.bay-labels-page #bayLabelsPage .bay-ui{
+   box-sizing:border-box!important;border-radius:var(--unified-radius)!important;
+ }
+}
+@media screen and (max-width:767px){
+ :root{--unified-gutter:12px}
+ /* Every first card starts 18px below the shared navigation row. */
+ html body.settings-page #settingsPage,
+ html body.bay-labels-page #bayLabelsPage,
+ html body.handover-page #handoverPage,
+ html body.stock-count-page #stockCountPage{
+   margin-top:18px!important;padding-top:0!important;
+ }
+}
+@media screen and (min-width:768px){
+ :root{--unified-gutter:16px}
+ html body.settings-page #settingsPage,
+ html body.bay-labels-page #bayLabelsPage,
+ html body.handover-page #handoverPage,
+ html body.stock-count-page #stockCountPage{margin-top:24px!important}
+}
+</style>
+<script id="unified-embedded-design-v278">
+/* Keep the embedded tools' independent data, print and event handlers intact.
+   Their UI now consumes the same host design tokens and geometry. */
+(function(){
+ const css=`@media screen {
+ :root{--unified-radius:17px;--unified-gap:18px}
+ html,body{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;overflow-x:clip!important}
+ body{font-family:Arial,Helvetica,sans-serif!important}
+ main,main.wrap,.wrap{width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0 0 40px!important;box-sizing:border-box!important}
+ header{display:none!important}
+ .card,.panel,.metric{border-radius:var(--unified-radius)!important;box-shadow:none!important}
+ .card,.panel{margin-bottom:var(--unified-gap)!important}
+ h2{font-size:clamp(18px,4vw,21px)!important;font-weight:800!important;line-height:1.3!important;letter-spacing:0!important}
+ input,select,textarea,button{box-sizing:border-box!important;min-width:0}
+ input,select,textarea{border-radius:11px!important}
+ button{border-radius:11px!important}
+ .layout{gap:var(--unified-gap)!important}
+ .equipment-switch{margin-top:0!important;margin-bottom:var(--unified-gap)!important}
+ .a4-preview-section{margin-top:26px!important}
+ }
+ @media screen and (max-width:767px){
+ .wrap,main,main.wrap{padding:0 0 40px!important}
+ .card,.panel{padding:15px!important}
+ .equipment-switch{margin-top:0!important}
+ .layout{grid-template-columns:minmax(0,1fr)!important}
+ }
+ @media screen and (min-width:768px){
+ .wrap,main,main.wrap{padding:0 0 40px!important}
+ .card,.panel{padding:20px!important}
+ }`;
+ function apply(frame){
+  try{
+   const doc=frame.contentDocument;
+   if(!doc?.head)return;
+   let style=doc.getElementById('unified-embedded-design-v278');
+   if(!style){style=doc.createElement('style');style.id='unified-embedded-design-v278';doc.head.appendChild(style)}
+   if(style.textContent!==css)style.textContent=css;
+  }catch(e){console.warn('Unified design could not be applied',e)}
+ }
+ for(const id of ['stockCountFrame','handoverFrame']){
+  const frame=document.getElementById(id);
+  if(!frame)continue;
+  frame.addEventListener('load',()=>apply(frame));apply(frame);
+ }
 })();
 </script>
 </body>
