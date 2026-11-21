@@ -7984,6 +7984,11 @@ window.returnToPalletNotes=function(){
   select.addEventListener('change', function() {
     const choice = select.value;
     if (choice === currentPage()) return;
+    // Leaving Bay Labels must clear its page/print mode before opening any other section.
+    // Otherwise the Bay page's display rules continue hiding the destination.
+    if (choice !== 'baylabels' && document.body.classList.contains('bay-labels-page')) {
+      window.leaveBayLabelsPage?.();
+    }
     if (choice === 'stockcount') window.openStockCountPage?.();
     else if (choice === 'database') document.getElementById('menuProductDatabase')?.click();
     else if (choice === 'handover') document.getElementById('menuGenerateHandover')?.click();
@@ -10922,7 +10927,7 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
 #bayPrintSheet .bay-code{height:16mm!important;flex-shrink:0}
 #bayPrintSheet .bay-title{font-size:12pt!important;line-height:1.05!important}
 #bayPrintSheet .bay-foot{font-size:10pt!important;line-height:1.05!important}
-/* v251: Fix label contents to measured positions inside each die-cut cell.
+/* v253: Fix label contents to measured positions inside each die-cut cell.
    No flex distribution: prevents headings/footers from straddling cut lines. */
 #bayPrintSheet .bay-label{position:relative!important;display:block!important;padding:0!important;overflow:hidden!important;}
 #bayPrintSheet .bay-title{position:absolute!important;top:2.1mm!important;left:1.5mm!important;width:67mm!important;height:5mm!important;line-height:5mm!important;font-size:12pt!important;text-align:center!important;margin:0!important;}
@@ -10981,7 +10986,7 @@ function generate(){
 }
 window.openBayLabelsPage=function(){
  for(const id of ['stockCountPage','handoverPage','settingsPage','taskDatabasePage']){const e=document.getElementById(id);if(e)e.hidden=true}
- const main=document.querySelector('body > main');if(main){main.hidden=true;main.style.display='none'}
+ const main=document.querySelector('body > main');if(main){main.hidden=true;main.style.removeProperty('display')}
  document.body.classList.remove('stock-count-page','handover-page','settings-page','database-page','tasks-page');
  document.body.classList.add('bay-labels-page');page.hidden=false;
  const mobile=document.querySelector('.custom-mobile-page-menu');if(mobile)mobile.hidden=true;
@@ -10991,9 +10996,20 @@ window.openBayLabelsPage=function(){
 document.getElementById('bayGenerate').addEventListener('click',generate);
 document.getElementById('bayPrint').addEventListener('click',()=>{if(!generate())return;document.body.classList.add('bay-print-mode');window.print()});
 window.addEventListener('afterprint',()=>{document.body.classList.remove('bay-print-mode');fitBayPreview()});
-// Return to other pages without leaving print-only styles active.
-new MutationObserver(()=>{if(!document.body.classList.contains('bay-labels-page')){page.hidden=true;document.body.classList.remove('bay-print-mode')}}).observe(document.body,{attributes:true,attributeFilter:['class']});
-for(const id of ['menuSettings','menuGenerateHandover','menuProductDatabase'])document.getElementById(id)?.addEventListener('click',()=>{page.hidden=true;document.body.classList.remove('bay-labels-page','bay-print-mode')},{capture:true});
+// Restore the main document before any other navigation handler runs.
+window.leaveBayLabelsPage=function(){
+  if(!document.body.classList.contains('bay-labels-page') && page.hidden)return;
+  page.hidden=true;
+  document.body.classList.remove('bay-labels-page','bay-print-mode');
+  const main=document.querySelector('body > main');
+  if(main){main.hidden=false;main.style.removeProperty('display');}
+};
+// Existing menu handlers may run before/after this handler, so restore synchronously.
+for(const id of ['menuSettings','menuGenerateHandover','menuProductDatabase','menuStockCount','menuTaskDatabase','backToGenerator']){
+  document.getElementById(id)?.addEventListener('click',()=>window.leaveBayLabelsPage(),{capture:true});
+}
+// No body MutationObserver here: page navigation should not trigger repeated DOM work.
+
 generate();
 })();
 </script>
