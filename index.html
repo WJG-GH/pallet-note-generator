@@ -10933,6 +10933,19 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
 #bayPrintSheet .bay-title{position:absolute!important;top:2.1mm!important;left:1.5mm!important;width:67mm!important;height:5mm!important;line-height:5mm!important;font-size:12pt!important;text-align:center!important;margin:0!important;}
 #bayPrintSheet .bay-code{position:absolute!important;top:9mm!important;left:3mm!important;width:64mm!important;height:17mm!important;margin:0!important;}
 #bayPrintSheet .bay-foot{position:absolute!important;top:28mm!important;left:1.5mm!important;width:67mm!important;height:4mm!important;line-height:4mm!important;font-size:10pt!important;text-align:center!important;margin:0!important;}
+/* v254: Correct accumulating horizontal drift across the proprietary stock.
+   Keep the left edge fixed and reduce column pitch from 70mm to 68mm.
+   Individual artwork is centred in each 68mm cell, without scaling barcodes. */
+#bayPrintSheet .bay-print-grid{
+ width:272mm!important;
+ grid-template-columns:repeat(4,68mm)!important;
+}
+#bayPrintSheet .bay-title,#bayPrintSheet .bay-foot{
+ left:0.5mm!important;width:67mm!important;
+}
+#bayPrintSheet .bay-code{
+ left:2mm!important;width:64mm!important;
+}
 </style>
 <script id="bay-location-labels-script-v245">
 (function(){
