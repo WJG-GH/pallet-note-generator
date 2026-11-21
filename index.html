@@ -5638,7 +5638,9 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
 <section id="bayLabelsPage" hidden aria-label="Bay Location Labels">
 <div class="bay-ui"><h2>Bay Location Labels</h2><p>Generate up to 20 Code 39 location labels on one A4 landscape sheet.</p>
 <div class="bay-fields"><label>Aisle number<input id="bayAisle" inputmode="numeric" maxlength="3" value="20"></label><label>First bay<input id="bayFirst" inputmode="numeric" maxlength="3" value="2"></label><label>Last bay<input id="bayLast" inputmode="numeric" maxlength="3" value="10"></label><label>Area<select id="bayArea"><option>Selling</option><option>Internal W/House</option><option>External W/House</option><option>Tradepoint</option><option>Stockroom</option><option>Hub</option></select></label></div>
-<div class="bay-actions"><button type="button" id="bayGenerate">Generate labels</button><button type="button" id="bayPrint">Print labels</button></div>
+<div class="bay-actions"><button type="button" id="baySingle">Add single bay</button><button type="button" id="bayGenerate">Add bay range</button><button type="button" id="bayPrint">Print labels</button></div>
+<div class="bay-queue-head"><strong>Labels on this sheet <span id="bayCount">0 / 20</span></strong><button type="button" id="bayClear">Clear all</button></div>
+<div id="bayQueue" class="bay-queue" aria-label="Labels added to this sheet"></div>
 <p id="bayMessage" role="status" aria-live="polite"></p><p class="bay-advice">Use A4 landscape, 100% / actual size, no headers or footers. Test on plain paper against the proprietary sheet before using label stock.</p>
 <div class="bay-preview-wrap"><div id="bayPrintSheet" aria-label="A4 label preview"></div></div></div></section>
 <main>
@@ -10984,6 +10986,15 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
 #bayPrintSheet .bay-code{
  left:1.5mm!important;width:64mm!important;
 }
+@media screen{
+ #bayLabelsPage .bay-actions button{flex:1 1 145px}
+ #bayLabelsPage .bay-queue-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 8px}
+ #bayLabelsPage .bay-queue-head button,#bayLabelsPage .bay-queue-item button{background:transparent;color:inherit;border:1px solid #777;border-radius:9px;padding:8px 12px;font:inherit;cursor:pointer}
+ #bayLabelsPage .bay-queue{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:230px;overflow:auto}
+ #bayLabelsPage .bay-queue-item{display:flex;align-items:center;justify-content:space-between;gap:6px;border:1px solid #7776;border-radius:8px;padding:6px 8px;font-size:13px}
+ #bayLabelsPage .bay-queue-item span{overflow-wrap:anywhere}
+}
+@media screen and (max-width:550px){#bayLabelsPage .bay-queue{grid-template-columns:1fr}}
 </style>
 <script id="bay-location-labels-script-v245">
 (function(){
@@ -11016,24 +11027,43 @@ function barcodeSVG(text){
  }
  return '<svg class="bay-code" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(x+8)+' 56" preserveAspectRatio="none" role="img" aria-label="Code 39 '+text+'"><g fill="#000">'+rects.join('')+'</g></svg>';
 }
-function generate(){
+const labels=[];
+const msg=document.getElementById('bayMessage');
+function readEntries(single){
  const aisle=document.getElementById('bayAisle').value.trim(),first=document.getElementById('bayFirst').value.trim(),last=document.getElementById('bayLast').value.trim(),area=document.getElementById('bayArea').value;
- const msg=document.getElementById('bayMessage');
- if(!/^\d{1,3}$/.test(aisle)||!/^\d{1,3}$/.test(first)||!/^\d{1,3}$/.test(last)){msg.textContent='Enter aisle and bay numbers using 1–3 digits.';return false}
- const a=Number(aisle),f=Number(first),l=Number(last);
- if(l<f||l-f+1>20){msg.textContent='Choose a valid range of 1 to 20 consecutive bays.';return false}
+ if(!/^\d{1,3}$/.test(aisle)||!/^\d{1,3}$/.test(first)||(!single&&!/^\d{1,3}$/.test(last))){msg.textContent='Enter aisle and bay numbers using 1–3 digits.';return null}
+ const a=Number(aisle),f=Number(first),l=single?f:Number(last);
+ if(l<f||l-f+1>20){msg.textContent='Choose a valid range of 1 to 20 consecutive bays.';return null}
+ if(labels.length+l-f+1>20){msg.textContent='Only 20 labels fit on one sheet. Remove some labels before adding more.';return null}
+ return Array.from({length:l-f+1},(_,i)=>({area,value:String(a).padStart(3,'0')+'-'+String(f+i).padStart(2,'0')}));
+}
+function render(){
  const grid=document.createElement('div');grid.className='bay-print-grid';
  for(let i=0;i<20;i++){
   const cell=document.createElement('div');cell.className='bay-label';
-  if(i<l-f+1){
-   const value=String(a).padStart(3,'0')+'-'+String(f+i).padStart(2,'0');
+  if(i<labels.length){
+   const {area,value}=labels[i];
    const title=document.createElement('div');title.className='bay-title';title.textContent=area+' '+value;
    const foot=document.createElement('div');foot.className='bay-foot';foot.textContent='Excess Stock in this Bay';
    cell.appendChild(title);cell.insertAdjacentHTML('beforeend',barcodeSVG(value));cell.appendChild(foot);
   }
   grid.appendChild(cell);
  }
- sheet.replaceChildren(grid);msg.textContent=(l-f+1)+' labels generated — '+area+', aisle '+String(a).padStart(3,'0')+', bays '+f+'–'+l+'.';return true;
+ sheet.replaceChildren(grid);
+ document.getElementById('bayCount').textContent=labels.length+' / 20';
+ const queue=document.getElementById('bayQueue');queue.replaceChildren();
+ labels.forEach((entry,index)=>{
+  const item=document.createElement('div');item.className='bay-queue-item';
+  const name=document.createElement('span');name.textContent=(index+1)+'. '+entry.area+' '+entry.value;
+  const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.setAttribute('aria-label','Remove '+entry.area+' '+entry.value);
+  remove.addEventListener('click',()=>{labels.splice(index,1);render();msg.textContent='Label removed.'});
+  item.append(name,remove);queue.appendChild(item);
+ });
+ fitBayPreview();
+}
+function add(single){
+ const entries=readEntries(single);if(!entries)return;
+ labels.push(...entries);render();msg.textContent=entries.length+' label'+(entries.length===1?'':'s')+' added. '+labels.length+' of 20 spaces used.';
 }
 window.openBayLabelsPage=function(){
  for(const id of ['stockCountPage','handoverPage','settingsPage','taskDatabasePage']){const e=document.getElementById(id);if(e)e.hidden=true}
@@ -11042,10 +11072,12 @@ window.openBayLabelsPage=function(){
  document.body.classList.add('bay-labels-page');page.hidden=false;
  const mobile=document.querySelector('.custom-mobile-page-menu');if(mobile)mobile.hidden=true;
  const desktop=document.querySelector('.desktop-page-menu');if(desktop)desktop.hidden=true;
- window.scrollTo(0,0);generate();fitBayPreview();requestAnimationFrame(fitBayPreview);
+ window.scrollTo(0,0);render();fitBayPreview();requestAnimationFrame(fitBayPreview);
 };
-document.getElementById('bayGenerate').addEventListener('click',generate);
-document.getElementById('bayPrint').addEventListener('click',()=>{if(!generate())return;document.body.classList.add('bay-print-mode');window.print()});
+document.getElementById('bayGenerate').addEventListener('click',()=>add(false));
+document.getElementById('baySingle').addEventListener('click',()=>add(true));
+document.getElementById('bayClear').addEventListener('click',()=>{labels.length=0;render();msg.textContent='Sheet cleared.'});
+document.getElementById('bayPrint').addEventListener('click',()=>{if(!labels.length){msg.textContent='Add at least one label before printing.';return}document.body.classList.add('bay-print-mode');window.print()});
 window.addEventListener('afterprint',()=>{document.body.classList.remove('bay-print-mode');fitBayPreview()});
 // Restore the main document before any other navigation handler runs.
 window.leaveBayLabelsPage=function(){
@@ -11061,7 +11093,7 @@ for(const id of ['menuSettings','menuGenerateHandover','menuProductDatabase','me
 }
 // No body MutationObserver here: page navigation should not trigger repeated DOM work.
 
-generate();
+add(false);
 })();
 </script>
 </body>
