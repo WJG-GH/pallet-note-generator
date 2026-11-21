@@ -10869,6 +10869,12 @@ html body.theme-dark #headerMenuPopover .header-menu-item[aria-current="page"] {
 @media print {
   #bayPrintSheet{transform:none!important;}
 }
+/* v248: Match the five unequal row groups in the original Excel print area.
+   Each group contains the heading, barcode and footer rows. */
+#bayPrintSheet .bay-print-grid{
+  height:173.04mm!important;
+  grid-template-rows:96.75fr 97.5fr 102.75fr 97.5fr 96fr!important;
+}
 /* v247: Hard-isolate the physical label sheet from all app UI in iOS print snapshots. */
 @media print {
   body.bay-print-mode, body.bay-print-mode html { margin:0!important;padding:0!important; }
