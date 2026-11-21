@@ -5591,6 +5591,36 @@ html:has(body.theme-dark) body .desktop-page-menu .menu-separator {border-color:
   }
 }
 </style>
+
+<!-- v260: Bay Location Labels theme consistency. Screen only; print dimensions untouched. -->
+<style id="bay-location-theme-v260">
+@media screen {
+ body:not(.theme-dark) #bayLabelsPage .bay-ui,
+ body.theme-light #bayLabelsPage .bay-ui {background:#fff!important;color:#18212e!important;border-color:#d4dce6!important;}
+ body:not(.theme-dark) #bayLabelsPage .bay-ui p,
+ body:not(.theme-dark) #bayLabelsPage .bay-ui label,
+ body:not(.theme-dark) #bayLabelsPage .bay-queue-head,
+ body:not(.theme-dark) #bayLabelsPage .bay-queue,
+ body.theme-light #bayLabelsPage .bay-ui p,
+ body.theme-light #bayLabelsPage .bay-ui label,
+ body.theme-light #bayLabelsPage .bay-queue-head,
+ body.theme-light #bayLabelsPage .bay-queue {color:#18212e!important;}
+ body:not(.theme-dark) #bayLabelsPage .bay-queue > *,
+ body.theme-light #bayLabelsPage .bay-queue > * {color:#18212e!important;background:#f7f9fc!important;border-color:#d4dce6!important;}
+ body:not(.theme-dark) #bayLabelsPage .bay-queue button,
+ body:not(.theme-dark) #bayLabelsPage #bayClear,
+ body.theme-light #bayLabelsPage .bay-queue button,
+ body.theme-light #bayLabelsPage #bayClear {background:#f1f3f6!important;color:#18212e!important;border:1px solid #b8c2ce!important;}
+ body.theme-dark #bayLabelsPage .bay-ui {background:#202020!important;color:#f3f4f6!important;border-color:#555!important;}
+ body.theme-dark #bayLabelsPage .bay-ui p,
+ body.theme-dark #bayLabelsPage .bay-ui label,
+ body.theme-dark #bayLabelsPage .bay-queue-head,
+ body.theme-dark #bayLabelsPage .bay-queue {color:#f3f4f6!important;}
+ body.theme-dark #bayLabelsPage .bay-queue > * {color:#f3f4f6!important;background:#262626!important;border-color:#555!important;}
+ body.theme-dark #bayLabelsPage .bay-queue button,
+ body.theme-dark #bayLabelsPage #bayClear {background:#303030!important;color:#fff!important;border:1px solid #666!important;}
+}
+</style>
 </head>
 <body>
 <header><div class="site-header-row"><h1>PALLET NOTE GENERATOR</h1><div class="header-menu"><button aria-controls="headerMenuPopover" aria-expanded="false" aria-label="Open menu" class="header-menu-button" id="headerMenuButton" type="button"><svg aria-hidden="true" class="header-menu-icon" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M4 6H20M4 12H20M4 18H20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path></svg></button><nav aria-label="Main menu" class="header-menu-popover" hidden="" id="headerMenuPopover"><div class="header-menu-caption">TOOLS</div><button class="header-menu-item" hidden="" id="menuProductDatabase" type="button"><span>Database</span><span aria-hidden="true" class="header-menu-chevron">›</span></button><button hidden="" id="menuGenerateHandover" style="display:none!important" type="button"></button><button hidden="" id="menuTaskDatabase" style="display:none!important" type="button"></button><button class="header-menu-item" id="menuSettings" type="button"><span>Settings</span></button></nav></div></div></header>
