@@ -11373,5 +11373,30 @@ render();
  }
 })();
 </script>
+
+<!-- v282: targeted desktop consistency fixes, no generator logic changes -->
+<style id="desktop-consistency-v282">
+@media screen and (min-width:768px){
+ body.theme-dark .header-menu-popover,body.theme-dark .header-menu-item,
+ body.theme-dark .header-menu-caption{background:#1c1c1e!important;background-image:none!important;color:#f5f5f7!important;border-color:#424246!important}
+ body.theme-dark .header-menu-item:hover{background:#29292c!important}
+ body.theme-dark #singleDatabaseInline,body.theme-dark #singleDatabaseInline>summary{background:#1c1c1e!important;background-image:none!important;color:#f5f5f7!important;border-color:#424246!important}
+ body.theme-dark #singleDatabaseInline>summary:after{background:#29292c!important;color:#f5f5f7!important;border-color:#424246!important}
+ body.theme-light .header-menu-popover,body.theme-light .header-menu-item{background:#fff!important;color:#17263c!important;border-color:#d6e1ee!important}
+}
+</style>
+<script id="desktop-iframe-consistency-v282">
+(function(){
+ const rules=`@media screen and (min-width:768px){
+ .equipment-switch{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important;padding:4px!important;background:var(--panel,#252525)!important;border:1px solid var(--line,#424246)!important;border-radius:15px!important;margin:0 0 18px!important;box-sizing:border-box!important}
+ .equipment-switch button{margin:0!important;min-height:40px!important;padding:9px 12px!important;border:0!important;border-radius:11px!important;font-size:13px!important;font-weight:800!important;line-height:1.2!important;letter-spacing:.02em!important;box-shadow:none!important;background:transparent!important;color:var(--text,#f5f5f7)!important}
+ .equipment-switch button.active{background:var(--sc-accent,#3478f6)!important;color:#fff!important}
+ .handover-preview-card{box-sizing:border-box!important;margin-top:0!important;align-self:start!important}
+ .handover-preview-card .handover-paper-frame{box-sizing:border-box!important}
+ }`;
+ function apply(frame){try{const doc=frame.contentDocument;if(!doc?.head)return;let style=doc.getElementById('desktop-iframe-consistency-v282');if(!style){style=doc.createElement('style');style.id='desktop-iframe-consistency-v282';doc.head.appendChild(style)}style.textContent=rules;}catch(e){}}
+ for(const id of ['stockCountFrame','handoverFrame']){const frame=document.getElementById(id);if(!frame)continue;frame.addEventListener('load',()=>apply(frame));apply(frame)}
+})();
+</script>
 </body>
 </html>
